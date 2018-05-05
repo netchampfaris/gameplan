@@ -5,6 +5,25 @@
 </template>
 
 <script>
+import frappe from 'frappejs';
+import io from 'socket.io-client';
+import Observable from 'frappejs/utils/observable';
+import HTTPClient from 'frappejs/backends/http';
+import common from 'frappejs/common';
+import models from 'frappejs/models';
+
+const server = 'localhost:7156';
+window.frappe = frappe;
+frappe.init();
+frappe.registerLibs(common);
+frappe.registerModels(models);
+frappe.fetch = window.fetch.bind();
+frappe.db = new HTTPClient({ server });
+this.socket = io.connect(`http://${server}`);
+frappe.db.bindSocketClient(this.socket);
+frappe.docs = new Observable();
+frappe.getSingle('SystemSettings');
+
 export default {
   name: 'App',
 };

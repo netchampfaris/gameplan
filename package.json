@@ -10,10 +10,14 @@
     "unit": "jest --config test/unit/jest.conf.js --coverage",
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "server": "node server/index.js",
+    "watch-frappejs": "watch 'cp -R ~/Projects/frappejs/* ~/Projects/gameplan/node_modules/frappejs && date +%s'"
   },
   "dependencies": {
+    "frappejs": "../frappejs",
     "normalize.css": "^8.0.0",
+    "socket.io-client": "^2.1.0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
