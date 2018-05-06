@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="start-discussion">
     <input type="text" placeholder="Start a discussion...">

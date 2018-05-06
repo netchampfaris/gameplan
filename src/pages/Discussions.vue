@@ -5,30 +5,50 @@
       <input type="text" placeholder="Start a discussion..." @click.prevent="startDiscussion">
     </div>
     <div class="discussion-row-list">
-      <discussion-row>
-        Sukh We’re out of coffee!
-      </discussion-row>
-      <discussion-row>
-        Tee photo shoot and video in Tirupur. More good locations?
+      <discussion-row
+        v-for="discussion of discussionList"
+        v-bind:key="discussion.name"
+        @click.native="openDiscussion(discussion.name)"
+      >
+        {{ discussion.title }}
       </discussion-row>
     </div>
   </div>
 </template>
 
 <script>
+import frappe from 'frappejs';
 import SearchBox from '@/components/SearchBox';
 import DiscussionRow from '@/components/DiscussionRow';
 
 export default {
   name: 'Discussions',
-  methods: {
-    startDiscussion() {
-      this.$router.push('start-a-discussion');
-    },
+  data() {
+    return {
+      discussionList: [],
+    };
   },
   components: {
     SearchBox,
     DiscussionRow,
+  },
+  async beforeCreate() {
+    const discussionList = await frappe.db.getAll({
+      doctype: 'DiscussionBoard',
+      fields: ['name', 'title', 'creation', 'modified', 'owner'],
+      orderBy: 'modified',
+      order: 'desc',
+    });
+
+    this.discussionList = discussionList;
+  },
+  methods: {
+    startDiscussion() {
+      this.$router.push('start-a-discussion');
+    },
+    openDiscussion(name) {
+      this.$router.push(`discussion/${name}`);
+    },
   },
 };
 </script>

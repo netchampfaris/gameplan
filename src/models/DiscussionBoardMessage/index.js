@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   name: 'DiscussionBoardMessage',
   doctype: 'DocType',
   naming: 'random',

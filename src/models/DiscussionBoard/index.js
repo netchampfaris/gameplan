@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   name: 'DiscussionBoard',
   doctype: 'DocType',
   naming: 'random',
@@ -13,6 +13,11 @@ export default {
       label: 'Title',
       fieldtype: 'Data',
       required: 1,
+    },
+    {
+      fieldname: 'content',
+      label: 'Content',
+      fieldtype: 'Text',
     },
   ],
 };

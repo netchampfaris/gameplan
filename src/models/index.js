@@ -1,7 +1,9 @@
-import DiscussionBoard from './DiscussionBoard';
-import DiscussionBoardMessage from './DiscussionBoardMessage';
+const DiscussionBoard = require('./DiscussionBoard');
+const DiscussionBoardMessage = require('./DiscussionBoardMessage');
 
-export default {
-  DiscussionBoard,
-  DiscussionBoardMessage,
+module.exports = {
+  models: {
+    DiscussionBoard,
+    DiscussionBoardMessage,
+  },
 };
