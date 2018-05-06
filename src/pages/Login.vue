@@ -3,26 +3,51 @@
     <div class="login-box">
     <h1>Gameplan</h1>
     <div class="control">
-        <input type="email" name="email" placeholder="User name">
+        <input type="email" name="email" placeholder="User name" v-model="email">
     </div>
     <div class="control">
-        <input type="password" name="password" placeholder="••••••••">
+        <input type="password" name="password" placeholder="••••••••"
+          v-model="password" @keydown.enter="login"
+        >
     </div>
     <div class="login-buttons">
-        <router-link to="">Sign Up</router-link>
-        <router-link to="/discussions">Login</router-link>
+        <a href @click.prevent="signup">Sign Up</a>
+        <a href @click.prevent="login">Login</a>
     </div>
     </div>
   </div>
 </template>
 
 <script>
+import frappe from 'frappejs';
+
 export default {
   name: 'Login',
   data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
+      email: '',
+      password: '',
     };
+  },
+  methods: {
+    async login() {
+      if (this.email && this.password) {
+        await frappe.login(this.email, this.password);
+        frappe.session.fullName = await frappe.db.getValue(
+          'User',
+          this.email,
+          'fullName',
+        );
+        await frappe.getSingle('SystemSettings');
+
+        if (frappe.session.token) {
+          this.$router.push({ path: 'discussions' });
+        }
+      }
+    },
+    signup() {
+      //
+    },
   },
 };
 </script>

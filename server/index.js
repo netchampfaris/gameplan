@@ -1,5 +1,5 @@
 const server = require('frappejs/server');
-
+const models = require('../src/models');
 
 async function start() {
   const isDevEnv = process.env.PRODUCTION || true;
@@ -13,6 +13,7 @@ async function start() {
     },
     staticPath: './dist',
     authConfig: {},
+    models,
   });
 }
 
