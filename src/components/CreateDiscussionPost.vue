@@ -11,15 +11,19 @@
         <div class="owner">
           {{ post.owner }}
         </div>
-        <textarea class="content" placeholder="Content" v-if="isActive"
-          v-model="content" @keydown.meta.enter="postValue">
+        <textarea
+          class="content" placeholder="Content" ref="content"
+          v-if="isActive" v-model="content"
+          @keydown.meta.enter="postValue"
+          @blur="deactivate" @keydown.esc="deactivate"
+        >
         </textarea>
         <div class="action" v-if="isActive">
           <span>Cmd + Enter to post</span>
           <span>Drop files here to attach</span>
         </div>
         <div class="action" v-if="!isActive" style="margin-top: 0.5rem;">
-          <span>Add to this discussion</span>
+          <span @click="activate">Add to this discussion</span>
         </div>
       </div>
     </div>
@@ -36,17 +40,32 @@ export default {
     DiscussionPostWrapper,
     UserAvatar,
   },
-  props: ['post', 'is-original-post', 'is-comment'],
+  props: ['post', 'is-original-post', 'inactive'],
   data() {
     return {
       title: '',
       content: '',
-      isActive: !('isComment' in this),
+      active: this.inactive === undefined || this.inactive === false,
     };
+  },
+  computed: {
+    isActive() {
+      return this.isOriginalPost || this.active;
+    },
   },
   methods: {
     postValue() {
       this.$emit('post-value', this.title, this.content);
+      this.content = '';
+      this.title = '';
+      this.deactivate();
+    },
+    activate() {
+      this.active = true;
+      this.$nextTick().then(() => this.$refs.content.focus());
+    },
+    deactivate() {
+      this.active = false;
     },
   },
   mounted() {

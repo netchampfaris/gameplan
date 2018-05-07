@@ -26,6 +26,11 @@ this.socket = io.connect(`http://${server}`);
 frappe.db.bindSocketClient(this.socket);
 frappe.docs = new Observable();
 
+const session = localStorage.getItem('session');
+if (session) {
+  frappe.session = JSON.parse(session);
+}
+
 export default {
   name: 'App',
 };
@@ -41,6 +46,7 @@ export default {
   --text-black: #2a2e33;
   --text-blue: #4d92df;
   --border-color: #cccccc;
+  --danger: #e94e61;
 }
 
 html {

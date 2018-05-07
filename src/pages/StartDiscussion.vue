@@ -36,6 +36,9 @@ export default {
           doctype: 'DiscussionBoard',
           title,
           content,
+          creation: new Date().toISOString(),
+          owner: frappe.session.user,
+          modifiedBy: frappe.session.user,
         });
         await doc.insert();
 

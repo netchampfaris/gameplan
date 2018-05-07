@@ -9,10 +9,10 @@ module.exports = {
   ],
   fields: [
     {
-      fieldname: 'sender',
-      label: 'Sender',
+      fieldname: 'discussionBoard',
+      label: 'Discussion Board',
       fieldtype: 'Link',
-      target: 'User',
+      target: 'DiscussionBoard',
       required: 1,
     },
     {

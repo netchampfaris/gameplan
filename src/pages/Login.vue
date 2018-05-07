@@ -55,7 +55,7 @@ export default {
     },
     async signup() {
       if (this.email && this.password) {
-        frappe.signup(this.email, this.email, this.password).then(res => {
+        frappe.signup(this.email, this.email, this.password).then((res) => {
           if (res.status && res.status !== 200) {
             this.invalid = true;
             return;
