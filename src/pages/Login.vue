@@ -3,11 +3,14 @@
     <div class="login-box">
     <h1>Gameplan</h1>
     <div class="control">
-        <input type="email" name="email" placeholder="User name" v-model="email">
+        <input type="text" name="email" placeholder="User name"
+          :class="{danger: invalid}" v-model="email" @click="invalid = false"
+        >
+        <div v-if="invalid" class="danger-message danger">Nope.</div>
     </div>
     <div class="control">
         <input type="password" name="password" placeholder="••••••••"
-          v-model="password" @keydown.enter="login"
+          v-model="password" @keydown.enter="login" @click="invalid = false"
         >
     </div>
     <div class="login-buttons">
@@ -27,26 +30,40 @@ export default {
     return {
       email: '',
       password: '',
+      invalid: false,
     };
   },
   methods: {
     async login() {
       if (this.email && this.password) {
+        frappe.session = {};
         await frappe.login(this.email, this.password);
-        frappe.session.fullName = await frappe.db.getValue(
-          'User',
-          this.email,
-          'fullName',
-        );
-        await frappe.getSingle('SystemSettings');
 
         if (frappe.session.token) {
+          frappe.session.fullName = await frappe.db.getValue(
+            'User',
+            this.email,
+            'fullName',
+          );
+          localStorage.setItem('session', JSON.stringify(frappe.session));
+          await frappe.getSingle('SystemSettings');
           this.$router.push({ path: 'discussions' });
+        } else {
+          this.invalid = true;
         }
       }
     },
-    signup() {
-      //
+    async signup() {
+      if (this.email && this.password) {
+        frappe.signup(this.email, this.email, this.password).then(res => {
+          if (res.status && res.status !== 200) {
+            this.invalid = true;
+            return;
+          }
+
+          this.login();
+        });
+      }
     },
   },
 };
@@ -73,10 +90,23 @@ h1 {
 .control {
   text-align: left;
   margin-top: 1rem;
+  position: relative;
 }
 
 input {
   padding: 1rem 0;
+}
+
+.danger {
+  color: var(--danger);
+  border-bottom-color: var(--danger);
+}
+
+.danger-message {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 input[type='password'] {
