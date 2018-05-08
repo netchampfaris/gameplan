@@ -15,7 +15,7 @@
     "watch-frappejs": "watch 'cp -R ~/Projects/frappejs/* ~/Projects/gameplan/node_modules/frappejs && date +%s'"
   },
   "dependencies": {
-    "frappejs": "../frappejs",
+    "frappejs": "^0.0.7",
     "normalize.css": "^8.0.0",
     "sass-loader": "^7.0.1",
     "socket.io-client": "^2.1.0",
