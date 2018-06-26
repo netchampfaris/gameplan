@@ -10,7 +10,7 @@
           {{ post.owner }}
         </div>
         <div class="content">
-          {{ post.content }}
+          <vue-markdown>{{ post.content }}</vue-markdown>
         </div>
       </div>
     </div>
@@ -19,12 +19,14 @@
 <script>
 import DiscussionPostWrapper from '@/components/DiscussionPostWrapper';
 import UserAvatar from '@/components/UserAvatar';
+import VueMarkdown from 'vue-markdown';
 
 export default {
   name: 'DiscussionPost',
   components: {
     UserAvatar,
     DiscussionPostWrapper,
+    VueMarkdown,
   },
   props: ['post', 'is-original-post'],
 };

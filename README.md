@@ -11,6 +11,9 @@ yarn
 # serve with hot reload at localhost:8080
 yarn dev
 
+# start node server in parallel
+yarn server
+
 # build for production with minification
 yarn build
 
