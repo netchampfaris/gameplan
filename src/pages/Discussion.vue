@@ -56,13 +56,14 @@ export default {
     this.comments = comments;
   },
   methods: {
-    async addComment(title, content) {
+    async addComment(title, content, attachments) {
       const doc = frappe.newDoc({
         doctype: 'DiscussionBoardMessage',
         creation: new Date().toISOString(),
         owner: frappe.session.user,
         discussionBoard: this.discussion.name,
         content,
+        attachments,
       });
 
       await doc.insert();

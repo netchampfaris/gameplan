@@ -15,12 +15,19 @@
           class="content" placeholder="Content" ref="content"
           v-if="isActive" v-model="content"
           @keydown.meta.enter="postValue"
-          @blur="deactivate" @keydown.esc="deactivate"
+          @keydown.esc="deactivate"
         >
         </textarea>
+        <div class="attachments" v-if="attachments.length">
+          <div class="attachment" v-for="(attachment, index) in attachments" :key="index">
+            <div v-on:click="handleDelete(index)">x</div>
+            <img v-if="attachment.dataUrl" :src="attachment.dataUrl" />
+            <p v-else> {{ attachment.name }} </p>
+          </div>
+        </div>
         <div class="action" v-if="isActive">
           <span>Cmd + Enter to post</span>
-          <span>Drop files here to attach</span>
+          <attachment-drop v-on:file-attached="handleAttachment"></attachment-drop>
         </div>
         <div class="action" v-if="!isActive" style="margin-top: 0.5rem;">
           <span @click="activate">Add to this discussion</span>
@@ -33,18 +40,22 @@
 <script>
 import DiscussionPostWrapper from '@/components/DiscussionPostWrapper';
 import UserAvatar from '@/components/UserAvatar';
+import AttachmentDrop from '@/components/AttachmentDrop';
 
 export default {
   name: 'CreateDiscussionPost',
   components: {
     DiscussionPostWrapper,
     UserAvatar,
+    AttachmentDrop,
   },
   props: ['post', 'is-original-post', 'inactive'],
   data() {
     return {
       title: '',
       content: '',
+      attachments: [],
+      attachmentsPath: [],
       active: this.inactive === undefined || this.inactive === false,
     };
   },
@@ -55,9 +66,11 @@ export default {
   },
   methods: {
     postValue() {
-      this.$emit('post-value', this.title, this.content);
+      this.$emit('post-value', this.title, this.content, this.attachmentsPath);
       this.content = '';
       this.title = '';
+      this.attachments = [];
+      this.attachmentsPath = [];
       this.deactivate();
     },
     activate() {
@@ -66,6 +79,24 @@ export default {
     },
     deactivate() {
       this.active = false;
+    },
+    handleAttachment(attachedFiles, attachedFilesPath) {
+      this.attachments = attachedFiles;
+      attachedFilesPath.forEach((element) => {
+        const withoutBrackets = element.substring(14, element.length - 2);
+        if (!this.attachmentsPath.some(attachment => attachment.path === withoutBrackets)) {
+          this.attachmentsPath.push({ path: withoutBrackets });
+        }
+      });
+    },
+    handleDelete(index) {
+      this.attachments.splice(index, 1);
+      this.attachmentsPath.splice(index, 1);
+      // this
+      // .$http
+      // .post('delete/')
+      // .then()
+      // .catch()
     },
   },
   mounted() {
@@ -92,12 +123,36 @@ textarea.content {
   padding: 0;
   background-color: transparent;
   width: 100%;
-  min-height: 10rem;
+  min-height: 5rem;
+  overflow: visible;
   resize: none;
   caret-color: var(--text-blue);
 }
 
 textarea.content::placeholder {
   color: var(--text-grey);
+}
+.attachments{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.attachment{
+  position: relative;
+  margin: 1px;
+  margin-left: 0px;
+  min-width: 120px;
+  min-height: 120px;
+  border: 1px solid var(--border-color);
+}
+.attachment div{
+  background-color: var(--light-bg);
+  position: absolute;
+  padding: 0px 2px;
+  right: 0;
+}
+.attachment p{
+  color: var(--text-black);
+  text-align: center;
 }
 </style>

@@ -11,7 +11,7 @@ async function start() {
       port: 7156,
       enableCORS: isDevEnv,
     },
-    staticPath: './dist',
+    staticPath: './dist/static',
     authConfig: {},
     models,
   });
