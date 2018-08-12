@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import VueClip from 'vue-clip';
+import VueResource from 'vue-resource';
 import App from './App';
 import router from './router';
 
@@ -32,6 +33,7 @@ if (session) {
 }
 
 Vue.use(VueClip);
+Vue.use(VueResource);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */

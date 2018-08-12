@@ -3,9 +3,6 @@
     <div slot="clip-uploader-action">
         <div class="dz-message"><span> Drop files here upload </span></div>
     </div>
-    <!-- <div slot="clip-uploader-body" slot-scope="props">
-      <div v-for="(file, index) in props.files" :key="index" ></div>
-    </div> -->
   </vue-clip>
 </template>
 

@@ -91,12 +91,10 @@ export default {
     },
     handleDelete(index) {
       this.attachments.splice(index, 1);
-      this.attachmentsPath.splice(index, 1);
-      // this
-      // .$http
-      // .post('delete/')
-      // .then()
-      // .catch()
+      const fileToDelete = this.attachmentsPath.splice(index, 1)
+      this.$http.delete('/api/upload/' + fileToDelete[0].path).then(response => {
+        if(response.status != 200) throw response.json
+      })
     },
   },
   mounted() {

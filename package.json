@@ -18,7 +18,8 @@
     "frappejs": "^0.0.9",
     "normalize.css": "^8.0.0",
     "vue-clip": "^1.0.0",
-    "vue-markdown": "^2.2.4"
+    "vue-markdown": "^2.2.4",
+    "vue-resource": "^1.5.1"
   },
   "engines": {
     "node": ">= 6.0.0",
