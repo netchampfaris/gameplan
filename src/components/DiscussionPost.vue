@@ -14,7 +14,7 @@
         </div>
         <div class="attachments" v-if="post.attachments">
           <div class="attachment" v-for="(attachment, index) in post.attachments" :key="index">
-            <img :src="'http://localhost:7156/' + attachment.path" />
+            <img :src="attachment.path" />
           </div>
         </div>
       </div>

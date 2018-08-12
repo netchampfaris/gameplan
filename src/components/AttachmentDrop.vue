@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       options: {
-        url: process.env.PRODUCTION ? '/api/upload' : 'http://localhost:7156/api/upload',
+        url: '/api/upload',
         paramName: 'attachments',
       },
       attachments: [],

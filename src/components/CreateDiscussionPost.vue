@@ -83,7 +83,7 @@ export default {
     handleAttachment(attachedFiles, attachedFilesPath) {
       this.attachments = attachedFiles;
       attachedFilesPath.forEach((element) => {
-        const withoutBrackets = element.substring(14, element.length - 2);
+        const withoutBrackets = element.substring(9, element.length - 2);
         if (!this.attachmentsPath.some(attachment => attachment.path === withoutBrackets)) {
           this.attachmentsPath.push({ path: withoutBrackets });
         }
