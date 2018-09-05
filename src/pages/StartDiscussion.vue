@@ -30,13 +30,12 @@ export default {
     };
   },
   methods: {
-    async newDiscussion(title, content, attachments) {
+    async newDiscussion(title, content) {
       if (title && content) {
         const doc = frappe.newDoc({
           doctype: 'DiscussionBoard',
           title,
           content,
-          attachments,
           creation: new Date().toISOString(),
           owner: frappe.session.user,
           modifiedBy: frappe.session.user,

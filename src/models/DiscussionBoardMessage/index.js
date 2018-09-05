@@ -20,12 +20,6 @@ module.exports = {
       label: 'Content',
       fieldtype: 'Long Text',
       required: 1,
-    },
-    {
-      fieldname: 'attachments',
-      label: 'Attachments',
-      fieldtype: 'Table',
-      childtype: 'AttachmentPath',
-    },
+    }
   ],
 };

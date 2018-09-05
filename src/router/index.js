@@ -1,3 +1,4 @@
+import frappe from 'frappejs';
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '@/pages/Login';
@@ -7,7 +8,7 @@ import Discussion from '@/pages/Discussion';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/login',
@@ -31,3 +32,15 @@ export default new Router({
     },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  // const currentUser = frappe.db.getAll('User');
+  // console.log(currentUser)
+  // let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  // if (requiresAuth && !currentUser) next('login');
+  // else if (!requiresAuth && currentUser) next('/');
+  next()
+});
+
+export default router;

@@ -27,7 +27,9 @@
         </div>
         <div class="action" v-if="isActive">
           <span>Cmd + Enter to post</span>
-          <attachment-drop v-on:file-attached="handleAttachment"></attachment-drop>
+          <attachment-drop 
+            v-bind:refDocType="'DiscussionBoard'" v-bind:refName="post.owner" v-bind:refFieldName="title"
+            v-on:file-attached="handleAttachment"></attachment-drop>
         </div>
         <div class="action" v-if="!isActive" style="margin-top: 0.5rem;">
           <span @click="activate">Add to this discussion</span>
@@ -55,7 +57,6 @@ export default {
       title: '',
       content: '',
       attachments: [],
-      attachmentsPath: [],
       active: this.inactive === undefined || this.inactive === false,
     };
   },
@@ -66,11 +67,10 @@ export default {
   },
   methods: {
     postValue() {
-      this.$emit('post-value', this.title, this.content, this.attachmentsPath);
+      this.$emit('post-value', this.title, this.content);
       this.content = '';
       this.title = '';
       this.attachments = [];
-      this.attachmentsPath = [];
       this.deactivate();
     },
     activate() {
@@ -80,21 +80,11 @@ export default {
     deactivate() {
       this.active = false;
     },
-    handleAttachment(attachedFiles, attachedFilesPath) {
+    handleAttachment(attachedFiles) {
       this.attachments = attachedFiles;
-      attachedFilesPath.forEach((element) => {
-        const withoutBrackets = element.substring(9, element.length - 2);
-        if (!this.attachmentsPath.some(attachment => attachment.path === withoutBrackets)) {
-          this.attachmentsPath.push({ path: withoutBrackets });
-        }
-      });
     },
     handleDelete(index) {
       this.attachments.splice(index, 1);
-      const fileToDelete = this.attachmentsPath.splice(index, 1)
-      this.$http.delete('/api/upload/' + fileToDelete[0].path).then(response => {
-        if(response.status != 200) throw response.json
-      })
     },
   },
   mounted() {

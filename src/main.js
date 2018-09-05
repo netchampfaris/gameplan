@@ -1,7 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
-import VueClip from 'vue-clip';
 import VueResource from 'vue-resource';
 import App from './App';
 import router from './router';
@@ -32,7 +31,6 @@ if (session) {
   frappe.session = JSON.parse(session);
 }
 
-Vue.use(VueClip);
 Vue.use(VueResource);
 Vue.config.productionTip = false;
 
