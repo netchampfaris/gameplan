@@ -28,7 +28,6 @@
         <div class="action" v-if="isActive">
           <span>Cmd + Enter to post</span>
           <attachment-drop 
-            v-bind:refDocType="'DiscussionBoard'" v-bind:refName="post.owner" v-bind:refFieldName="title"
             v-on:file-attached="handleAttachment"></attachment-drop>
         </div>
         <div class="action" v-if="!isActive" style="margin-top: 0.5rem;">
@@ -67,7 +66,7 @@ export default {
   },
   methods: {
     postValue() {
-      this.$emit('post-value', this.title, this.content);
+      this.$emit('post-value', this.title, this.content, this.attachments);
       this.content = '';
       this.title = '';
       this.attachments = [];
@@ -85,6 +84,7 @@ export default {
     },
     handleDelete(index) {
       this.attachments.splice(index, 1);
+      this.$root.$emit('attachment-delete', this.attachments)
     },
   },
   mounted() {
@@ -141,6 +141,7 @@ textarea.content::placeholder {
 }
 .attachment p{
   color: var(--text-black);
+  font-family: 'Roboto Slab', serif;
   text-align: center;
 }
 </style>

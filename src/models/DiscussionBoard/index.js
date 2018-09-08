@@ -18,6 +18,11 @@ module.exports = {
       fieldname: 'content',
       label: 'Content',
       fieldtype: 'Text',
+    },
+    {
+      fieldname: 'attachments',
+      label: 'Attachments',
+      fieldtype: 'File'
     }
   ],
 };

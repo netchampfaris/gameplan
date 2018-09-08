@@ -34,7 +34,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  // const currentUser = frappe.db.getAll('User');
+  // const currentUser = frappe.session;
   // console.log(currentUser)
   // let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
