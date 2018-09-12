@@ -33,6 +33,8 @@ const router = new Router({
   ],
 });
 
+// frappe.events.on('Unauthorized')
+
 router.beforeEach((to, from, next) => {
   // const currentUser = frappe.session;
   // console.log(currentUser)

@@ -13,8 +13,11 @@
           <vue-markdown>{{ post.content }}</vue-markdown>
         </div>
         <div class="attachments" v-if="post.attachments">
-          <div class="attachment" v-for="(attachment, index) in post.attachments" :key="index">
-            <img :src="attachment.path" />
+          <div v-for="attachment of post.attachments">
+            <img class="attachment"
+              v-if="(attachment.mimetype).toString().includes('image')"
+              v-bind:key="attachment.filename" :src="attachment.name"/>
+              <p class="attachment preview-name" v-else> {{ attachment.filename }} </p>
           </div>
         </div>
       </div>
@@ -33,10 +36,7 @@ export default {
     DiscussionPostWrapper,
     VueMarkdown,
   },
-  props: ['post', 'is-original-post'],
-  beforeMount() {
-
-  },
+  props: ['post', 'is-original-post']
 };
 </script>
 <style scoped>
@@ -49,12 +49,15 @@ export default {
   position: relative;
   margin: 1px;
   margin-left: 0px;
-  /* min-width: 120px; */
+  min-width: 120px;
   min-height: 120px;
+  max-height: 120px;
   border: 1px solid var(--border-color);
 }
-.attachment > img {
-  max-height: 120px;
-  /* max-width: 120px; */
+.preview-name{
+  color: var(--text-black);
+  font-family: 'Roboto Slab', serif;
+  text-align: center;
+  text-overflow: clip;
 }
 </style>

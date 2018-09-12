@@ -15,9 +15,9 @@
     "watch-frappejs": "watch 'cp -R ~/Projects/frappejs/* ~/Projects/gameplan/node_modules/frappejs && date +%s'"
   },
   "dependencies": {
+    "filepreviews": "^2.0.1",
     "frappejs": "^0.0.9",
     "normalize.css": "^8.0.0",
-    "vue-clip": "^1.0.0",
     "vue-markdown": "^2.2.4",
     "vue-resource": "^1.5.1"
   },

@@ -4,9 +4,6 @@ import Vue from 'vue';
 import VueResource from 'vue-resource';
 import App from './App';
 import router from './router';
-import VueClip from 'vue-clip'
-
-
 
 import frappe from 'frappejs';
 import io from 'socket.io-client';
@@ -34,7 +31,6 @@ if (session) {
   frappe.session = JSON.parse(session);
 }
 
-Vue.use(VueClip)
 Vue.use(VueResource);
 Vue.config.productionTip = false;
 

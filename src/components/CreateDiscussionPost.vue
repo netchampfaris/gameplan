@@ -20,15 +20,14 @@
         </textarea>
         <div class="attachments" v-if="attachments.length">
           <div class="attachment" v-for="(attachment, index) in attachments" :key="index">
-            <div v-on:click="handleDelete(index)">x</div>
-            <img v-if="attachment.dataUrl" :src="attachment.dataUrl" />
-            <p v-else> {{ attachment.name }} </p>
+            <img class="delete-icon" width="10px"src="@/assets/deleteIcon.svg" alt="Delete Icon" v-on:click="handleDelete(index)">
+            <img width="120px" v-if="attachment.base64" :src="attachment.base64" />
+            <p class="preview-name" v-else> {{ attachment.name }} </p>
           </div>
         </div>
         <div class="action" v-if="isActive">
           <span>Cmd + Enter to post</span>
-          <attachment-drop 
-            v-on:file-attached="handleAttachment"></attachment-drop>
+          <attachment-drop v-on:file-attached="handleAttachment"></attachment-drop>
         </div>
         <div class="action" v-if="!isActive" style="margin-top: 0.5rem;">
           <span @click="activate">Add to this discussion</span>
@@ -79,8 +78,8 @@ export default {
     deactivate() {
       this.active = false;
     },
-    handleAttachment(attachedFiles) {
-      this.attachments = attachedFiles;
+    handleAttachment(attachments) {
+      this.attachments = attachments;
     },
     handleDelete(index) {
       this.attachments.splice(index, 1);
@@ -133,13 +132,13 @@ textarea.content::placeholder {
   min-height: 120px;
   border: 1px solid var(--border-color);
 }
-.attachment div{
+.delete-icon{
   background-color: var(--light-bg);
   position: absolute;
-  padding: 0px 2px;
+  padding: 4px;
   right: 0;
 }
-.attachment p{
+.preview-name{
   color: var(--text-black);
   font-family: 'Roboto Slab', serif;
   text-align: center;

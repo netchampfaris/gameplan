@@ -1,23 +1,16 @@
 <template>
   <div class="container">
-    <input type="file" ref="fileInput" id="fileInput" @input="filesChange" multiple>
-    <div class="dz-message">Click or Drag and Drop files here upload</div>
+    <input type="file" ref="fileInput" class="file-input" @input="filesChange" multiple>
+    <div class="message">Click or Drag and Drop files here upload</div>
   </div>
 </template>
 
 <script>
-import frappe from 'frappejs'
-import { EventEmitter } from 'events';
-
 export default {
   name: 'AttachmentDrop',
   data() {
     return {
-      uploadedFiles: [],
-      options: {
-        url: '/upload',
-        paramName: 'file'
-      }
+      uploadedFiles: []
     };
   },
   beforeMount() {
@@ -26,15 +19,25 @@ export default {
     })
   },
   methods: {
-    // triggerInput() {
-    //   this.$refs.fileInput.click()
-    // },
     async filesChange(event) {
-      Array.from(event.target.files).forEach( f => {
-        if(!this.uploadedFiles.some( file => file.name === f.name )){
-          this.uploadedFiles.push(f)
+      Array.from(event.target.files).forEach(file => {
+        if(!this.uploadedFiles.some( f => f.name === file.name )){ // Check if already attached
+          if(file.type.match('image.*')){ //Generate preview using base64 string
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+              file.base64 = reader.result
+              this.uploadedFiles.push(file)
+            };
+            reader.onerror = (error) => {
+              console.log('Error converting to base64: ', error);
+            };
+          } else {
+            this.uploadedFiles.push(file)
+          }
         }
       })
+      this.$refs.fileInput.value = ''
       this.$emit('file-attached', this.uploadedFiles);
     }
   }
@@ -46,13 +49,13 @@ export default {
   position: relative;
 }
 
-.dz-message{
+.message{
   color: var(--text-grey);
   font-size: 1.2rem;
   font-weight: 300;
   cursor: pointer;
 }
-input{
+.file-input{
   cursor: pointer;
   padding: 0;
   opacity: 0;
