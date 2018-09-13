@@ -14,10 +14,12 @@
         </div>
         <div class="attachments" v-if="post.attachments">
           <div v-for="attachment of post.attachments">
-            <img class="attachment"
+            <a :href="attachment.name" target="_blank">
+              <img class="attachment" :href="attachment.name"
               v-if="(attachment.mimetype).toString().includes('image')"
-              v-bind:key="attachment.filename" :src="attachment.name"/>
+              v-bind:key="attachment.filename" :src="attachment.name + '?dim=120x120'"/>
               <p class="attachment preview-name" v-else> {{ attachment.filename }} </p>
+            </a>
           </div>
         </div>
       </div>
