@@ -27,6 +27,11 @@ html {
   font-size: 14px;
 }
 
+body{
+  margin: 0;
+}
+
+
 #app {
   font-family: 'Roboto Slab', serif;
   background-color: var(--light-bg);

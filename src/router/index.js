@@ -30,21 +30,18 @@ const router = new Router({
       name: 'Discussion',
       component: Discussion,
     },
+    {
+      path: '*',
+      redirect: '/discussions'
+    },
   ],
 });
 
-// frappe.events.on('Unauthorized', () => {
-//   console.log('sa');
-// })
-
-router.beforeEach((to, from, next) => {
-  // const currentUser = frappe.session;
-  // console.log(currentUser)
-  // let requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-
-  // if (requiresAuth && !currentUser) next('login');
-  // else if (!requiresAuth && currentUser) next('/');
-  next()
-});
+router.onReady(() => {
+  frappe.events.on('Unauthorized', () => {
+    console.log('Log in first')
+    router.replace('login')
+  })
+})  
 
 export default router;
