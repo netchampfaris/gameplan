@@ -1,3 +1,4 @@
+import frappe from 'frappejs';
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '@/pages/Login';
@@ -7,7 +8,7 @@ import Discussion from '@/pages/Discussion';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/login',
@@ -29,5 +30,18 @@ export default new Router({
       name: 'Discussion',
       component: Discussion,
     },
+    {
+      path: '*',
+      redirect: '/discussions'
+    },
   ],
 });
+
+router.onReady(() => {
+  frappe.events.on('Unauthorized', () => {
+    console.log('Log in first')
+    router.replace('login')
+  })
+})  
+
+export default router;

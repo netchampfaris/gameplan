@@ -5,7 +5,7 @@
       <discussion-post :post="discussion" :is-original-post="true"></discussion-post>
       <discussion-post
         v-for="comment of comments" :post="comment"
-        v-bind:key="comment.name"
+        :key="comment.name"
       ></discussion-post>
       <create-discussion-post
         :post="userPost" :inactive="!addCommentActive"
@@ -42,33 +42,71 @@ export default {
   async beforeCreate() {
     const name = this.$route.params.name;
     const discussion = await frappe.getDoc('DiscussionBoard', name);
-    this.discussion = discussion;
+    this.comments = await this.getComments(name);
 
-    const comments = await frappe.db.getAll({
-      doctype: 'DiscussionBoardMessage',
-      fields: ['name', 'content', 'owner', 'creation', 'modified'],
+    let attachments = await frappe.db.getAll({
+      doctype: 'File',
+      fields: ['name', 'filename', 'mimetype', 'size'],
       filters: {
-        discussionBoard: this.discussion.name,
-      },
-      orderBy: 'creation',
-      order: 'asc',
+        referenceDoctype: 'DiscussionBoard',
+        referenceName: name
+      }
     });
-    this.comments = comments;
+    discussion.attachments = attachments;
+    this.discussion = discussion;
   },
   methods: {
-    async addComment(title, content) {
+    async addComment(title, content, attachments) {
       const doc = frappe.newDoc({
         doctype: 'DiscussionBoardMessage',
         creation: new Date().toISOString(),
         owner: frappe.session.user,
         discussionBoard: this.discussion.name,
         content,
+        attachments
       });
 
       await doc.insert();
-      this.comments.push(doc);
+      this.addNewComment(doc);
       this.addCommentActive = false;
     },
+    async addNewComment(comment) {
+      let newComment = comment;
+      let commentAttachments = await frappe.db.getAll({
+        doctype: 'File',
+        fields: ['name', 'filename', 'mimetype', 'size'],
+        filters: {
+          referenceDoctype: 'DiscussionBoardMessage',
+          referenceName: comment.name
+        }
+      });
+      newComment.attachments = commentAttachments
+      this.comments.push(newComment);
+    },
+    async getComments(discussionName){
+      let comments = await frappe.db.getAll({
+        doctype: 'DiscussionBoardMessage',
+        fields: ['name', 'content', 'owner', 'creation', 'modified'],
+        filters: {
+          discussionBoard: discussionName,
+        },
+        orderBy: 'creation',
+        order: 'asc',
+      });
+
+      comments.forEach( async (comment) => {
+        let commentAttachments = await frappe.db.getAll({
+          doctype: 'File',
+          fields: ['name', 'filename', 'mimetype', 'size'],
+          filters: {
+            referenceDoctype: 'DiscussionBoardMessage',
+            referenceName: comment.name
+          }
+        });
+        comment.attachments = commentAttachments
+      })
+      return comments;
+    }
   },
 };
 </script>

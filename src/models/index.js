@@ -4,6 +4,6 @@ const DiscussionBoardMessage = require('./DiscussionBoardMessage');
 module.exports = {
   models: {
     DiscussionBoard,
-    DiscussionBoardMessage,
+    DiscussionBoardMessage
   },
 };

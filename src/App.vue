@@ -5,32 +5,6 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import io from 'socket.io-client';
-import Observable from 'frappejs/utils/observable';
-import HTTPClient from 'frappejs/backends/http';
-import common from 'frappejs/common';
-import coreModels from 'frappejs/models';
-import models from './models';
-
-const server = 'localhost:7156';
-window.frappe = frappe;
-frappe.init();
-frappe.registerLibs(common);
-frappe.registerModels(coreModels);
-frappe.registerModels(models);
-
-frappe.fetch = window.fetch.bind();
-frappe.db = new HTTPClient({ server });
-this.socket = io.connect(`http://${server}`);
-frappe.db.bindSocketClient(this.socket);
-frappe.docs = new Observable();
-
-const session = localStorage.getItem('session');
-if (session) {
-  frappe.session = JSON.parse(session);
-}
-
 export default {
   name: 'App',
 };
@@ -38,7 +12,7 @@ export default {
 
 <style>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700');
-@import 'normalize.css/normalize.css';
+/* @import 'normalize.css/normalize.css'; */
 
 :root {
   --light-bg: #f7f7f7;
@@ -52,6 +26,11 @@ export default {
 html {
   font-size: 14px;
 }
+
+body{
+  margin: 0;
+}
+
 
 #app {
   font-family: 'Roboto Slab', serif;

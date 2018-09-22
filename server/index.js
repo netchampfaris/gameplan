@@ -8,10 +8,8 @@ async function start() {
     backend: 'sqlite',
     connectionParams: {
       dbPath: 'gameplan.db',
-      port: 7156,
       enableCORS: isDevEnv,
     },
-    staticPath: './dist',
     authConfig: {},
     models,
   });
