@@ -40,8 +40,8 @@ const router = new Router({
 router.onReady(() => {
   frappe.events.on('Unauthorized', () => {
     console.log('Log in first')
-    router.replace('login')
+    router.replace('/login')
   })
-})  
+})
 
 export default router;
