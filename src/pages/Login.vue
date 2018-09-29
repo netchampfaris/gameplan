@@ -113,6 +113,10 @@ input[type='password'] {
   letter-spacing: 5px;
 }
 
+input:-webkit-autofill {
+  box-shadow: 0 0 0 30px var(--light-bg) inset;
+}
+
 .login-buttons {
   display: flex;
   justify-content: space-between;
