@@ -13,11 +13,11 @@
           <vue-markdown>{{ post.content }}</vue-markdown>
         </div>
         <div class="attachments" v-if="post.attachments">
-          <div v-for="attachment of post.attachments">
+          <div v-for="(attachment, index) of post.attachments" :key="index">
             <a :href="attachment.name" target="_blank">
-              <img class="attachment" :href="attachment.name"
+              <img class="attachment-img" :href="attachment.name"
               v-if="(attachment.mimetype).toString().includes('image')"
-              v-bind:key="attachment.filename" :src="attachment.name + '?dim=120x120'"/>
+              v-bind:key="attachment.filename" :src="attachment.name + '?size=120x120'"/>
               <p class="attachment preview-name" v-else> {{ attachment.filename }} </p>
             </a>
           </div>
@@ -47,14 +47,15 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
 }
-.attachment{
+.attachment-img{
   position: relative;
   margin: 1px;
   margin-left: 0px;
   min-width: 120px;
-  min-height: 120px;
   max-height: 120px;
   border: 1px solid var(--border-color);
+  width: 120px;
+  display: block;
 }
 .preview-name{
   color: var(--text-black);

@@ -20,7 +20,7 @@
         <div class="attachments" v-if="attachments.length">
           <div class="attachment" v-for="(attachment, index) in attachments" :key="index">
             <img class="delete-icon" width="10px" src="@/assets/deleteIcon.svg" alt="Delete Icon" v-on:click="handleDelete(index)">
-            <img width="120px" v-if="attachment.base64" :src="attachment.base64" />
+            <img class="attachment-img" width="120px" v-if="attachment.base64" :src="attachment.base64" />
             <p class="preview-name" v-else> {{ attachment.name }} </p>
           </div>
         </div>
@@ -132,6 +132,12 @@ textarea.content::placeholder {
   min-height: 120px;
   border: 1px solid var(--border-color);
 }
+
+.attachment-img{
+  width: 120px;
+  display: block;
+}
+
 .delete-icon{
   background-color: var(--light-bg);
   position: absolute;
