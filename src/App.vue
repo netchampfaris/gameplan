@@ -21,6 +21,7 @@ export default {
   --text-blue: #4d92df;
   --border-color: #cccccc;
   --danger: #e94e61;
+  --font-stack: 'Roboto Slab', serif;
 }
 
 html {
@@ -33,7 +34,7 @@ body{
 
 
 #app {
-  font-family: 'Roboto Slab', serif;
+  font-family: var(--font-stack);
   background-color: var(--light-bg);
   min-height: 100vh;
 }

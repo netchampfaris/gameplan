@@ -11,16 +11,15 @@
         <div class="owner">
           {{ post.owner }}
         </div>
-        <textarea
-          class="content" placeholder="Content" ref="content"
-          v-if="isActive" v-model="content"
-          @keydown.meta.enter="postValue"
-          @keydown.esc="deactivate"
-        >
-        </textarea>
+        <content-editor
+          v-model="content"
+          v-if="isActive"
+          @submit="postValue"
+          @escape="deactivate"
+        />
         <div class="attachments" v-if="attachments.length">
           <div class="attachment" v-for="(attachment, index) in attachments" :key="index">
-            <img class="delete-icon" width="10px"src="@/assets/deleteIcon.svg" alt="Delete Icon" v-on:click="handleDelete(index)">
+            <img class="delete-icon" width="10px" src="@/assets/deleteIcon.svg" alt="Delete Icon" v-on:click="handleDelete(index)">
             <img width="120px" v-if="attachment.base64" :src="attachment.base64" />
             <p class="preview-name" v-else> {{ attachment.name }} </p>
           </div>
@@ -41,6 +40,7 @@
 import DiscussionPostWrapper from '@/components/DiscussionPostWrapper';
 import UserAvatar from '@/components/UserAvatar';
 import AttachmentDrop from '@/components/AttachmentDrop';
+import ContentEditor from './ContentEditor';
 
 export default {
   name: 'CreateDiscussionPost',
@@ -48,6 +48,7 @@ export default {
     DiscussionPostWrapper,
     UserAvatar,
     AttachmentDrop,
+    ContentEditor
   },
   props: ['post', 'is-original-post', 'inactive'],
   data() {
@@ -73,7 +74,6 @@ export default {
     },
     activate() {
       this.active = true;
-      this.$nextTick().then(() => this.$refs.content.focus());
     },
     deactivate() {
       this.active = false;
