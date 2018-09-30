@@ -18,7 +18,10 @@
               <img class="attachment-img" :href="attachment.name"
               v-if="(attachment.mimetype).toString().includes('image')"
               v-bind:key="attachment.filename" :src="attachment.name + '?size=120x120'"/>
-              <p class="attachment preview-name" v-else> {{ attachment.filename }} </p>
+              <div class="attachment preview-name" v-else>
+                <img src="@/assets/paperclip.svg" alt="Delete Icon">
+                <div> {{ attachment.filename }} </div>
+              </div>
             </a>
           </div>
         </div>
@@ -47,6 +50,13 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
 }
+
+.attachment{
+  min-width: 120px;
+  max-height: 120px;
+  box-shadow: 0 0 0 1px white, 0 0 0 2px #ebebeb;
+}
+
 .attachment-img{
   position: relative;
   margin: 1px;
@@ -57,10 +67,23 @@ export default {
   width: 120px;
   display: block;
 }
+
 .preview-name{
-  color: var(--text-black);
+  width: 100%;
+  height: 40px;
+  color: var(--text-grey);
+  font-weight: 550;
   font-family: 'Roboto Slab', serif;
-  text-align: center;
-  text-overflow: clip;
+  background-color: #fff;
+  display: flex;
+  flex-direction: row;
+}
+.preview-name > img{
+  margin: 0.6rem;
+}
+.preview-name > div{
+  white-space: nowrap;
+  margin: 0.75rem;
+  margin-right: 24px;
 }
 </style>
