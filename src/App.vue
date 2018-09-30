@@ -5,14 +5,33 @@
 </template>
 
 <script>
+import frappe from 'frappejs';
+import nprogress from 'nprogress';
+
+nprogress.configure({ showSpinner: false });
+
 export default {
   name: 'App',
+  mounted() {
+    this.$nprogress = nprogress;
+    frappe.events.on('http:ajaxStart', () => {
+      if (nprogress.isStarted()) {
+        nprogress.inc();
+      } else {
+        nprogress.start();
+      }
+    });
+
+    frappe.events.on('http:ajaxStop', () => {
+      nprogress.done();
+    });
+  }
 };
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700');
-/* @import 'normalize.css/normalize.css'; */
+@import "~nprogress/nprogress.css";
 
 :root {
   --light-bg: #f7f7f7;
@@ -53,5 +72,15 @@ input {
 
 input::placeholder {
   color: var(--text-grey);
+}
+
+/* nprogress */
+
+body #nprogress .bar {
+  background: var(--text-blue);
+}
+
+body #nprogress .peg {
+  box-shadow: 0 0 10px var(--text-blue), 0 0 5px var(--text-blue);
 }
 </style>
