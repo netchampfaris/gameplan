@@ -15,7 +15,8 @@
     "watch-frappejs": "watch 'cp -R ~/Projects/frappejs/* ~/Projects/gameplan/node_modules/frappejs && date +%s'"
   },
   "dependencies": {
-    "frappejs": "^0.0.9",
+    "date-fns": "^1.29.0",
+    "frappejs": "^0.0.10",
     "normalize.css": "^8.0.0",
     "nprogress": "^0.2.0",
     "vue-markdown": "^2.2.4",

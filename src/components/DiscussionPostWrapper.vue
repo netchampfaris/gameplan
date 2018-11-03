@@ -41,7 +41,7 @@ export default {
     margin-top: 1rem;
     font-weight: 300;
     font-size: 1.2rem;
-    line-height: 1.8rem;
+    line-height: 2rem;
   }
 
   .action {
