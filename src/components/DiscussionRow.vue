@@ -33,7 +33,7 @@ export default {
 
 .discussion-row:hover {
   background-color: #fff;
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius);
 }
 
 .subject {

@@ -17,7 +17,7 @@ export default {
     align-items: flex-start;
     padding: 2rem;
     margin-left: -2.1rem;
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius);
   }
 
   .body {
@@ -25,9 +25,19 @@ export default {
     width: 100%;
   }
 
+  .head {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .title {
     font-size: 1.5rem;
     line-height: 2.25rem;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
   }
 
   .owner {

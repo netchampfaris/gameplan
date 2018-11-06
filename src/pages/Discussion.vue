@@ -2,15 +2,21 @@
   <div class="discussion">
     <back-to-discussions></back-to-discussions>
     <div v-if="discussion">
-      <discussion-post :post="discussion" :is-original-post="true"></discussion-post>
       <discussion-post
-        v-for="comment of comments" :post="comment"
+        :post="discussion"
+        :is-original-post="true"
+        @delete="deleteDiscussion"
+      />
+      <discussion-post
+        v-for="comment of comments"
         :key="comment.name"
-      ></discussion-post>
+        :post="comment"
+      />
       <create-discussion-post
-        :post="userPost" :inactive="!addCommentActive"
-        v-on:post-value="addComment"
-      ></create-discussion-post>
+        :post="userPost"
+        :inactive="!addCommentActive"
+        @post-value="addComment"
+      />
     </div>
   </div>
 </template>
@@ -82,6 +88,10 @@ export default {
       });
       newComment.attachments = commentAttachments
       this.comments.push(newComment);
+    },
+    async deleteDiscussion() {
+      await frappe.db.delete('DiscussionBoard', this.$route.params.name);
+      this.$router.push('/discussions');
     },
     async getComments(discussionName){
       let comments = await frappe.db.getAll({

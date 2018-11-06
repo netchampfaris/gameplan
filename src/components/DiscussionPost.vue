@@ -3,15 +3,19 @@
     <div class="post">
       <user-avatar :user="post.owner"></user-avatar>
       <div class="body">
-        <div class="title" v-if="isOriginalPost">
-          {{ post.title }}
+        <div class="head" v-if="isOriginalPost">
+          <span class="title">{{ post.title }}</span>
+          <span class="actions" v-if="isOriginalPost">
+            <more-actions :items="actionItems" />
+          </span>
         </div>
-        <div class="owner">
-          {{ post.owner }}
+        <div class="owner head">
+          <span>{{ post.owner }}</span>
+          <span class="actions" v-if="!isOriginalPost">
+            <more-actions :items="actionItems" />
+          </span>
         </div>
-        <div class="content">
-          <vue-markdown>{{ post.content }}</vue-markdown>
-        </div>
+        <div class="content" v-html="post.content"></div>
         <div class="attachments" v-if="post.attachments">
           <div v-for="(attachment, index) of post.attachments" :key="index">
             <a :href="attachment.name" target="_blank">
@@ -32,16 +36,30 @@
 <script>
 import DiscussionPostWrapper from '@/components/DiscussionPostWrapper';
 import UserAvatar from '@/components/UserAvatar';
-import VueMarkdown from 'vue-markdown';
+import MoreActions from '@/components/MoreActions';
 
 export default {
   name: 'DiscussionPost',
   components: {
     UserAvatar,
     DiscussionPostWrapper,
-    VueMarkdown,
+    MoreActions
   },
-  props: ['post', 'is-original-post']
+  props: ['post', 'is-original-post'],
+  data() {
+    return {
+      actionItems: [
+        {
+          icon: 'edit-2',
+          action: () => this.$emit('edit')
+        },
+        {
+          icon: 'x',
+          action: () => this.$emit('delete')
+        }
+      ]
+    }
+  }
 };
 </script>
 <style scoped>

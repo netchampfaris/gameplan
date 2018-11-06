@@ -41,6 +41,7 @@ export default {
   --border-color: #cccccc;
   --danger: #e94e61;
   --font-stack: 'Roboto Slab', serif;
+  --border-radius: 0.25rem;
 }
 
 html {
