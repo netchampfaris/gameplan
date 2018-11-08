@@ -1,42 +1,20 @@
 <template>
-  <div class="search-box">
-      <img src="@/assets/searchIcon.svg" alt="Search Icon">
-      <div class="search-action">
-        <input ref="input" type="search" placeholder="Search">
-      </div>
-  </div>
+  <g-row class="search">
+    <feather-icon slot="left" name="search" />
+    <input ref="input" type="search" placeholder="Search">
+  </g-row>
 </template>
 
 <script>
 export default {
-  name: 'SearchBox',
-  data() {
-    return {
-      inputVisible: false,
-    };
-  },
+  name: 'SearchBox'
 };
 </script>
 
 <style scoped>
-.search-box {
-  display: flex;
+.search {
   color: var(--text-grey);
-  font-size: 1.5rem;
-  height: 2rem;
-  align-items: center;
-  padding: 1rem;
 }
-
-.search-placeholder {
-  cursor: text;
-}
-
-.search-action {
-  margin-left: 1rem;
-  width: 100%;
-}
-
 input:not(:focus) {
   border-color: transparent;
 }

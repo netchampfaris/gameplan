@@ -13,6 +13,9 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from './models';
 
+import Row from './components/Row';
+import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
+
 const server = 'localhost:8000';
 window.frappe = frappe;
 frappe.init();
@@ -32,11 +35,13 @@ if (session) {
 }
 
 Vue.use(VueResource);
+Vue.component('g-row', Row);
+Vue.component('feather-icon', FeatherIcon);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
+  el: '#gameplan',
   router,
   components: { App },
   template: '<App/>',

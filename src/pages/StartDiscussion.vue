@@ -41,7 +41,7 @@ export default {
           owner: frappe.session.user,
           modifiedBy: frappe.session.user,
         });
-        
+
         await doc.insert();
 
         this.$router.push(`/discussion/${doc.name}`);
@@ -50,11 +50,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.start-discussion {
-  max-width: 60%;
-  margin: 0 auto;
-  padding-top: 2rem;
-}
-</style>

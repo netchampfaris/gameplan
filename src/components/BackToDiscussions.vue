@@ -1,10 +1,10 @@
 <template>
-  <div class="back-to-discussions" @click="goBack">
-      <img src="@/assets/backIcon.svg" alt="Back Icon">
-      <div class="back-text">
-        Back to Discussions
-      </div>
-  </div>
+  <g-row padding="2" class="back-to-discussions" @click.native="goBack">
+    <feather-icon slot="left" :size="20" name="arrow-left" />
+    <div class="back-text">
+      Back to Discussions
+    </div>
+  </g-row>
 </template>
 
 <script>
@@ -20,15 +20,11 @@ export default {
 
 <style scoped>
 .back-to-discussions {
-  display: flex;
   color: var(--text-grey);
   font-size: 1.5rem;
-  height: 2rem;
-  align-items: center;
-  padding: 1rem;
   cursor: pointer;
 }
-.back-text {
-  margin-left: 1rem;
-}
+/* .back-text {
+  padding: 1rem 0;
+} */
 </style>

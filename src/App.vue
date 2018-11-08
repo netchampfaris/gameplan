@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
-    <router-view/>
+  <div id="gameplan">
+    <div class="container">
+      <router-view />
+    </div>
   </div>
 </template>
 
@@ -48,16 +50,14 @@ html {
   font-size: 14px;
 }
 
-body{
+body {
   margin: 0;
-}
-
-
-#app {
+  min-height: 100vh;
   font-family: var(--font-stack);
   background-color: var(--light-bg);
-  min-height: 100vh;
 }
+
+/* global styles */
 
 input {
   background-color: transparent;
@@ -83,5 +83,12 @@ body #nprogress .bar {
 
 body #nprogress .peg {
   box-shadow: 0 0 10px var(--text-blue), 0 0 5px var(--text-blue);
+}
+</style>
+<style scoped>
+.container {
+  max-width: 50%;
+  margin: 0 auto;
+  margin-top: 2rem;
 }
 </style>

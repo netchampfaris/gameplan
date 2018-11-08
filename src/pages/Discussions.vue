@@ -1,30 +1,30 @@
 <template>
-  <div class="discussion">
-    <search-box></search-box>
-    <div class="start-a-discussion">
-      <input type="text" placeholder="Start a discussion..." @click.prevent="startDiscussion">
-    </div>
-    <div class="discussion-row-list">
-      <discussion-row
+  <div class="page-discussions">
+    <search-box />
+    <g-row class="new-discussion">
+      <input type="text" placeholder="Start a discussion..." @click="startDiscussion">
+    </g-row>
+    <div class="discussion-list">
+      <g-row
+        padding="2"
+        class="discussion-row"
         v-for="discussion of discussionList"
         v-bind:key="discussion.name"
         @click.native="openDiscussion(discussion.name)"
       >
-        <span slot="info-left">{{ discussion.modified | timeRelative }}</span>
-        {{ discussion.title }}
-        <feather-icon v-if="discussion.attachments" slot="info-right" name="paperclip" />
-      </discussion-row>
+        <span class="discussion-row-time" slot="left">{{ discussion.modified | timeRelative }}</span>
+        <div>{{ discussion.title }}</div>
+        <feather-icon slot="right" name="paperclip" v-if="discussion.attachments" />
+      </g-row>
     </div>
   </div>
 </template>
 
 <script>
 import frappe from 'frappejs';
-import { parse, distanceInWordsStrict } from 'date-fns';
+import { distanceInWordsStrict } from 'date-fns';
 import SearchBox from '@/components/SearchBox';
-import DiscussionRow from '@/components/DiscussionRow';
 import Indicator from '@/components/Indicator';
-import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 
 export default {
   name: 'Discussions',
@@ -35,8 +35,6 @@ export default {
   },
   components: {
     SearchBox,
-    DiscussionRow,
-    FeatherIcon,
     Indicator
   },
   mounted() {
@@ -73,7 +71,7 @@ export default {
       this.$router.push('start-a-discussion');
     },
     openDiscussion(name) {
-      this.$router.push(`discussion/${name}`);
+      this.$router.push(`/discussion/${name}`);
     }
   },
   filters: {
@@ -86,22 +84,25 @@ export default {
 </script>
 
 <style scoped>
-.discussion {
-  max-width: 60%;
-  margin: 0 auto;
-  padding-top: 2rem;
-}
-
-.start-a-discussion {
-  padding: 1rem;
-  padding-left: 3rem;
-}
-
-.start-a-discussion input {
+.new-discussion input {
   cursor: pointer;
 }
 
-.discussion-row-list {
+.discussion-list {
   padding-top: 1rem;
+}
+
+.discussion-row {
+  font-size: 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.discussion-row:hover {
+  background-color: #fff;
+}
+
+.discussion-row-time {
+  color: var(--text-grey);
 }
 </style>

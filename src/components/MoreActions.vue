@@ -17,7 +17,6 @@
   </div>
 </template>
 <script>
-import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 export default {
   name: 'MoreActions',
   props: ['items'],
@@ -25,9 +24,6 @@ export default {
     return {
       isShown: false
     }
-  },
-  components: {
-    FeatherIcon,
   }
 };
 </script>
@@ -40,5 +36,9 @@ export default {
 
 .feather-icon:hover {
   background-color: white;
+}
+
+.action-items {
+  display: flex;
 }
 </style>

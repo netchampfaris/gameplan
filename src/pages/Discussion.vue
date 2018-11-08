@@ -1,6 +1,6 @@
 <template>
-  <div class="discussion">
-    <back-to-discussions></back-to-discussions>
+  <div class="page-discussion">
+    <back-to-discussions />
     <div v-if="discussion">
       <discussion-post
         :post="discussion"
@@ -120,11 +120,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.discussion {
-  max-width: 60%;
-  margin: 0 auto;
-  padding-top: 2rem;
-}
-</style>

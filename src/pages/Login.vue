@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="page-login">
     <div class="login-box">
     <h1>Gameplan</h1>
     <div class="control">
@@ -70,7 +70,7 @@ export default {
 </script>
 
 <style scoped>
-.login {
+.page-login {
   height: 100vh;
   display: flex;
   justify-content: center;
