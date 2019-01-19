@@ -12,7 +12,7 @@
         placeholder="Title"
         :value="post.title"
       />
-      <span v-if="!isOriginalPost" class="owner"> {{ post.owner }} </span>
+      <span v-if="!isOriginalPost" class="owner">{{ post.owner }}</span>
 
       <more-actions slot="right" :items="actionItems" />
     </g-row>
@@ -23,11 +23,18 @@
 
     <g-row class="content">
       <div v-if="!isEditing" v-html="post.content"></div>
-      <content-editor v-else :content="post.content" />
+      <content-editor
+        v-else
+        :content="post.content"
+        @submit="handleSubmit"
+        @escape="isEditing = false"
+      />
     </g-row>
 
-    <g-row>
-      <div class="attachments" v-if="post.attachments">
+    <g-row v-if="isEditing"> <file-drop-area /> </g-row>
+
+    <g-row v-if="post.attachments">
+      <div class="attachments">
         <attachment
           v-for="(attachment, index) of post.attachments"
           :key="index"
@@ -38,17 +45,17 @@
   </div>
 </template>
 <script>
-import DiscussionPostWrapper from '@/components/DiscussionPostWrapper'
 import UserAvatar from '@/components/UserAvatar'
 import MoreActions from '@/components/MoreActions'
 import ContentEditor from './ContentEditor'
 import Attachment from './Attachment'
+import FileDropArea from './FileDropArea'
 
 export default {
   name: 'DiscussionPost',
   components: {
     UserAvatar,
-    DiscussionPostWrapper,
+    FileDropArea,
     MoreActions,
     ContentEditor,
     Attachment,
@@ -81,6 +88,12 @@ export default {
     },
     showEditTitle() {
       return this.isOriginalPost && this.isEditing
+    },
+  },
+  methods: {
+    handleSubmit(value) {
+      this.$emit('update', { content: value })
+      this.isEditing = false
     },
   },
 }
@@ -117,10 +130,18 @@ input.title {
   font-weight: lighter;
 }
 
+.content {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 300;
+  line-height: 2rem;
+}
+
 .content >>> p {
   font-weight: 300;
   font-size: 1.2rem;
   line-height: 2rem;
+  margin: 0;
 }
 
 .attachments {

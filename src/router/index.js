@@ -29,6 +29,7 @@ const router = new Router({
       path: '/discussion/:name',
       name: 'Discussion',
       component: Discussion,
+      props: true,
     },
     {
       path: '*',

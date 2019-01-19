@@ -85,7 +85,7 @@ body #nprogress .peg {
 </style>
 <style scoped>
 .container {
-  max-width: 50%;
+  max-width: 65%;
   margin: 0 auto;
   margin-top: 2rem;
 }

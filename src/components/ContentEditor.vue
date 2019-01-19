@@ -1,5 +1,6 @@
 <template>
   <div
+    style="width: 100%;"
     @keydown.meta.enter="onSubmit"
     @keydown.ctrl.enter="onSubmit"
     @keydown.esc="$emit('escape')"
@@ -48,7 +49,8 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.$emit('submit')
+      const value = this.$refs.quillEditor.quill.root.innerHTML
+      this.$emit('submit', value)
     },
   },
 }
@@ -57,7 +59,7 @@ export default {
 .ql-editor {
   font-family: var(--font-stack);
   font-size: initial;
-  padding: 1rem 0;
+  padding: 0;
   min-height: 5rem;
   caret-color: var(--text-blue);
   color: var(--text-black);

@@ -6,6 +6,7 @@
         :post="discussion"
         :is-original-post="true"
         @delete="deleteDiscussion"
+        @update="updateDiscussion"
       />
       <discussion-post
         v-for="comment of comments"
@@ -29,6 +30,7 @@ import CreateDiscussionPost from '@/components/CreateDiscussionPost'
 
 export default {
   name: 'Discussion',
+  props: ['name'],
   components: {
     BackToDiscussions,
     DiscussionPost,
@@ -45,17 +47,16 @@ export default {
       addCommentActive: false,
     }
   },
-  async beforeCreate() {
-    const name = this.$route.params.name
-    const discussion = await frappe.getDoc('DiscussionBoard', name)
-    this.comments = await this.getComments(name)
+  async created() {
+    const discussion = await frappe.getDoc('DiscussionBoard', this.name)
+    this.comments = await this.getComments(this.name)
 
     let attachments = await frappe.db.getAll({
       doctype: 'File',
       fields: ['name', 'filename', 'mimetype', 'size'],
       filters: {
         referenceDoctype: 'DiscussionBoard',
-        referenceName: name,
+        referenceName: this.name,
       },
     })
     discussion.attachments = attachments
@@ -90,8 +91,17 @@ export default {
       this.comments.push(newComment)
     },
     async deleteDiscussion() {
-      await frappe.db.delete('DiscussionBoard', this.$route.params.name)
+      await frappe.db.delete('DiscussionBoard', this.name)
       this.$router.push('/discussions')
+    },
+    async updateDiscussion(value) {
+      if (value.title) {
+        this.discussion.set('title', value.title)
+      }
+      if (value.content) {
+        this.discussion.set('content', value.content)
+      }
+      await this.discussion.update()
     },
     async getComments(discussionName) {
       let comments = await frappe.db.getAll({
