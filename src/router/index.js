@@ -1,12 +1,12 @@
-import frappe from 'frappejs';
-import Vue from 'vue';
-import Router from 'vue-router';
-import Login from '@/pages/Login';
-import Discussions from '@/pages/Discussions';
-import StartDiscussion from '@/pages/StartDiscussion';
-import Discussion from '@/pages/Discussion';
+import frappe from 'frappejs'
+import Vue from 'vue'
+import Router from 'vue-router'
+import Login from '@/pages/Login'
+import Discussions from '@/pages/Discussions'
+import StartDiscussion from '@/pages/StartDiscussion'
+import Discussion from '@/pages/Discussion'
 
-Vue.use(Router);
+Vue.use(Router)
 
 const router = new Router({
   routes: [
@@ -32,15 +32,15 @@ const router = new Router({
     },
     {
       path: '*',
-      redirect: '/discussions'
+      redirect: '/discussions',
     },
   ],
-});
+})
 
 router.onReady(() => {
   frappe.events.on('http:unauthorized', () => {
-    router.replace('/login');
-  });
-});
+    router.replace('/login')
+  })
+})
 
-export default router;
+export default router

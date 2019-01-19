@@ -8,7 +8,7 @@
       />
       <div class="attachment preview-name" v-else>
         <feather-icon name="paperclip" />
-        <div> {{ attachment.filename }} </div>
+        <div>{{ attachment.filename }}</div>
       </div>
     </a>
   </div>
@@ -19,9 +19,9 @@ export default {
   props: ['attachment'],
   computed: {
     isImage() {
-      return this.attachment.mimetype.toString().includes('image');
-    }
-  }
+      return this.attachment.mimetype.toString().includes('image')
+    },
+  },
 }
 </script>
 <style scoped>
@@ -31,7 +31,7 @@ export default {
   box-shadow: 0 0 0 1px white, 0 0 0 2px #ebebeb;
 }
 
-.attachment-img{
+.attachment-img {
   position: relative;
   margin: 1px;
   margin-left: 0px;
@@ -42,7 +42,7 @@ export default {
   display: block;
 }
 
-.preview-name{
+.preview-name {
   width: 100%;
   height: 40px;
   color: var(--text-grey);
@@ -52,10 +52,10 @@ export default {
   display: flex;
   flex-direction: row;
 }
-.preview-name > img{
+.preview-name > img {
   margin: 0.6rem;
 }
-.preview-name > div{
+.preview-name > div {
   white-space: nowrap;
   margin: 0.75rem;
   margin-right: 24px;

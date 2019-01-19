@@ -10,10 +10,10 @@ export default {
   props: ['user'],
   computed: {
     initials() {
-      return this.user[0].toUpperCase();
+      return this.user[0].toUpperCase()
     },
   },
-};
+}
 </script>
 
 <style scoped>

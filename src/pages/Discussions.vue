@@ -2,7 +2,11 @@
   <div class="page-discussions">
     <search-box />
     <g-row class="new-discussion">
-      <input type="text" placeholder="Start a discussion..." @click="startDiscussion">
+      <input
+        type="text"
+        placeholder="Start a discussion..."
+        @click="startDiscussion"
+      />
     </g-row>
     <div class="discussion-list">
       <g-row
@@ -12,33 +16,39 @@
         v-bind:key="discussion.name"
         @click.native="openDiscussion(discussion.name)"
       >
-        <span class="discussion-row-time" slot="left">{{ discussion.modified | timeRelative }}</span>
+        <span class="discussion-row-time" slot="left">{{
+          discussion.modified | timeRelative
+        }}</span>
         <div>{{ discussion.title }}</div>
-        <feather-icon slot="right" name="paperclip" v-if="discussion.attachments" />
+        <feather-icon
+          slot="right"
+          name="paperclip"
+          v-if="discussion.attachments"
+        />
       </g-row>
     </div>
   </div>
 </template>
 
 <script>
-import frappe from 'frappejs';
-import { distanceInWordsStrict } from 'date-fns';
-import SearchBox from '@/components/SearchBox';
-import Indicator from '@/components/Indicator';
+import frappe from 'frappejs'
+import { distanceInWordsStrict } from 'date-fns'
+import SearchBox from '@/components/SearchBox'
+import Indicator from '@/components/Indicator'
 
 export default {
   name: 'Discussions',
   data() {
     return {
       discussionList: [],
-    };
+    }
   },
   components: {
     SearchBox,
-    Indicator
+    Indicator,
   },
   mounted() {
-    this.fetchDiscussions();
+    this.fetchDiscussions()
     // frappe.db.on('change:DiscussionBoard', async ({ name }) => {
     //   const newDiscussion = await this.getDiscussions({ name })[0];
 
@@ -56,31 +66,38 @@ export default {
   },
   methods: {
     async fetchDiscussions() {
-      this.discussionList = await this.getDiscussions();
+      this.discussionList = await this.getDiscussions()
     },
     async getDiscussions(filters) {
       return await frappe.db.getAll({
         doctype: 'DiscussionBoard',
-        fields: ['name', 'title', 'creation', 'modified', 'owner', 'attachments'],
+        fields: [
+          'name',
+          'title',
+          'creation',
+          'modified',
+          'owner',
+          'attachments',
+        ],
         orderBy: 'modified',
         order: 'desc',
         filters: filters || null,
-      });
+      })
     },
     startDiscussion() {
-      this.$router.push('start-a-discussion');
+      this.$router.push('start-a-discussion')
     },
     openDiscussion(name) {
-      this.$router.push(`/discussion/${name}`);
-    }
+      this.$router.push(`/discussion/${name}`)
+    },
   },
   filters: {
     timeRelative(timestamp) {
-      const parts = distanceInWordsStrict(timestamp, new Date()).split(' ');
-      return parts[0] + parts[1][0];
-    }
-  }
-};
+      const parts = distanceInWordsStrict(timestamp, new Date()).split(' ')
+      return parts[0] + parts[1][0]
+    },
+  },
+}
 </script>
 
 <style scoped>

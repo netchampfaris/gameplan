@@ -1,5 +1,5 @@
 <template>
-  <div class="post" :class="{'is-editing': isEditing}">
+  <div class="post" :class="{ 'is-editing': isEditing }">
     <g-row>
       <user-avatar slot="left" :user="post.owner"></user-avatar>
 
@@ -11,13 +11,8 @@
         type="text"
         placeholder="Title"
         :value="post.title"
-      >
-      <span
-        v-if="!isOriginalPost"
-        class="owner"
-      >
-        {{ post.owner }}
-      </span>
+      />
+      <span v-if="!isOriginalPost" class="owner"> {{ post.owner }} </span>
 
       <more-actions slot="right" :items="actionItems" />
     </g-row>
@@ -28,29 +23,26 @@
 
     <g-row class="content">
       <div v-if="!isEditing" v-html="post.content"></div>
-      <content-editor
-        v-else
-        :content="post.content"
-      />
+      <content-editor v-else :content="post.content" />
     </g-row>
 
     <g-row>
       <div class="attachments" v-if="post.attachments">
         <attachment
-            v-for="(attachment, index) of post.attachments"
-            :key="index"
-            :attachment="attachment"
-          />
+          v-for="(attachment, index) of post.attachments"
+          :key="index"
+          :attachment="attachment"
+        />
       </div>
     </g-row>
   </div>
 </template>
 <script>
-import DiscussionPostWrapper from '@/components/DiscussionPostWrapper';
-import UserAvatar from '@/components/UserAvatar';
-import MoreActions from '@/components/MoreActions';
-import ContentEditor from './ContentEditor';
-import Attachment from './Attachment';
+import DiscussionPostWrapper from '@/components/DiscussionPostWrapper'
+import UserAvatar from '@/components/UserAvatar'
+import MoreActions from '@/components/MoreActions'
+import ContentEditor from './ContentEditor'
+import Attachment from './Attachment'
 
 export default {
   name: 'DiscussionPost',
@@ -59,7 +51,7 @@ export default {
     DiscussionPostWrapper,
     MoreActions,
     ContentEditor,
-    Attachment
+    Attachment,
   },
   props: ['post', 'is-original-post'],
   data() {
@@ -69,29 +61,29 @@ export default {
         {
           icon: 'edit-2',
           action: () => {
-            this.isEditing = true;
+            this.isEditing = true
             this.$nextTick(() => {
-              this.$refs.title.focus();
-            });
+              this.$refs.title.focus()
+            })
             this.$emit('edit')
-          }
+          },
         },
         {
           icon: 'x',
-          action: () => this.$emit('delete')
-        }
-      ]
+          action: () => this.$emit('delete'),
+        },
+      ],
     }
   },
   computed: {
     showTitle() {
-      return this.isOriginalPost && !this.isEditing;
+      return this.isOriginalPost && !this.isEditing
     },
     showEditTitle() {
-      return this.isOriginalPost && this.isEditing;
-    }
-  }
-};
+      return this.isOriginalPost && this.isEditing
+    },
+  },
+}
 </script>
 <style scoped>
 .post {

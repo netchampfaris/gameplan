@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import BackToDiscussions from '@/components/BackToDiscussions';
-import DiscussionPost from '@/components/DiscussionPost';
-import CreateDiscussionPost from '@/components/CreateDiscussionPost';
+import frappe from 'frappejs'
+import BackToDiscussions from '@/components/BackToDiscussions'
+import DiscussionPost from '@/components/DiscussionPost'
+import CreateDiscussionPost from '@/components/CreateDiscussionPost'
 
 export default {
   name: 'Discussion',
@@ -43,23 +43,23 @@ export default {
         owner: frappe.session ? frappe.session.fullName : 'Guest',
       },
       addCommentActive: false,
-    };
+    }
   },
   async beforeCreate() {
-    const name = this.$route.params.name;
-    const discussion = await frappe.getDoc('DiscussionBoard', name);
-    this.comments = await this.getComments(name);
+    const name = this.$route.params.name
+    const discussion = await frappe.getDoc('DiscussionBoard', name)
+    this.comments = await this.getComments(name)
 
     let attachments = await frappe.db.getAll({
       doctype: 'File',
       fields: ['name', 'filename', 'mimetype', 'size'],
       filters: {
         referenceDoctype: 'DiscussionBoard',
-        referenceName: name
-      }
-    });
-    discussion.attachments = attachments;
-    this.discussion = discussion;
+        referenceName: name,
+      },
+    })
+    discussion.attachments = attachments
+    this.discussion = discussion
   },
   methods: {
     async addComment(title, content, attachments) {
@@ -69,31 +69,31 @@ export default {
         owner: frappe.session.user,
         discussionBoard: this.discussion.name,
         content,
-        attachments
-      });
+        attachments,
+      })
 
-      await doc.insert();
-      this.addNewComment(doc);
-      this.addCommentActive = false;
+      await doc.insert()
+      this.addNewComment(doc)
+      this.addCommentActive = false
     },
     async addNewComment(comment) {
-      let newComment = comment;
+      let newComment = comment
       let commentAttachments = await frappe.db.getAll({
         doctype: 'File',
         fields: ['name', 'filename', 'mimetype', 'size'],
         filters: {
           referenceDoctype: 'DiscussionBoardMessage',
-          referenceName: comment.name
-        }
-      });
+          referenceName: comment.name,
+        },
+      })
       newComment.attachments = commentAttachments
-      this.comments.push(newComment);
+      this.comments.push(newComment)
     },
     async deleteDiscussion() {
-      await frappe.db.delete('DiscussionBoard', this.$route.params.name);
-      this.$router.push('/discussions');
+      await frappe.db.delete('DiscussionBoard', this.$route.params.name)
+      this.$router.push('/discussions')
     },
-    async getComments(discussionName){
+    async getComments(discussionName) {
       let comments = await frappe.db.getAll({
         doctype: 'DiscussionBoardMessage',
         fields: ['name', 'content', 'owner', 'creation', 'modified'],
@@ -102,21 +102,21 @@ export default {
         },
         orderBy: 'creation',
         order: 'asc',
-      });
+      })
 
-      comments.forEach( async (comment) => {
+      comments.forEach(async comment => {
         let commentAttachments = await frappe.db.getAll({
           doctype: 'File',
           fields: ['name', 'filename', 'mimetype', 'size'],
           filters: {
             referenceDoctype: 'DiscussionBoardMessage',
-            referenceName: comment.name
-          }
-        });
+            referenceName: comment.name,
+          },
+        })
         comment.attachments = commentAttachments
       })
-      return comments;
-    }
+      return comments
+    },
   },
-};
+}
 </script>

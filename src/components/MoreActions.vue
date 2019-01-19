@@ -22,10 +22,10 @@ export default {
   props: ['items'],
   data() {
     return {
-      isShown: false
+      isShown: false,
     }
-  }
-};
+  },
+}
 </script>
 <style scoped>
 .feather-icon {

@@ -1,13 +1,11 @@
 <template>
-  <div class="post-wrapper">
-    <slot></slot>
-  </div>
+  <div class="post-wrapper"><slot></slot></div>
 </template>
 
 <script>
 export default {
   name: 'DiscussionPostWrapper',
-};
+}
 </script>
 
 <style lang="scss" scoped>

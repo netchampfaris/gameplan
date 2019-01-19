@@ -1,28 +1,38 @@
 <template>
   <div class="page-login">
     <div class="login-box">
-    <h1>Gameplan</h1>
-    <div class="control">
-        <input type="text" name="email" placeholder="User name"
-          :class="{danger: invalid}" v-model="email" @click="invalid = false"
-        >
+      <h1>Gameplan</h1>
+      <div class="control">
+        <input
+          type="text"
+          name="email"
+          placeholder="User name"
+          :class="{ danger: invalid }"
+          v-model="email"
+          @click="invalid = false"
+        />
         <div v-if="invalid" class="danger-message danger">Nope.</div>
-    </div>
-    <div class="control">
-        <input type="password" name="password" placeholder="••••••••"
-          v-model="password" @keydown.enter="login" @click="invalid = false"
-        >
-    </div>
-    <div class="login-buttons">
+      </div>
+      <div class="control">
+        <input
+          type="password"
+          name="password"
+          placeholder="••••••••"
+          v-model="password"
+          @keydown.enter="login"
+          @click="invalid = false"
+        />
+      </div>
+      <div class="login-buttons">
         <a href @click.prevent="signup">Sign Up</a>
         <a href @click.prevent="login">Login</a>
-    </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappejs'
 
 export default {
   name: 'Login',
@@ -31,42 +41,42 @@ export default {
       email: '',
       password: '',
       invalid: false,
-    };
+    }
   },
   methods: {
     async login() {
       if (this.email && this.password) {
-        frappe.session = {};
-        await frappe.login(this.email, this.password);
+        frappe.session = {}
+        await frappe.login(this.email, this.password)
 
         if (frappe.session.token) {
           frappe.session.fullName = await frappe.db.getValue(
             'User',
             this.email,
-            'fullName',
-          );
-          localStorage.setItem('session', JSON.stringify(frappe.session));
-          await frappe.getSingle('SystemSettings');
-          this.$router.push({ path: 'discussions' });
+            'fullName'
+          )
+          localStorage.setItem('session', JSON.stringify(frappe.session))
+          await frappe.getSingle('SystemSettings')
+          this.$router.push({ path: 'discussions' })
         } else {
-          this.invalid = true;
+          this.invalid = true
         }
       }
     },
     async signup() {
       if (this.email && this.password) {
-        frappe.signup(this.email, this.email, this.password).then((res) => {
+        frappe.signup(this.email, this.email, this.password).then(res => {
           if (res.status && res.status !== 200) {
-            this.invalid = true;
-            return;
+            this.invalid = true
+            return
           }
 
-          this.login();
-        });
+          this.login()
+        })
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>

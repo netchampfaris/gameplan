@@ -1,39 +1,37 @@
 <template>
   <div id="gameplan">
-    <div class="container">
-      <router-view />
-    </div>
+    <div class="container"><router-view /></div>
   </div>
 </template>
 
 <script>
-import frappe from 'frappejs';
-import nprogress from 'nprogress';
+import frappe from 'frappejs'
+import nprogress from 'nprogress'
 
-nprogress.configure({ showSpinner: false });
+nprogress.configure({ showSpinner: false })
 
 export default {
   name: 'App',
   mounted() {
-    this.$nprogress = nprogress;
+    this.$nprogress = nprogress
     frappe.events.on('http:ajaxStart', () => {
       if (nprogress.isStarted()) {
-        nprogress.inc();
+        nprogress.inc()
       } else {
-        nprogress.start();
+        nprogress.start()
       }
-    });
+    })
 
     frappe.events.on('http:ajaxStop', () => {
-      nprogress.done();
-    });
-  }
-};
+      nprogress.done()
+    })
+  },
+}
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700');
-@import "~nprogress/nprogress.css";
+@import '~nprogress/nprogress.css';
 
 :root {
   --light-bg: #f7f7f7;

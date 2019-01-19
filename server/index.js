@@ -1,8 +1,8 @@
-const server = require('frappejs/server');
-const models = require('../src/models');
+const server = require('frappejs/server')
+const models = require('../src/models')
 
 async function start() {
-  const isDevEnv = process.env.PRODUCTION || true;
+  const isDevEnv = process.env.PRODUCTION || true
 
   await server.start({
     backend: 'sqlite',
@@ -12,7 +12,7 @@ async function start() {
     },
     authConfig: {},
     models,
-  });
+  })
 }
 
-start();
+start()

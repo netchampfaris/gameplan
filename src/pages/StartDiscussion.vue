@@ -2,7 +2,8 @@
   <div class="start-discussion">
     <back-to-discussions></back-to-discussions>
     <create-discussion-post
-      :post="post" :is-original-post="true"
+      :post="post"
+      :is-original-post="true"
       v-on:post-value="newDiscussion"
     >
     </create-discussion-post>
@@ -10,9 +11,9 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import CreateDiscussionPost from '@/components/CreateDiscussionPost';
-import BackToDiscussions from '@/components/BackToDiscussions';
+import frappe from 'frappejs'
+import CreateDiscussionPost from '@/components/CreateDiscussionPost'
+import BackToDiscussions from '@/components/BackToDiscussions'
 
 export default {
   name: 'StartDiscussion',
@@ -27,7 +28,7 @@ export default {
         content: '',
         owner: frappe.session ? frappe.session.fullName : 'Guest',
       },
-    };
+    }
   },
   methods: {
     async newDiscussion(title, content, attachments) {
@@ -40,13 +41,13 @@ export default {
           creation: new Date().toISOString(),
           owner: frappe.session.user,
           modifiedBy: frappe.session.user,
-        });
+        })
 
-        await doc.insert();
+        await doc.insert()
 
-        this.$router.push(`/discussion/${doc.name}`);
+        this.$router.push(`/discussion/${doc.name}`)
       }
     },
   },
-};
+}
 </script>

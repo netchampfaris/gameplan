@@ -1,9 +1,7 @@
 <template>
   <g-row padding="2" class="back-to-discussions" @click.native="goBack">
     <feather-icon slot="left" :size="20" name="arrow-left" />
-    <div class="back-text">
-      Back to Discussions
-    </div>
+    <div class="back-text">Back to Discussions</div>
   </g-row>
 </template>
 
@@ -12,10 +10,10 @@ export default {
   name: 'BackToDiscussions',
   methods: {
     goBack() {
-      this.$router.push('/discussions');
+      this.$router.push('/discussions')
     },
   },
-};
+}
 </script>
 
 <style scoped>

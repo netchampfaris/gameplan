@@ -4,9 +4,7 @@ module.exports = {
   naming: 'random',
   isSingle: 0,
   isChild: 0,
-  keywordFields: [
-    'title',
-  ],
+  keywordFields: ['title'],
   fields: [
     {
       fieldname: 'title',
@@ -22,7 +20,7 @@ module.exports = {
     {
       fieldname: 'attachments',
       label: 'Attachments',
-      fieldtype: 'File'
-    }
+      fieldtype: 'File',
+    },
   ],
-};
+}

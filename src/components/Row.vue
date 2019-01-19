@@ -1,14 +1,8 @@
 <template>
   <div class="grid">
-    <div class="left" :class="paddingStyle">
-      <slot name="left"></slot>
-    </div>
-    <div class="body" :class="paddingStyle">
-      <slot></slot>
-    </div>
-    <div class="right" :class="paddingStyle">
-      <slot name="right"></slot>
-    </div>
+    <div class="left" :class="paddingStyle"><slot name="left"></slot></div>
+    <div class="body" :class="paddingStyle"><slot></slot></div>
+    <div class="right" :class="paddingStyle"><slot name="right"></slot></div>
   </div>
 </template>
 <script>
@@ -16,14 +10,14 @@ export default {
   name: 'Row',
   props: {
     padding: {
-      default: 0
-    }
+      default: 0,
+    },
   },
   computed: {
     paddingStyle() {
-      return `p-${this.padding}`;
-    }
-  }
+      return `p-${this.padding}`
+    },
+  },
 }
 </script>
 
@@ -34,7 +28,9 @@ export default {
   grid-gap: 1rem;
 }
 
-.left, .body, .right {
+.left,
+.body,
+.right {
   display: flex;
   align-items: center;
 }
