@@ -25,10 +25,18 @@ def get_user_info(user=None):
 		distinct=True,
 	).run(as_dict=1)
 
-	roles = frappe.db.get_all("Has Role", filters={"parenttype": "User"}, fields=["role", "parent"])
+	roles = frappe.db.get_all(
+		"Has Role", filters={"parenttype": "User"}, fields=["role", "parent"]
+	)
 	user_profiles = frappe.db.get_all(
 		"GP User Profile",
-		fields=["user", "name", "image", "image_background_color", "is_image_background_removed"],
+		fields=[
+			"user",
+			"name",
+			"image",
+			"image_background_color",
+			"is_image_background_removed",
+		],
 		filters={"user": ["in", [u.name for u in users]]},
 	)
 	user_profile_map = {u.user: u for u in user_profiles}
@@ -86,10 +94,15 @@ def invite_by_email(emails: str, role: str, projects: list = None):
 	email_list = split_emails(email_string)
 	if not email_list:
 		return
-	existing_members = frappe.db.get_all("User", filters={"email": ["in", email_list]}, pluck="email")
+	existing_members = frappe.db.get_all(
+		"User", filters={"email": ["in", email_list]}, pluck="email"
+	)
 	existing_invites = frappe.db.get_all(
 		"GP Invitation",
-		filters={"email": ["in", email_list], "role": ["in", ["Gameplan Admin", "Gameplan Member"]]},
+		filters={
+			"email": ["in", email_list],
+			"role": ["in", ["Gameplan Admin", "Gameplan Member"]],
+		},
 		pluck="email",
 	)
 
@@ -102,12 +115,16 @@ def invite_by_email(emails: str, role: str, projects: list = None):
 		projects = frappe.as_json(projects, indent=None)
 
 	for email in to_invite:
-		frappe.get_doc(doctype="GP Invitation", email=email, role=role, projects=projects).insert(ignore_permissions=True)
+		frappe.get_doc(
+			doctype="GP Invitation", email=email, role=role, projects=projects
+		).insert(ignore_permissions=True)
 
 
 @frappe.whitelist()
 def unread_notifications():
-	res = frappe.db.get_all("GP Notification", "count(name) as count", {"to_user": frappe.session.user, "read": 0})
+	res = frappe.db.get_all(
+		"GP Notification", "count(name) as count", {"to_user": frappe.session.user, "read": 0}
+	)
 	return res[0].count
 
 
@@ -159,13 +176,16 @@ def get_unread_items():
 	is_guest = gameplan.is_guest()
 	if is_guest:
 		GuestAccess = frappe.qb.DocType("GP Guest Access")
-		project_list = GuestAccess.select(GuestAccess.project).where(GuestAccess.user == frappe.session.user)
+		project_list = GuestAccess.select(GuestAccess.project).where(
+			GuestAccess.user == frappe.session.user
+		)
 		query = query.where(Discussion.project.isin(project_list))
 
 	# pypika doesn't have any API for "FORCE INDEX FOR JOIN"
 	sql = query.get_sql()
 	sql = sql.replace(
-		"LEFT JOIN `tabGP Discussion Visit`", "LEFT JOIN `tabGP Discussion Visit` FORCE INDEX FOR JOIN(discussion_user_index)"
+		"LEFT JOIN `tabGP Discussion Visit`",
+		"LEFT JOIN `tabGP Discussion Visit` FORCE INDEX FOR JOIN(discussion_user_index)",
 	)
 	data = frappe.db.sql(sql, as_dict=1)
 
@@ -201,7 +221,9 @@ def get_unread_items_by_project(projects):
 
 @frappe.whitelist()
 def mark_all_notifications_as_read():
-	for d in frappe.db.get_all("GP Notification", filters={"to_user": frappe.session.user, "read": 0}, pluck="name"):
+	for d in frappe.db.get_all(
+		"GP Notification", filters={"to_user": frappe.session.user, "read": 0}, pluck="name"
+	):
 		doc = frappe.get_doc("GP Notification", d)
 		doc.read = 1
 		doc.save(ignore_permissions=True)
@@ -215,7 +237,9 @@ def recent_projects():
 	Team = frappe.qb.DocType("GP Team")
 	Project = frappe.qb.DocType("GP Project")
 	Pin = frappe.qb.DocType("GP Pinned Project")
-	pinned_projects_query = frappe.qb.from_(Pin).select(Pin.project).where(Pin.user == frappe.session.user)
+	pinned_projects_query = (
+		frappe.qb.from_(Pin).select(Pin.project).where(Pin.user == frappe.session.user)
+	)
 	projects = (
 		frappe.qb.from_(ProjectVisit)
 		.select(
@@ -261,7 +285,14 @@ def active_projects():
 
 	projects = frappe.qb.get_query(
 		"GP Project",
-		fields=["name", "title as project_title", "team", "team.title as team_title", "icon", "modified as timestamp"],
+		fields=[
+			"name",
+			"title as project_title",
+			"team",
+			"team.title as team_title",
+			"icon",
+			"modified as timestamp",
+		],
 		filters={"name": ("in", [d.project for d in active_projects])},
 	).run(as_dict=1)
 
@@ -299,7 +330,9 @@ def oauth_providers():
 	)
 
 	for provider in providers:
-		client_secret = get_decrypted_password("Social Login Key", provider.name, "client_secret")
+		client_secret = get_decrypted_password(
+			"Social Login Key", provider.name, "client_secret"
+		)
 		if not client_secret:
 			continue
 
@@ -336,7 +369,11 @@ def search(query, start=0):
 		query = " ".join([f"%%{q}%%" for q in query_parts])
 
 	result = search.search(
-		f"@title|content:({query})", start=start, sort_by="modified desc", highlight=True, with_payloads=True
+		f"@title|content:({query})",
+		start=start,
+		sort_by="modified desc",
+		highlight=True,
+		with_payloads=True,
 	)
 
 	comments_by_doctype = {}
@@ -354,8 +391,12 @@ def search(query, start=0):
 			del d.payload
 			grouped_results.setdefault(doctype, []).append(d)
 
-	discussion_names = [d.payload["reference_name"] for d in comments_by_doctype.get("GP Discussion", [])]
-	task_names = [d.payload["reference_name"] for d in comments_by_doctype.get("GP Task", [])]
+	discussion_names = [
+		d.payload["reference_name"] for d in comments_by_doctype.get("GP Discussion", [])
+	]
+	task_names = [
+		d.payload["reference_name"] for d in comments_by_doctype.get("GP Task", [])
+	]
 
 	if discussion_names:
 		for d in frappe.get_all(
@@ -375,7 +416,9 @@ def search(query, start=0):
 
 	if task_names:
 		for d in frappe.get_all(
-			"GP Task", fields=["name", "title", "modified", "project", "team"], filters={"name": ("in", task_names)}
+			"GP Task",
+			fields=["name", "title", "modified", "project", "team"],
+			filters={"name": ("in", task_names)},
 		):
 			d.doctype = "GP Task"
 			d.name = cstr(d.name)
@@ -391,3 +434,38 @@ def search(query, start=0):
 		"total": result.total,
 		"duration": result.duration,
 	}
+
+
+@frappe.whitelist()
+def search2(query, start=0):
+	import time
+
+	if not query:
+		return {"duration": 0, "results": []}
+
+	start_time = time.time()
+	results = frappe.db.sql(
+		"""
+		SELECT name, title, content, last_updated, discussion, task, comment, page, team, project, MATCH(title, content) AGAINST(%(query)s IN BOOLEAN MODE) as score
+		from `tabGP Search Index`
+		WHERE MATCH(title, content) AGAINST(%(query)s IN BOOLEAN MODE)
+		ORDER BY score DESC, last_updated DESC
+		LIMIT 50 OFFSET %(start)s
+		""",
+		values={"query": query, "start": start},
+		as_dict=1,
+	)
+
+	for d in results:
+		d.title = highlight_word(query, d.title)
+		d.content = highlight_word(query, d.content)
+
+	return {"duration": time.time() - start_time, "results": results}
+
+
+def highlight_word(query, text):
+	if not text:
+		return text
+	if query in text:
+		return text.replace(query, f"<mark>{query}</mark>")
+	return text

@@ -10,6 +10,11 @@ if (!defaultRoute || defaultRoute?.includes('{{')) {
 
 const routes = [
   {
+    path: '/test',
+    name: 'Test',
+    component: () => import('@/pages/Test.vue'),
+  },
+  {
     path: '/',
     redirect: defaultRoute,
   },
@@ -59,7 +64,7 @@ const routes = [
   {
     path: '/search',
     name: 'Search',
-    component: () => import('@/pages/Search.vue'),
+    component: () => import('@/pages/Search2.vue'),
   },
   {
     path: '/onboarding',

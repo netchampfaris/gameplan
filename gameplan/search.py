@@ -200,3 +200,8 @@ def build_index_if_not_exists():
 	search = GameplanSearch()
 	if not search.index_exists() or not frappe.cache.exists(INDEX_BUILD_FLAG):
 		build_index()
+
+def build_mariadb_fulltext_index():
+	from gameplan.gameplan.doctype.gp_search_index.build_index import SearchIndex
+
+	SearchIndex().build()
