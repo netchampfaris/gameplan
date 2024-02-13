@@ -24,6 +24,8 @@ for (const icon in LucideIcons) {
 export default icons
 
 function camelToDash(key) {
+  // BarChart2 -> barChart2
+  key = key[0].toLowerCase() + key.slice(1)
   // barChart2 -> bar-chart-2
   let withNumber = key.replace(/[A-Z0-9]/g, (m) => '-' + m.toLowerCase())
   // barChart2 -> bar-chart2

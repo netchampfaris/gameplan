@@ -57,6 +57,17 @@ const routes = [
     component: () => import('@/pages/People.vue'),
   },
   {
+    path: '/rooms',
+    name: 'Rooms',
+    component: () => import('@/pages/Rooms.vue'),
+  },
+  {
+    path: '/room/:roomId',
+    name: 'Room',
+    component: () => import('@/pages/Room.vue'),
+    props: true,
+  },
+  {
     path: '/search',
     name: 'Search',
     component: () => import('@/pages/Search.vue'),

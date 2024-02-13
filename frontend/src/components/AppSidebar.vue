@@ -167,11 +167,12 @@ import { activeTeams, teams } from '@/data/teams'
 import { getTeamProjects } from '@/data/projects'
 import { unreadNotifications } from '@/data/notifications'
 import { showCommandPalette } from '@/components/CommandPalette/CommandPalette.vue'
-import LucideUsers2 from '~icons/lucide/users-2'
-import LucideInbox from '~icons/lucide/inbox'
-import LucideListTodo from '~icons/lucide/list-todo'
-import LucideNewspaper from '~icons/lucide/newspaper'
-import LucideFiles from '~icons/lucide/files'
+import LucideUsers2 from '~icons/lucide/Users2'
+import LucideInbox from '~icons/lucide/Inbox'
+import LucideListTodo from '~icons/lucide/ListTodo'
+import LucideNewspaper from '~icons/lucide/Newspaper'
+import LucideFiles from '~icons/lucide/Files'
+import LucideMessageCircleMore from '~icons/lucide/MessageCircleMore'
 
 export default {
   name: 'AppSidebar',
@@ -189,7 +190,6 @@ export default {
       sidebarOpen: true,
       sidebarWidth: 256,
       sidebarResizing: false,
-
       showAddTeamDialog: false,
       teams,
     }
@@ -231,6 +231,15 @@ export default {
             name: 'People',
           },
           isActive: /People|PersonProfile/g.test(this.$route.name),
+          condition: () => this.$user().isNotGuest,
+        },
+        {
+          name: 'Rooms',
+          icon: LucideMessageCircleMore,
+          route: {
+            name: 'Rooms',
+          },
+          isActive: /Rooms|Room/g.test(this.$route.name),
           condition: () => this.$user().isNotGuest,
         },
         {
