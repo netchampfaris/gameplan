@@ -9,6 +9,7 @@ readme = "README.md"
 dynamic = ["version"]
 dependencies = [
     "rembg==2.0.49",
+    "apex-search==0.0.2",
 ]
 
 [build-system]

@@ -17,31 +17,33 @@ UNSAFE_CHARS = re.compile(r"[\[\]{}<>+]")
 
 INDEX_BUILD_FLAG = "discussions_index_in_progress"
 SCHEMA = {
-    "GP Discussion": {
-        "title": "title",
-        "content": ["content"],
-        "fields": ["team", "project", "modified"],
-    },
-    "GP Task": {
-        "title": "title",
-        "content": ["description"],
-        "fields": ["team", "project", "modified"],
-    },
-    "GP Page": {
-        "title": "title",
-        "content": ["content"],
-        "fields": ["team", "project", "modified"],
-    },
-    "GP Comment": {
-        "content": ["content"],
-		"fields": ["reference_name", "reference_doctype"]
-    },
+	"GP Discussion": {
+		"title": "title",
+		"content": ["content"],
+		"fields": ["team", "project", "modified"],
+	},
+	"GP Task": {
+		"title": "title",
+		"content": ["description"],
+		"fields": ["team", "project", "modified"],
+	},
+	"GP Page": {
+		"title": "title",
+		"content": ["content"],
+		"fields": ["team", "project", "modified"],
+	},
+	"GP Comment": {
+		"content": ["content"],
+		"fields": ["reference_name", "reference_doctype"],
+	},
 }
+
 
 class GameplanSearch(ApexSearch):
 	def __init__(self) -> None:
-		super().__init__(frappe.get_site_path('indexes', 'apex_search'), SCHEMA)
-		
+		super().__init__(frappe.get_site_path("indexes", "apex_search"), SCHEMA)
+
+
 # Delete after review
 class GameplanSearchOld(Search):
 	def __init__(self) -> None:
@@ -122,8 +124,12 @@ class GameplanSearchOld(Search):
 			}
 		elif doc.doctype == "GP Comment":
 			id = f"GP Comment:{doc.name}"
-			team = frappe.db.get_value(doc.reference_doctype, doc.reference_name, "team", cache=True)
-			project = frappe.db.get_value(doc.reference_doctype, doc.reference_name, "project", cache=True)
+			team = frappe.db.get_value(
+				doc.reference_doctype, doc.reference_name, "team", cache=True
+			)
+			project = frappe.db.get_value(
+				doc.reference_doctype, doc.reference_name, "project", cache=True
+			)
 
 			fields = {
 				"content": html2text(doc.content),
@@ -154,17 +160,22 @@ class GameplanSearchOld(Search):
 	def get_records(self):
 		records = []
 		for d in frappe.db.get_all(
-			"GP Discussion", fields=["name", "title", "content", "last_post_at", "modified", "project", "team"]
+			"GP Discussion",
+			fields=["name", "title", "content", "last_post_at", "modified", "project", "team"],
 		):
 			d.doctype = "GP Discussion"
 			d.modified = d.last_post_at or d.modified
 			records.append(d)
 
-		for d in frappe.db.get_all("GP Task", fields=["name", "title", "description", "modified", "project", "team"]):
+		for d in frappe.db.get_all(
+			"GP Task", fields=["name", "title", "description", "modified", "project", "team"]
+		):
 			d.doctype = "GP Task"
 			records.append(d)
 
-		for d in frappe.db.get_all("GP Page", fields=["name", "title", "content", "modified", "project", "team"]):
+		for d in frappe.db.get_all(
+			"GP Page", fields=["name", "title", "content", "modified", "project", "team"]
+		):
 			d.doctype = "GP Page"
 			records.append(d)
 
@@ -204,7 +215,10 @@ class GameplanSearchOld(Search):
 			frappe.qb.from_(Project)
 			.select(Project.name)
 			.distinct()
-			.where((Project.is_private == 0) | ((Project.is_private == 1) & ExistsCriterion(member_exists)))
+			.where(
+				(Project.is_private == 0)
+				| ((Project.is_private == 1) & ExistsCriterion(member_exists))
+			)
 			.run(pluck=True)
 		)
 		return [cstr(p) for p in projects]
@@ -212,6 +226,7 @@ class GameplanSearchOld(Search):
 
 def build_index():
 	frappe.cache().set_value(INDEX_BUILD_FLAG, True)
+	ensure_index_folder()
 	search = GameplanSearch()
 	search.build_complete_index(lambda table, fields: frappe.get_all(table, fields=fields))
 	frappe.cache().set_value(INDEX_BUILD_FLAG, False)
@@ -225,4 +240,13 @@ def build_index_in_background():
 def build_index_if_not_exists():
 	search = GameplanSearch()
 	if not search.index_exists or not frappe.cache.exists(INDEX_BUILD_FLAG):
-		search.build_complete_index(lambda table, fields: frappe.get_all(table, fields=fields))
+		search.build_complete_index(
+			lambda table, fields: frappe.get_all(table, fields=fields)
+		)
+
+
+def ensure_index_folder():
+	import os
+
+	path = frappe.get_site_path("indexes", "apex_search")
+	os.makedirs(path, exist_ok=True)
