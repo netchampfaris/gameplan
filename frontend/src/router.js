@@ -240,6 +240,14 @@ const routes = [
       },
     ],
   },
+
+  import.meta.env.DEV
+    ? {
+        name: 'Test',
+        path: '/test',
+        component: () => import('@/pages/Test.vue'),
+      }
+    : null,
 ]
 
 let router = createRouter({

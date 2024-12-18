@@ -47,27 +47,38 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 				GuestAccess.user == frappe.session.user
 			)
 			query = query.where(Project.name.isin(project_list))
+
+		print(query)
+
+		return query
+
+	@staticmethod
+	def get_list(query):
+		Project = frappe.qb.DocType("GP Project")
+		Member = frappe.qb.DocType("GP Member")
+		member_exists = (
+			frappe.qb.from_(Member)
+			.select(Member.name)
+			.where(Member.parenttype == "GP Project")
+			.where(Member.parent == Project.name)
+			.where(Member.user == frappe.session.user)
+		)
+		query = query.where(
+			(Project.is_private == 0) | ((Project.is_private == 1) & ExistsCriterion(member_exists))
+		)
+		if gameplan.is_guest():
+			GuestAccess = frappe.qb.DocType("GP Guest Access")
+			project_list = GuestAccess.select(GuestAccess.project).where(
+				GuestAccess.user == frappe.session.user
+			)
+			query = query.where(Project.name.isin(project_list))
+
+		print(query)
+
 		return query
 
 	def as_dict(self, *args, **kwargs) -> dict:
 		d = super().as_dict(*args, **kwargs)
-		# summary
-		total_tasks = frappe.db.count("GP Task", {"project": self.name})
-		completed_tasks = frappe.db.count("GP Task", {"project": self.name, "is_completed": 1})
-		pending_tasks = total_tasks - completed_tasks
-		overdue_tasks = frappe.db.count(
-			"GP Task",
-			{"project": self.name, "is_completed": 0, "due_date": ("<", frappe.utils.today())},
-		)
-		d.summary = {
-			"total_tasks": total_tasks,
-			"completed_tasks": completed_tasks,
-			"pending_tasks": pending_tasks,
-			"overdue_tasks": overdue_tasks,
-		}
-		d.is_pinned = bool(
-			frappe.db.exists("GP Pinned Project", {"project": self.name, "user": frappe.session.user})
-		)
 		return d
 
 	def before_insert(self):
@@ -87,8 +98,8 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 			self.reload()
 
 	@frappe.whitelist()
-	def move_to_team(self, team):
-		if not team or self.team == team:
+	def move_to_team(self, team=None):
+		if team is None or self.team == team:
 			return
 		self.team = team
 		self.save()

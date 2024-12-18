@@ -95,7 +95,7 @@
               <span class="text-sm text-ink-gray-8">{{ group.title }}</span>
             </div>
           </button>
-          <div class="mb-2 mt-0.5 space-y-0.5" v-show="isGroupOpen[group.name]">
+          <div class="mb-2 mt-0.5 space-y-0.5 pl-4" v-show="isGroupOpen[group.name]">
             <RouterLink
               v-for="space in group.spaces"
               :key="space.name"
@@ -133,7 +133,8 @@ import { computed, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGroupedSpaces } from '@/data/groupedSpaces'
 import { unreadNotifications } from '@/data/notifications'
-import { projects as spaces } from '@/data/projects'
+// import { projects as spaces } from '@/data/projects'
+import { spaces } from '@/data/spaces'
 import { activeTeams, teams } from '@/data/teams'
 import { useSessionUser } from '@/data/users'
 import { showCommandPalette } from '@/components/CommandPalette/CommandPalette.vue'
@@ -148,7 +149,6 @@ import LucideInbox from '~icons/lucide/inbox'
 import LucideListTodo from '~icons/lucide/list-todo'
 import LucideNewspaper from '~icons/lucide/newspaper'
 import LucidePlus from '~icons/lucide/plus'
-import LucideTelescope from '~icons/lucide/telescope'
 import LucideUsers2 from '~icons/lucide/users-2'
 
 const { startResize, sidebarResizing, sidebarWidth } = useSidebarResize()
@@ -158,9 +158,11 @@ const route = useRoute()
 const sessionUser = useSessionUser()
 
 const joinedSpaces = computed(() => {
-  return spaces.data
-    .filter((space) => space.members.find((member) => member.user === sessionUser.name))
-    .map((space) => space.name)
+  return (
+    spaces.data
+      ?.filter((space) => space.members.find((member) => member.user === sessionUser.name))
+      .map((space) => space.name) || []
+  )
 })
 
 let groupedSpaces = useGroupedSpaces({

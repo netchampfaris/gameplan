@@ -1,7 +1,7 @@
 import { computed, Ref } from 'vue'
 import { projects } from './projects'
 import { activeTeams } from './teams'
-import { GPProject, GPTeam } from './types'
+import { GPProject, GPTeam } from '@/types/doctypes'
 
 type FilterFunction = (project: GPProject) => boolean
 type GroupedSpaceItem = GPTeam & { spaces: GPProject[] }

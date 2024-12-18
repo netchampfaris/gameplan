@@ -61,33 +61,57 @@
           </a>
         </div>
       </div>
+
+      <div>
+        <!-- <pre>{{ testCall }}</pre> -->
+        <pre>{{ authProviders }}</pre>
+      </div>
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { FormControl, createResource } from 'frappe-ui'
+import { FormControl } from 'frappe-ui'
 import { session } from '@/data/session'
+import { session as _session } from '@/data/newsession'
 import GameplanLogo from '@/components/GameplanLogo.vue'
 import GameplanLogoType from '@/components/GameplanLogoType.vue'
+import { useCall } from 'frappe-ui/src/data-fetching'
 
 let showEmailLogin = ref(false)
 let email = ref('')
 let password = ref('')
 
-let authProviders = createResource({
-  url: 'gameplan.api.oauth_providers',
-  auto: true,
+interface OAuthProviders {
+  name: string
+  provider_name: string
+  auth_url: string
+  icon: string
+}
+
+let authProviders = useCall<OAuthProviders[]>({
+  url: '/api/v2/method/gameplan.api.oauth_providers',
+  immediate: true,
   onSuccess(data) {
     showEmailLogin.value = data.length === 0
   },
 })
-authProviders.fetch()
 
 function submit() {
-  session.login.submit({
-    email: email.value,
-    password: password.value,
+  _session.login.submit({
+    usr: email,
+    pwd: password,
   })
 }
+
+let testCall = useCall({
+  url: '/api/v2/method/test',
+  method: 'POST',
+})
+
+// testCall.submit()
+
+window.authProviders = authProviders
+
+// window.testCall = testCall
 </script>
