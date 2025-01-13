@@ -1,6 +1,7 @@
 # Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and Contributors
 # See license.txt
 
+import json
 
 import frappe
 from frappe.utils.telemetry import capture
@@ -14,6 +15,18 @@ def get_context():
 	context = frappe._dict()
 	context.boot = get_boot()
 	context.boot.csrf_token = csrf_token
+
+	is_production = not frappe.local.dev_server
+	if is_production:
+		manifest = get_manifest()
+		context.update(
+			{
+				"manifest": manifest,
+				"entry_file": manifest["index.html"]["file"],
+				"entry_css": manifest["index.html"].get("css", []),
+				"production": is_production,
+			}
+		)
 	if frappe.session.user != "Guest":
 		capture("active_site", "gameplan")
 	return context
@@ -36,6 +49,15 @@ def get_boot():
 			"gameplan_frontend_sentry_dsn": frappe.conf.gameplan_frontend_sentry_dsn,
 		}
 	)
+
+
+def get_manifest():
+	app_path = frappe.get_app_path("gameplan")
+	manifest_path = app_path + "/public/frontend/manifest.json"
+	manifest = frappe.read_file(manifest_path)
+	if not manifest:
+		frappe.throw("gameplan/public/frontend/manifest.json not found")
+	return json.loads(manifest)
 
 
 def on_login(login_manager):

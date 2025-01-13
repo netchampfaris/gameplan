@@ -56,6 +56,7 @@ export default defineConfig({
     include: ['feather-icons', 'showdown', 'tailwind.config.js'],
   },
   build: {
+    manifest: true,
     outDir: '../gameplan/public/frontend',
     emptyOutDir: true,
     commonjsOptions: {

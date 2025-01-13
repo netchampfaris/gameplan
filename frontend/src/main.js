@@ -1,3 +1,4 @@
+import 'vite/modulepreload-polyfill'
 import { createApp } from 'vue'
 import {
   Button,
@@ -57,21 +58,24 @@ app.config.globalProperties.$readOnlyMode = window.read_only_mode
 app.config.globalProperties.$platform = getPlatform()
 app.config.globalProperties.$isSessionUser = isSessionUser
 
-let socket
-if (import.meta.env.DEV) {
-  frappeRequest({ url: '/api/method/gameplan.www.g.get_context_for_dev' }).then((values) => {
-    for (let key in values) {
-      window[key] = values[key]
-    }
-    socket = initSocket()
-    app.config.globalProperties.$socket = socket
-    app.mount('#app')
-  })
-} else {
-  socket = initSocket()
-  app.config.globalProperties.$socket = socket
-  app.mount('#app')
-}
+// let socket
+// if (import.meta.env.DEV) {
+//   frappeRequest({ url: '/api/method/gameplan.www.g.get_context_for_dev' }).then((values) => {
+//     for (let key in values) {
+//       window[key] = values[key]
+//     }
+//     socket = initSocket()
+//     app.config.globalProperties.$socket = socket
+//     app.mount('#app')
+//   })
+// } else {
+//   socket = initSocket()
+//   app.config.globalProperties.$socket = socket
+//   app.mount('#app')
+// }
+let socket = initSocket()
+app.config.globalProperties.$socket = socket
+app.mount('#app')
 
 // sentry error logging
 if (import.meta.env.PROD && window.gameplan_frontend_sentry_dsn) {
