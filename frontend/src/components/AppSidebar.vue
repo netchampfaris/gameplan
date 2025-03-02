@@ -68,7 +68,7 @@
           <span class="text-sm text-ink-gray-5 invisible group-hover:visible">Show all</span>
         </AppLink>
         <div class="space-x-1 flex items-center">
-          <Button variant="ghost" @click="showAddTeamDialog = true">
+          <Button variant="ghost" @click="showAddTeamDialog = true" label="Add Space">
             <template #icon>
               <LucidePlus class="h-4 w-4 text-ink-gray-6" />
             </template>

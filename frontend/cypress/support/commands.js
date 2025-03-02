@@ -46,6 +46,10 @@ Cypress.Commands.add('iconButton', (text) => {
   return cy.get(`button[aria-label="${text}"]:visible`)
 })
 
+Cypress.Commands.add('input', ({ placeholder }) => {
+  return cy.get(`input[placeholder="${placeholder}"]`)
+})
+
 Cypress.Commands.add('dialog', (selector) => {
   return cy.get(`[role=dialog] ${selector}`)
 })
