@@ -69,7 +69,7 @@ class GPDiscussion(HasActivity, HasMentions, HasReactions, Document):
 		self.update_discussions_count()
 
 	def on_trash(self):
-		self.remove_bookmark()
+		self.delete_bookmarks()
 		self.update_discussions_count()
 		self.remove_search_index()
 
@@ -87,6 +87,9 @@ class GPDiscussion(HasActivity, HasMentions, HasReactions, Document):
 
 	def before_save(self):
 		self.update_slug()
+
+	def delete_bookmarks(self):
+		frappe.db.delete("GP Bookmark", {"discussion": self.name})
 
 	# Whitelisted Methods
 	@frappe.whitelist()

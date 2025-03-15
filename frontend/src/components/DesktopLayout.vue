@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex h-full flex-col" v-if="users.isFinished">
+  <div class="relative flex h-full flex-col border-t" v-if="users.isFinished">
     <div class="h-full flex-1">
       <div class="flex h-full">
         <div class="relative block min-h-0 flex-shrink-0 overflow-hidden hover:overflow-auto">

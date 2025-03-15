@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" :data-id="comment.name">
+  <div class="relative" :data-id="comment.name" :data-comment-id="comment.id">
     <div
       v-if="highlight"
       class="absolute inset-0 translate-y- z-[5] rounded border-2 -mx-4 -mb-4 mt-11 pointer-events-none"
@@ -76,6 +76,7 @@
             :discardButtonProps="{
               onClick: () => setEditing(comment.name, false),
             }"
+            @quote-reply="$emit('quote-reply', $event)"
           />
           <span class="text-base italic text-ink-gray-5" v-else> This message is deleted </span>
           <div class="mt-3" v-if="!comment.deleted_at && !editableComment && comment.reactions">
