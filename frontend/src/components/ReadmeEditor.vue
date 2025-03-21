@@ -73,7 +73,7 @@
 import { ref } from 'vue'
 import { Tooltip } from 'frappe-ui'
 import { useElementSize } from '@vueuse/core'
-import TextEditor from '@/components/TextEditor.vue'
+import TextEditor from '@/components/TextEditor'
 
 export default {
   name: 'ReadmeEditor',

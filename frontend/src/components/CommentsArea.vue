@@ -42,6 +42,7 @@
           "
           :readOnlyMode="readOnlyMode"
           :comments="comments"
+          @quote-reply="handleQuoteReply($event, item.name)"
         />
         <Activity
           :class="[
@@ -441,6 +442,18 @@ function discardComment() {
   } else {
     resetCommentState()
   }
+}
+
+function handleQuoteReply(text, commentId) {
+  showCommentBox.value = true
+
+  let escapedText = encodeURIComponent(text)
+  let author = comments.data?.find((c) => c.name === commentId)?.owner
+
+  newComment.value = `
+    <gp-quote text="${escapedText}" author="${author}" commentId="${commentId}"></gp-quote>
+    <p></p>
+  `
 }
 
 watch(showCommentBox, (val) => {

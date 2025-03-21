@@ -173,7 +173,7 @@
 <script setup lang="ts">
 import { h, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import TextEditor from '@/components/TextEditor.vue'
+import TextEditor from '@/components/TextEditor'
 import CommentsList from '@/components/CommentsList.vue'
 import TaskStatusIcon from '@/components/NewTaskDialog/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/icons/TaskPriorityIcon.vue'

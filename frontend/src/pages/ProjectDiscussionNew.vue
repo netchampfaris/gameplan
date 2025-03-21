@@ -87,7 +87,7 @@
   </div>
 </template>
 <script>
-import TextEditor from '@/components/TextEditor.vue'
+import TextEditor from '@/components/TextEditor'
 import { focus } from '@/directives'
 import UserProfileLink from '@/components/UserProfileLink.vue'
 import TextEditorFixedMenu from 'frappe-ui/src/components/TextEditor/TextEditorFixedMenu.vue'
