@@ -462,3 +462,9 @@ def search2(query):
 	search = GameplanSearch()
 	result = search.search(query)
 	return result
+
+
+@frappe.whitelist()
+def fix_spelling_grammar(html):
+	# fix spelling and grammar
+	return f"<p>asdf<p> {html}"

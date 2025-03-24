@@ -74,6 +74,7 @@
         <template v-slot:bottom>
           <div class="mt-2 flex flex-col justify-between sm:flex-row sm:items-center">
             <TextEditorFixedMenu class="overflow-x-auto" :buttons="textEditorMenuButtons" />
+            <TextEditorBubbleMenu :buttons="bubbleMenu" />
             <div class="mt-2 shrink-0 space-x-2 text-right sm:hidden">
               <div class="inline-flex text-ink-gray-5 text-sm" v-if="savingDraft">Saving...</div>
               <Button v-if="draftDoc?.doc" @click="deleteDraft"> Delete </Button>
@@ -92,7 +93,14 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Autocomplete, Breadcrumbs, TextEditorFixedMenu, debounce } from 'frappe-ui'
+import {
+  Autocomplete,
+  Breadcrumbs,
+  TextEditorFixedMenu,
+  TextEditorFloatingMenu,
+  TextEditorBubbleMenu,
+  debounce,
+} from 'frappe-ui'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDoc, useDoctype, useNewDoc } from 'frappe-ui/src/data-fetching'
 import { useSessionUser } from '@/data/users'
@@ -103,6 +111,7 @@ import { focus as vFocus } from '@/directives'
 import { createDialog } from '@/utils/dialogs'
 import { useLocalStorage } from '@vueuse/core'
 import { GPDiscussion, GPDraft } from '@/types/doctypes'
+import LucideSpellCheck from '~icons/lucide/spell-check'
 
 const currentRoute = useRoute()
 const sessionUser = useSessionUser()
@@ -349,5 +358,14 @@ const textEditorMenuButtons = [
   'Separator',
   'Undo',
   'Redo',
+]
+
+const bubbleMenu = [
+  {
+    label: 'Fix Spelling & Grammar',
+    icon: LucideSpellCheck,
+    action: (editor) => editor.chain().focus().fixSpellingAndGrammar().run(),
+    isActive: () => false,
+  },
 ]
 </script>
