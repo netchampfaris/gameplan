@@ -66,6 +66,16 @@ let router = createRouter({
       component: () => import('@/pages/Search2.vue'),
     },
     {
+      path: '/search_tantivy',
+      name: 'SearchTantivy',
+      component: () => import('@/pages/SearchTantivy.vue'),
+    },
+    {
+      path: '/search_sqlite',
+      name: 'SearchSqlite',
+      component: () => import('@/pages/SearchSqlite.vue'),
+    },
+    {
       path: '/onboarding',
       name: 'Onboarding',
       component: () => import('@/pages/Onboarding.vue'),

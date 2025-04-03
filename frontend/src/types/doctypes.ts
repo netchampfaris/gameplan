@@ -1,17 +1,17 @@
 interface DocType {
-  name: string
-  creation: string
-  modified: string
-  owner: string
-  modified_by: string
-}
+    name: string;
+    creation: string;
+    modified: string;
+    owner: string;
+    modified_by: string;
+  }
 
-interface ChildDocType extends DocType {
-  parent?: string
-  parentfield?: string
-  parenttype?: string
-  idx?: number
-}
+  interface ChildDocType extends DocType {
+    parent?: string;
+    parentfield?: string;
+    parenttype?: string;
+    idx?: number;
+  }
 
 // Last updated: 2023-06-15 21:01:42.058336
 export interface GPTask extends DocType {
@@ -323,16 +323,16 @@ export interface GPSearchFeedback extends DocType {
   query?: string
 }
 
-// Last updated: 2025-03-06 13:03:57.610208
+// Last updated: 2025-03-08 16:00:25.825860
 export interface GPDraft extends DocType {
   /** Title: Data */
-  title?: string
+  title?: string;
   /** Content: Text Editor */
-  content?: string
+  content?: string;
   /** Type: Select */
-  type?: 'Discussion' | 'Comment'
+  type?: 'Discussion' | 'Comment';
   /** Project: Link (GP Project) */
-  project?: string
+  project?: string;
   /** Team: Link (GP Team) */
-  team?: string
+  team?: string;
 }

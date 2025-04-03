@@ -542,6 +542,10 @@ class FullTextSearch:
 
 	def search(self, query, title_only=False):
 		"""Main search function with improved title matching and content highlighting."""
+
+		if not self.index_exists():
+			return {"results": [], "summary": {"duration": 0, "total_matches": 0, "returned_matches": 0}}
+
 		start_time = time.time()
 		self._debug(f"\n=== Search Query: '{query}' (title_only: {title_only}) ===")
 		self._load_index_from_redis()
