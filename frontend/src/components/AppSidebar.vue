@@ -157,6 +157,7 @@ import LucideNewspaper from '~icons/lucide/newspaper'
 import LucidePlus from '~icons/lucide/plus'
 import LucideUsers2 from '~icons/lucide/users-2'
 import LucideSettings2 from '~icons/lucide/settings-2'
+import LucideSparkles from '~icons/lucide/sparkles'
 
 const showAddTeamDialog = ref(false)
 const showHomePageSettingsDialog = ref(false)
@@ -178,6 +179,14 @@ let groupedSpaces = computed(() => {
 
 const navigation = computed(() => {
   return [
+    {
+      name: 'Juno',
+      icon: LucideSparkles,
+      route: {
+        name: 'JunoHome',
+      },
+      isActive: testRoute(/Juno/g),
+    },
     {
       name: 'Inbox',
       icon: LucideInbox,

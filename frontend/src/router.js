@@ -46,6 +46,21 @@ let router = createRouter({
       component: () => import('@/pages/MyPages.vue'),
     },
     {
+      name: 'Juno',
+      path: '/juno',
+      redirect: { name: 'JunoHome' },
+    },
+    {
+      name: 'JunoHome',
+      path: '/juno/home',
+      component: () => import('@/pages/Juno/JunoHome.vue'),
+    },
+    {
+      name: 'JunoChat',
+      path: '/juno/chat',
+      component: () => import('@/pages/Juno/JunoChat.vue'),
+    },
+    {
       name: 'Page',
       path: '/page/:pageId/:slug?',
       component: () => import('@/pages/Page.vue'),
