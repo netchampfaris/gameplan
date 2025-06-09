@@ -60,6 +60,7 @@ Juno uses the following routes in the Gameplan frontend:
 The main landing page for Juno AI assistant.
 
 **Features:**
+
 - Personalized greeting based on time of day
 - Large search input for starting conversations
 - Connection status indicator
@@ -68,6 +69,7 @@ The main landing page for Juno AI assistant.
 - Recent conversations (planned feature)
 
 **Key Functionality:**
+
 - Redirects to chat interface when message is sent
 - Tests AI service connectivity on mount
 - Manages model selection state
@@ -77,6 +79,7 @@ The main landing page for Juno AI assistant.
 The main chat interface for interactive conversations.
 
 **Features:**
+
 - Real-time chat interface with message history
 - Streaming response support with fallback to regular API
 - Auto-adjusting textarea for message input
@@ -85,6 +88,7 @@ The main chat interface for interactive conversations.
 - Model switching
 
 **Key Functionality:**
+
 - Manages conversation state and message history
 - Handles both streaming and non-streaming API calls
 - Auto-scrolls to new messages
@@ -95,6 +99,7 @@ The main chat interface for interactive conversations.
 Component for rendering AI responses with advanced formatting.
 
 **Features:**
+
 - Markdown rendering with prose styling
 - Collapsible XML tag blocks for structured content
 - Code syntax highlighting
@@ -108,7 +113,9 @@ All API endpoints are located in `gameplan/ai/juno.py`:
 ### Core Endpoints
 
 #### `get_response`
+
 **Purpose:** Get AI response (non-streaming)
+
 ```python
 @frappe.whitelist()
 def get_response(
@@ -119,23 +126,27 @@ def get_response(
 ```
 
 **Parameters:**
+
 - `message`: User's input message
 - `conversation_id`: Optional conversation ID for context
 - `model`: Optional model override
 
 **Response:**
+
 ```json
 {
-    "success": true,
-    "response": "AI response text...",
-    "model": "deepseek-r1",
-    "conversation_id": null,
-    "timestamp": "2025-06-09 12:00:00"
+  "success": true,
+  "response": "AI response text...",
+  "model": "deepseek-r1",
+  "conversation_id": null,
+  "timestamp": "2025-06-09 12:00:00"
 }
 ```
 
 #### `get_streaming_response`
+
 **Purpose:** Get streaming AI response with Server-Sent Events (SSE)
+
 ```python
 @frappe.whitelist()
 def get_streaming_response(
@@ -148,6 +159,7 @@ def get_streaming_response(
 **Returns:** SSE stream with real-time response chunks
 
 **Stream Format:**
+
 ```json
 // Content chunks
 {
@@ -158,7 +170,7 @@ def get_streaming_response(
 
 // Completion
 {
-    "type": "completion",
+    "type": "done",
     "success": true,
     "model": "deepseek-r1",
     "timestamp": "2025-06-09 12:00:00"
@@ -174,33 +186,40 @@ def get_streaming_response(
 ### Utility Endpoints
 
 #### `test_ollama_connection`
+
 **Purpose:** Test connectivity to Ollama service
+
 ```python
 @frappe.whitelist()
 def test_ollama_connection() -> dict[str, Any]
 ```
 
 **Response:**
+
 ```json
 {
-    "success": true,
-    "connected": true,
-    "base_url": "http://localhost:11434",
-    "available_models": ["deepseek-r1", "llama2"],
-    "configured_model": "deepseek-r1",
-    "model_available": true
+  "success": true,
+  "connected": true,
+  "base_url": "http://localhost:11434",
+  "available_models": ["deepseek-r1", "llama2"],
+  "configured_model": "deepseek-r1",
+  "model_available": true
 }
 ```
 
 #### `get_available_models`
+
 **Purpose:** Get list of available AI models
+
 ```python
 @frappe.whitelist()
 def get_available_models() -> list[str]
 ```
 
 #### `test_streaming`
+
 **Purpose:** Test streaming functionality (development/debugging)
+
 ```python
 @frappe.whitelist()
 def test_streaming()
@@ -214,15 +233,16 @@ Add to your site's `site_config.json`:
 
 ```json
 {
-    "ollama_base_url": "http://localhost:11434",
-    "ollama_model": "deepseek-r1",
-    "ollama_timeout": 30
+  "ollama_base_url": "http://localhost:11434",
+  "ollama_model": "deepseek-r1",
+  "ollama_timeout": 30
 }
 ```
 
 ### Environment Setup
 
 1. **Install Ollama**:
+
    ```bash
    # macOS
    brew install ollama
@@ -231,6 +251,7 @@ Add to your site's `site_config.json`:
    ```
 
 2. **Pull AI Model**:
+
    ```bash
    ollama pull deepseek-r1
    ```
@@ -245,10 +266,12 @@ Add to your site's `site_config.json`:
 Juno automatically includes relevant context from Gameplan:
 
 ### Current Context Features
+
 - **User Information**: Current user details and profile
 - **Session Data**: Active workspace and permissions
 
 ### Planned Context Features
+
 - **Recent Projects**: Last 5 projects user has worked on
 - **Pending Tasks**: Up to 10 pending tasks assigned to user
 - **Team Memberships**: Teams and roles
@@ -283,6 +306,7 @@ def build_gameplan_context(message: str) -> str:
 ### State Management
 
 The frontend uses Vue 3 Composition API with:
+
 - **Reactive State**: `ref()` for component state
 - **Local Storage**: `useLocalStorage()` for model preferences
 - **API Calls**: `useCall()` from frappe-ui for server communication
@@ -304,7 +328,7 @@ const sendStreamingMessage = async (message: string) => {
         if (data.type === 'content') {
             // Append content to current message
             currentMessage.content += data.content
-        } else if (data.type === 'completion') {
+        } else if (data.type === 'done') {
             // Finalize message
             eventSource.close()
         } else if (data.type === 'error') {
@@ -319,6 +343,7 @@ const sendStreamingMessage = async (message: string) => {
 ### Error Handling
 
 The frontend implements robust error handling:
+
 - **Automatic Fallback**: Streaming failures automatically retry with regular API
 - **Connection Monitoring**: Real-time status indicators
 - **User Feedback**: Clear error messages and loading states
@@ -331,15 +356,15 @@ Juno is integrated into the main Gameplan sidebar:
 ```javascript
 // In AppSidebar.vue
 const navigation = computed(() => {
-    return [
-        {
-            name: 'Juno',
-            icon: LucideSparkles,
-            route: { name: 'JunoHome' },
-            isActive: testRoute(/Juno/g),
-        },
-        // ... other navigation items
-    ]
+  return [
+    {
+      name: 'Juno',
+      icon: LucideSparkles,
+      route: { name: 'JunoHome' },
+      isActive: testRoute(/Juno/g),
+    },
+    // ... other navigation items
+  ]
 })
 ```
 
@@ -358,8 +383,8 @@ Use the test endpoints for development:
 ```javascript
 // Test connection
 frappe.call({
-    method: "gameplan.ai.juno.test_ollama_connection",
-    callback: (r) => console.log(r.message)
+  method: 'gameplan.ai.juno.test_ollama_connection',
+  callback: (r) => console.log(r.message),
 })
 
 // Test streaming

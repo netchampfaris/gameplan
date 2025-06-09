@@ -34,12 +34,12 @@
 
     <!-- Messages Container -->
     <div class="flex-1 overflow-y-auto">
-      <div class="mx-auto max-w-3xl px-6 py-8 space-y-6">
+      <div class="mx-auto max-w-3xl py-8 space-y-6">
         <!-- Message List -->
-        <div v-for="message in messages" :key="message.id" class="space-y-6">
+        <template v-for="message in messages" :key="message.id">
           <!-- User Message -->
           <div v-if="message.type === 'user'" class="flex justify-end">
-            <div class="max-w-[80%] rounded-lg bg-surface-gray-3 text-ink-gray-8 px-4 py-3">
+            <div class="max-w-[80%] rounded-lg bg-surface-gray-2 text-ink-gray-8 px-4 py-3">
               <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
             </div>
           </div>
@@ -59,24 +59,24 @@
               <JunoResponse v-else :content="message.content" />
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 
     <!-- Chat Input -->
-    <div class="border-t border-outline-gray-2 bg-surface-white px-6 py-4">
+    <div class="bg-surface-white px-6 pb-4">
       <div class="mx-auto max-w-3xl">
         <div class="flex gap-3">
           <div class="flex-1">
             <div
-              class="rounded-lg border border-outline-gray-2 bg-surface-white focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
+              class="rounded-lg border border-outline-gray-2 bg-surface-white text-ink-gray-9 focus-within:border-outline-gray-3"
             >
               <textarea
                 ref="messageInput"
                 v-model="newMessage"
                 placeholder="Ask Juno anything..."
                 :rows="1"
-                class="w-full resize-none border-0 p-3 text-sm focus:ring-0"
+                class="w-full resize-none border-0 bg-transparent p-3 text-sm focus:ring-0"
                 @keydown.enter.prevent="handleEnterKey"
                 @input="adjustTextareaHeight"
               />
@@ -260,6 +260,18 @@ const sendStreamingMessage = async (message: string, assistantMessage: Message) 
     )
 
     let hasContent = false
+    let isSettled = false // Track if promise is already resolved/rejected
+
+    const settlePromise = (type: 'resolve' | 'reject', value?: any) => {
+      if (isSettled) return
+      isSettled = true
+      eventSource.close()
+      if (type === 'resolve') {
+        resolve(value)
+      } else {
+        reject(value)
+      }
+    }
 
     eventSource.onmessage = function (event) {
       try {
@@ -272,16 +284,17 @@ const sendStreamingMessage = async (message: string, assistantMessage: Message) 
           }
           assistantMessage.content += data.content
         } else if (data.type === 'done') {
-          eventSource.close()
-          resolve(undefined)
+          settlePromise('resolve', undefined)
         } else if (data.type === 'error') {
           assistantMessage.content = data.error || 'An error occurred'
           assistantMessage.loading = false
-          eventSource.close()
-          reject(new Error(data.error))
+          settlePromise('reject', new Error(data.error))
         }
       } catch (error) {
         console.error('Error parsing SSE data:', error)
+        assistantMessage.content = 'Error parsing response data. Please try again.'
+        assistantMessage.loading = false
+        settlePromise('reject', new Error('Failed to parse response data'))
       }
     }
 
@@ -289,19 +302,20 @@ const sendStreamingMessage = async (message: string, assistantMessage: Message) 
       console.error('EventSource failed:', error)
       assistantMessage.content = 'Connection error. Please try again.'
       assistantMessage.loading = false
-      eventSource.close()
-      reject(error)
+      settlePromise('reject', error)
     }
 
     // Set a timeout to close the connection if it takes too long
     setTimeout(() => {
-      if (eventSource.readyState !== EventSource.CLOSED) {
-        eventSource.close()
+      if (!isSettled) {
         if (!hasContent) {
           assistantMessage.content = 'Request timed out. Please try again.'
           assistantMessage.loading = false
+          settlePromise('reject', new Error('Request timed out'))
+        } else {
+          // If we have content, just resolve normally
+          settlePromise('resolve', undefined)
         }
-        resolve(undefined)
       }
     }, 30000)
   })

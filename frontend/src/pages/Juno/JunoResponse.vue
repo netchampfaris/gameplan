@@ -2,42 +2,25 @@
   <div class="message-renderer prose prose-sm max-w-none">
     <template v-for="(block, index) in contentBlocks" :key="index">
       <!-- Collapsible XML tag blocks -->
-      <details
-        v-if="collapsibleTags.includes(block.type)"
-        class="xml-tag-details border border-gray-200 rounded-lg p-3 my-2 bg-gray-50"
-        :class="{
-          'border-orange-200 bg-orange-50': block.isOpen,
-        }"
-      >
-        <summary class="cursor-pointer font-medium text-gray-700 hover:text-gray-900 select-none">
-          <span class="inline-flex items-center gap-2">
-            <svg
-              class="w-4 h-4 transform transition-transform details-chevron"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-            {{ block.type.charAt(0).toUpperCase() + block.type.slice(1) }}
-            <span
-              v-if="block.isOpen"
-              class="inline-flex items-center gap-1 text-xs text-orange-600 font-medium"
-            >
-              <span class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
-              Processing...
-            </span>
-          </span>
-        </summary>
-        <div class="mt-3 pl-6 text-gray-600 whitespace-pre-wrap border-l-2 border-gray-300">
+      <div v-if="collapsibleTags.includes(block.type)" class="mb-4">
+        <Button @click="toggleBlock(index)">
+          <div class="flex items-center gap-1">
+            Show
+            {{ block.type === 'think' ? 'thinking' : block.type }}
+            <LucideChevronDown
+              :class="{ 'rotate-180': block.expanded }"
+              class="size-4 duration-200"
+            />
+          </div>
+        </Button>
+
+        <div
+          v-if="block.expanded"
+          class="mt-3 text-ink-gray-7 whitespace-pre-wrap border-l-4 border-outline-gray-1 pl-3"
+        >
           {{ block.content }}
         </div>
-      </details>
+      </div>
 
       <!-- Regular content blocks -->
       <div v-else v-html="block.renderedContent"></div>
@@ -46,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import showdown from 'showdown'
+import { LoadingIndicator } from 'frappe-ui'
 
 interface Props {
   content: string
@@ -73,7 +57,19 @@ interface ContentBlock {
   type: string
   content: string
   isOpen?: boolean
+  expanded?: boolean
   renderedContent?: string
+}
+
+// Track expanded state for each block
+const expandedBlocks = ref<Set<number>>(new Set())
+
+const toggleBlock = (index: number) => {
+  if (expandedBlocks.value.has(index)) {
+    expandedBlocks.value.delete(index)
+  } else {
+    expandedBlocks.value.add(index)
+  }
 }
 
 const contentBlocks = computed((): ContentBlock[] => {
@@ -99,20 +95,21 @@ const contentBlocks = computed((): ContentBlock[] => {
       }
     }
 
-    // Add content before the tag as a regular block
-    if (nextTagIndex > currentIndex) {
-      const beforeContent = content.slice(currentIndex, nextTagIndex).trim()
-      if (beforeContent) {
-        blocks.push({
-          type: 'response',
-          content: beforeContent,
-          renderedContent: converter.makeHtml(beforeContent),
-        })
-      }
-    }
-
-    // Process the XML tag if found
     if (nextTagMatch && matchedTag) {
+      // A tag was found
+      // Add content before the tag as a regular block
+      if (nextTagIndex > currentIndex) {
+        const beforeContent = content.slice(currentIndex, nextTagIndex).trim()
+        if (beforeContent) {
+          blocks.push({
+            type: 'response',
+            content: beforeContent,
+            renderedContent: converter.makeHtml(beforeContent),
+          })
+        }
+      }
+
+      // Process the XML tag
       const tagStart = nextTagIndex + nextTagMatch[0].length
 
       // Look for closing tag
@@ -127,6 +124,7 @@ const contentBlocks = computed((): ContentBlock[] => {
           type: matchedTag,
           content: tagContent.trim(),
           isOpen: false,
+          expanded: expandedBlocks.value.has(blocks.length),
         })
         currentIndex = closingMatch.index + closingMatch[0].length
       } else {
@@ -136,10 +134,12 @@ const contentBlocks = computed((): ContentBlock[] => {
           type: matchedTag,
           content: tagContent.trim(),
           isOpen: true,
+          expanded: expandedBlocks.value.has(blocks.length),
         })
         currentIndex = content.length
       }
     } else {
+      // No more collapsible tags found from currentIndex
       // No more tags, add remaining content
       const remainingContent = content.slice(currentIndex).trim()
       if (remainingContent) {
@@ -149,53 +149,10 @@ const contentBlocks = computed((): ContentBlock[] => {
           renderedContent: converter.makeHtml(remainingContent),
         })
       }
-      break
+      break // All remaining content is processed, exit loop
     }
   }
 
   return blocks
 })
 </script>
-
-<style scoped>
-/* Custom styles for XML tag details */
-.message-renderer :deep(.xml-tag-details) {
-  border: 1px solid rgb(229 231 235);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  background-color: rgb(249 250 251);
-}
-
-.message-renderer :deep(.xml-tag-details.border-orange-200) {
-  border-color: rgb(254 215 170);
-  background-color: rgb(255 247 237);
-}
-
-.message-renderer :deep(.xml-tag-details summary) {
-  cursor: pointer;
-  font-weight: 500;
-  color: rgb(55 65 81);
-  user-select: none;
-}
-
-.message-renderer :deep(.xml-tag-details summary:hover) {
-  color: rgb(17 24 39);
-}
-
-.message-renderer :deep(.xml-tag-details[open] .details-chevron) {
-  transform: rotate(90deg);
-}
-
-.message-renderer :deep(.xml-tag-details .details-chevron) {
-  transition: transform 0.2s ease;
-}
-
-.message-renderer :deep(.xml-tag-details summary::-webkit-details-marker) {
-  display: none;
-}
-
-.message-renderer :deep(.xml-tag-details summary::-moz-list-bullet) {
-  list-style-type: none;
-}
-</style>

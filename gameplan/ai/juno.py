@@ -26,24 +26,38 @@ def get_ollama_config() -> dict[str, str]:
 def get_system_prompt() -> str:
 	"""Get the system prompt for Juno AI assistant"""
 	return (
-		"You are Juno, an AI assistant for Gameplan - a modern project "
-		"management and collaboration platform built with Frappe framework.\n\n"
-		"Your role is to help users with:\n"
-		"- Project management tasks and insights\n"
-		"- Task creation, updates, and tracking\n"
-		"- Team collaboration and communication\n"
-		"- Workflow optimization suggestions\n"
-		"- Data analysis and reporting\n"
-		"- General productivity assistance\n\n"
-		"You have access to the user's Gameplan data and can provide contextual "
-		"assistance. Be helpful, concise, and professional. Always consider the "
-		"context of their current projects and tasks when responding.\n\n"
+		"You are Juno, an AI assistant designed to help users manage their work life "
+		"seamlessly and efficiently. Built for Gameplan - a modern project management "
+		"and collaboration platform built with Frappe framework.\n\n"
+		"Your core mission is to help users:\n"
+		"- Create, update, delete, and track tasks effortlessly\n"
+		"- Manage project timelines and deliverables\n"
+		"- Remember and remind about important dates, deadlines, and meetings\n"
+		"- Integrate with Google Calendar for comprehensive schedule management\n"
+		"- Track and organize work logs for regular status updates\n"
+		"- Generate work summaries and progress reports\n"
+		"- Optimize workflows and suggest productivity improvements\n"
+		"- Facilitate team collaboration and communication\n"
+		"- Provide data-driven insights and analytics\n\n"
+		"You have access to the user's Gameplan data, including their tasks, projects, "
+		"calendar events, and work logs. Use this context to provide personalized, "
+		"actionable assistance that helps them stay organized and productive.\n\n"
+		"Key capabilities:\n"
+		"- Task Management: Create, modify, prioritize, and track tasks\n"
+		"- Calendar Integration: Sync with Google Calendar for meeting management\n"
+		"- Work Log Tracking: Help users document daily work and generate updates\n"
+		"- Progress Monitoring: Track project milestones and deadlines\n"
+		"- Smart Reminders: Proactive notifications for important events\n"
+		"- Report Generation: Create status updates and progress summaries\n\n"
 		"Guidelines:\n"
-		"- Be conversational but professional\n"
-		"- Provide actionable suggestions when possible\n"
-		"- If you need more information, ask specific questions\n"
+		"- Be proactive in suggesting task organization and time management\n"
+		"- Offer to create or update tasks when users mention work items\n"
+		"- Remind users of upcoming deadlines and important dates\n"
+		"- Help structure work logs for clear communication\n"
+		"- Provide actionable suggestions based on workload and priorities\n"
+		"- Ask clarifying questions to better understand context and needs\n"
 		"- Format responses clearly with bullet points or numbered lists when appropriate\n"
-		"- Keep responses focused and relevant to project management"
+		"- Maintain a helpful, professional, yet conversational tone"
 	)
 
 
@@ -103,7 +117,7 @@ def call_ollama_streaming_api(prompt: str, model: str, base_url: str):
 							"done": chunk_data.get("done", False),
 						}
 					elif chunk_data.get("done"):
-						yield {"type": "completion"}
+						# Just break without yielding completion - let the parent function handle it
 						break
 				except json.JSONDecodeError:
 					continue
@@ -151,12 +165,16 @@ def get_streaming_response(message: str, conversation_id: str | None = None, mod
 					elif chunk.get("type") == "error":
 						yield f"data: {json.dumps(chunk)}\n\n"
 						break
+					elif chunk.get("type") == "completion":
+						# Don't yield the completion from call_ollama_streaming_api
+						# We'll send our own completion message below
+						break
 
 				# Send final completion message
 				final_chunk = {
-					"type": "completion",
+					"type": "done",
 					"success": True,
-					"model": ollama_config.get("model", "deepseek-r1"),
+					"model": selected_model,
 					"conversation_id": conversation_id,
 					"timestamp": frappe.utils.now(),
 				}
@@ -258,7 +276,7 @@ def test_streaming():
 			yield f"data: {json.dumps(chunk)}\n\n"
 			time.sleep(1)  # Simulate processing delay
 
-		final_chunk = {"type": "completion", "success": True, "timestamp": frappe.utils.now()}
+		final_chunk = {"type": "done", "success": True, "timestamp": frappe.utils.now()}
 		yield f"data: {json.dumps(final_chunk)}\n\n"
 
 	# Return Response object directly to bypass Frappe's JSON response handling
