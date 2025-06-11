@@ -61,6 +61,11 @@ let router = createRouter({
       component: () => import('@/pages/Juno/JunoChat.vue'),
     },
     {
+      name: 'MCPServers',
+      path: '/juno/mcp-servers',
+      component: () => import('@/pages/Juno/MCPServers.vue'),
+    },
+    {
       name: 'Page',
       path: '/page/:pageId/:slug?',
       component: () => import('@/pages/Page.vue'),

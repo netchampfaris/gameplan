@@ -12,6 +12,7 @@ dependencies = [
     "numpy==1.26.1",
     "onnxruntime==1.16.2",
     "faker==37.3.0",
+    "mcp>=1.0.0",
 ]
 
 [build-system]

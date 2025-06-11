@@ -1,0 +1,116 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Frappe Gameplan Development Rules
+
+## Frappe Python Env
+/Users/netchampfaris/Projects/frappe-bench/env
+
+## Test Site
+/Users/netchampfaris/Projects/frappe-bench/sites/gameplan.frappe.test
+
+## Test python function outputs
+bench --site gameplan.frappe.test execute path.to.function
+
+## Project Structure
+
+This is a Frappe application with a Vue.js frontend. The main application code is in the `gameplan/` directory, and the Vue frontend is in the `frontend/` directory.
+
+Key files and directories:
+- [gameplan/](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan) - Main Frappe application directory
+- [frontend/](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend) - Vue.js frontend application
+- [frontend/src/](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/src) - Vue source code
+- [frontend/package.json](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/package.json) - Frontend dependencies
+- [package.json](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/package.json) - Root package.json
+- [pyproject.toml](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/pyproject.toml) - Python project configuration
+
+## Tailwind CSS Guidelines
+
+When writing Tailwind CSS classes in this project, always use semantic color classes:
+
+- **Background colors**: Use `bg-surface-*` classes instead of generic color names
+- **Text colors**: Use `text-ink-*` classes for text styling
+- **Border colors**: Use `border-outline-*` classes for borders
+
+Example:
+```css
+/* ✅ Good - Semantic colors */
+bg-surface-gray-1 text-ink-gray-1 border-outline-gray-1
+
+/* ❌ Avoid - Generic colors */
+bg-blue-500 text-gray-700 border-gray-300
+```
+
+## Vue.js Development Guidelines
+
+### Icon Usage
+
+For icons in Vue components, use the Lucide icon system with the following patterns:
+
+#### Method 1: Import and use in script
+```js
+import LucidePlus from '~icons/lucide/plus';
+import LucideTrash from '~icons/lucide/trash';
+import LucideEdit from '~icons/lucide/edit';
+```
+
+#### Method 2: Direct template usage (no import needed)
+```vue
+<template>
+  <div>
+    <LucidePlus class="h-4 w-4" />
+    <LucideSettings class="h-5 w-5" />
+    <LucideUser class="h-6 w-6" />
+  </div>
+</template>
+```
+
+### Vue Component Structure
+- Follow Vue 3 Composition API patterns
+- Use `<script setup>` syntax for cleaner components
+- Maintain consistent icon sizing (size-4, size-5, size-6)
+
+## Python Development Guidelines
+
+### Frappe-specific Python Rules
+
+When working with Python code in this Frappe project:
+
+#### Python Interpreter
+Always use the Frappe bench Python environment:
+```bash
+frappe-bench/env/bin/python3 script_name.py
+```
+
+#### Running and Testing Python Scripts
+- Use `frappe-bench/env/bin/python3` for all Python script execution
+- Test scripts within the Frappe environment context
+- Ensure all Frappe imports and dependencies are available
+
+## Frontend Development Workflow
+
+### Development Setup
+- Frontend development happens in the [frontend/](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend) directory
+- Uses Vite as the build tool ([frontend/vite.config.js](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/vite.config.js))
+- Tailwind CSS configuration in [frontend/tailwind.config.js](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/tailwind.config.js)
+- TypeScript configuration in [frontend/tsconfig.json](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/tsconfig.json)
+
+### Component Development
+- Vue components should be placed in appropriate subdirectories under [frontend/src/](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/src)
+- Use TypeScript for better type safety
+- Follow the established icon and styling patterns
+
+## Best Practices
+
+1. **Consistency**: Always follow the established patterns for icons, colors, and component structure
+2. **Semantic Naming**: Use semantic Tailwind classes for dark mode support
+3. **Environment**: Always use the correct Python environment for Frappe development
+
+## File References
+
+- Configuration: [frontend/vite.config.js](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/vite.config.js)
+- Styling: [frontend/tailwind.config.js](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/tailwind.config.js)
+- Dependencies: [frontend/package.json](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/frontend/package.json)
+- Python Config: [pyproject.toml](mdc:gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/gameplan/pyproject.toml)
