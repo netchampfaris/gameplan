@@ -4,7 +4,7 @@
     "scripts": {
         "check-pnpm": "chmod +x ./scripts/install-pnpm.sh && ./scripts/install-pnpm.sh",
         "frontend:pnpm_install": "npm run check-pnpm && cd frontend && pnpm install",
-        "postinstall": "npm run frontend:pnpm_install",
+        "postinstall": "echo 'Root postinstall disabled as workspaces are active'",
         "dev": "cd frontend && pnpm dev",
         "build": "pnpm check-pnpm && cd frontend && pnpm build",
         "disable-workspaces": "chmod +x ./scripts/manage_workspaces.sh && ./scripts/manage_workspaces.sh disable",
