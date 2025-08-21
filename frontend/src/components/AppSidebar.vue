@@ -175,6 +175,7 @@ import ScrollBar from './ScrollBar.vue'
 import HomePageSettingsDialog from './HomePageSettingsDialog.vue'
 
 import ChevronTriangle from './icons/ChevronTriangle.vue'
+
 const showAddTeamDialog = ref(false)
 const showHomePageSettingsDialog = ref(false)
 const preferredHomePage = usePreferredHomePage()
@@ -240,6 +241,14 @@ const navigation = computed(() => {
       },
       isActive: testRoute(/Discussions/g),
       condition: () => preferredHomePage.value == 'Spaces',
+    },
+    {
+      name: 'My Pod',
+      icon: 'lucide-gamepad-2',
+      route: {
+        name: 'MyPod',
+      },
+      isActive: testRoute(/MyPod/g),
     },
     {
       name: 'Inbox',

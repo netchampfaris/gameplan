@@ -186,6 +186,12 @@ let router = createRouter({
       ],
     },
     {
+      path: '/my-pod',
+      name: 'MyPod',
+      component: () => import('@/pages/Pod/Pod.vue'),
+      props: true,
+    },
+    {
       path: '/notifications',
       name: 'Notifications',
       component: () => import('@/pages/Notifications.vue'),
