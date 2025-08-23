@@ -106,7 +106,7 @@ Character.createRandom(world)
 ```typescript
 // Get specific character sprite
 AssetManager.getCharacterSpritePath(5)
-// � "/assets/gameplan/pod-assets/2_Characters/.../Premade_Character_48x48_05.png"
+// � "/assets/gameplan/limezu-modern-interiors/2_Characters/.../Premade_Character_48x48_05.png"
 
 // Get random character sprite
 AssetManager.getRandomCharacterSpritePath()
