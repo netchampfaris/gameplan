@@ -420,3 +420,94 @@ def can_access_gameplan():
 		return True
 
 	return False
+
+
+@frappe.whitelist()
+def load_sprite_labels():
+	"""Load sprite labels from JSON file organized by spritesheet"""
+	import json
+	import os
+
+	labels_file = os.path.join(
+		frappe.get_app_path("gameplan", "public", "limezu-modern-interiors"), "sprite_labels.json"
+	)
+
+	if not os.path.exists(labels_file):
+		return {"spritesheets": []}
+
+	try:
+		with open(labels_file) as f:
+			data = json.load(f)
+
+		# Handle both old and new format for backward compatibility
+		if "labels" in data:
+			# Old format - convert to new format
+			old_labels = data["labels"]
+			spritesheets = {}
+
+			for label in old_labels:
+				asset = label.get("asset")
+				if asset not in spritesheets:
+					spritesheets[asset] = {
+						"name": asset,
+						"spritesheet": (
+							f"/assets/gameplan/limezu-modern-interiors/1_Interiors/48x48/{asset}.png"
+						),
+						"tiles": [],
+					}
+
+				tile = {
+					"label": label["label"],
+					"row": label["row"],
+					"col": label["col"],
+					"width": label["width"],
+					"height": label["height"],
+				}
+				spritesheets[asset]["tiles"].append(tile)
+
+			return {"spritesheets": list(spritesheets.values())}
+		else:
+			# New format
+			return {"spritesheets": data.get("spritesheets", [])}
+
+	except Exception as e:
+		frappe.log_error(f"Failed to load sprite labels: {str(e)}")
+		return {"spritesheets": []}
+
+
+@frappe.whitelist()
+def save_sprite_labels(spritesheets):
+	"""Save sprite labels to JSON file organized by spritesheet"""
+	import json
+	import os
+
+	labels_file = os.path.join(
+		frappe.get_app_path("gameplan", "public", "limezu-modern-interiors"), "sprite_labels.json"
+	)
+
+	try:
+		# Ensure spritesheets is a list
+		if isinstance(spritesheets, str):
+			spritesheets = json.loads(spritesheets)
+
+		data = {
+			"spritesheets": spritesheets,
+			"updated_at": frappe.utils.now(),
+			"updated_by": frappe.session.user,
+		}
+
+		# Create directory if it doesn't exist
+		os.makedirs(os.path.dirname(labels_file), exist_ok=True)
+
+		with open(labels_file, "w") as f:
+			json.dump(data, f, indent=2, default=str)
+
+		total_tiles = sum(len(sheet.get("tiles", [])) for sheet in spritesheets)
+		return {
+			"success": True,
+			"message": f"Saved {len(spritesheets)} spritesheets with {total_tiles} total tiles",
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Failed to save sprite labels: {str(e)}")
+		frappe.throw(f"Failed to save sprite labels: {str(e)}")
