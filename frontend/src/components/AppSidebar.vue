@@ -243,12 +243,12 @@ const navigation = computed(() => {
       condition: () => preferredHomePage.value == 'Spaces',
     },
     {
-      name: 'My Pod',
+      name: 'Game mode',
       icon: 'lucide-gamepad-2',
       route: {
-        name: 'MyPod',
+        name: 'GameMode',
       },
-      isActive: testRoute(/MyPod/g),
+      isActive: testRoute(/GameMode/g),
     },
     {
       name: 'Inbox',

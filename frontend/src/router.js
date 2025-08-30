@@ -186,9 +186,15 @@ let router = createRouter({
       ],
     },
     {
-      path: '/my-pod',
-      name: 'MyPod',
-      component: () => import('@/pages/Pod/Pod.vue'),
+      name: 'GameMode',
+      path: '/game-mode/home',
+      component: () => import('@/gamemode/GameMode.vue'),
+      props: true,
+    },
+    {
+      name: 'SpritesheetBrowser',
+      path: '/gamemode/spritesheet-browser',
+      component: () => import('@/gamemode/SpritesheetBrowser.vue'),
       props: true,
     },
     {
