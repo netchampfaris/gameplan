@@ -6,4 +6,4 @@ export { Time } from './Time'
 export { AssetManager } from './AssetManager'
 
 // Types
-export type { GameState, GameWorldConfig, CharacterConfig } from './types'
+export type { GameState, GameWorldConfig, CharacterConfig, TileData, WorldTile } from './types'
