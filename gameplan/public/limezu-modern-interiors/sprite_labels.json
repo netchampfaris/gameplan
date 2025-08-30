@@ -1,0 +1,60 @@
+{
+  "spritesheets": [
+    {
+      "name": "living_room",
+      "spritesheet": "/assets/gameplan/limezu-modern-interiors/1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png",
+      "tiles": [
+        {
+          "label": "tree-1",
+          "row": 0,
+          "col": 10,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "label": "tree-2",
+          "row": 0,
+          "col": 12,
+          "width": 1,
+          "height": 3
+        },
+        {
+          "label": "tree-3",
+          "row": 0,
+          "col": 13,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "label": "wardrobe-1",
+          "row": 4,
+          "col": 7,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "label": "wardrobe-2",
+          "row": 4,
+          "col": 11,
+          "width": 2,
+          "height": 3
+        }
+      ]
+    },
+    {
+      "name": "room_builder",
+      "spritesheet": "/assets/gameplan/limezu-modern-interiors/1_Interiors/48x48/Room_Builder_48x48.png",
+      "tiles": [
+        {
+          "label": "floor-1",
+          "row": 3,
+          "col": 15,
+          "width": 1,
+          "height": 1
+        }
+      ]
+    }
+  ],
+  "updated_at": "2025-08-24 02:11:43.330290",
+  "updated_by": "faris@erpnext.com"
+}
