@@ -117,7 +117,7 @@ export interface GPNotification extends DocType {
   team?: string
 }
 
-// Last updated: 2025-08-19 23:59:43.143194
+// Last updated: 2025-08-31 19:13:17.867939
 export interface GPDiscussion extends DocType {
   /** Project: Link (GP Project) */
   project: string
@@ -134,7 +134,7 @@ export interface GPDiscussion extends DocType {
   /** Last Post At: Datetime */
   last_post_at?: string
   /** Comments Count: Int */
-  comments_count: number
+  comments_count?: number
   /** Last Post By: Link (User) */
   last_post_by?: string
   /** Closed At: Datetime */
@@ -144,13 +144,13 @@ export interface GPDiscussion extends DocType {
   /** Slug: Data */
   slug?: string
   /** Participants Count: Int */
-  participants_count: number
+  participants_count?: number
   /** Pinned At: Datetime */
   pinned_at?: string
   /** Pinned By: Link (User) */
   pinned_by?: string
   /** Last Post Type: Select */
-  last_post_type: 'GP Comment' | 'GP Poll'
+  last_post_type?: '' | 'GP Comment' | 'GP Poll'
   /** Last Post: Dynamic Link (last_post_type) */
   last_post?: string
   /** Tags: Table (GP Tag Link) */
@@ -247,7 +247,7 @@ export interface GPReaction extends ChildDocType {
   user?: string
 }
 
-// Last updated: 2025-05-22 13:12:51.415148
+// Last updated: 2025-08-31 23:29:54.697656
 export interface GPComment extends DocType {
   /** Content: Text Editor */
   content: string
@@ -327,7 +327,7 @@ export interface GPSearchFeedback extends DocType {
   query?: string
 }
 
-// Last updated: 2025-03-08 16:00:25.825860
+// Last updated: 2025-08-31 19:25:15.771791
 export interface GPDraft extends DocType {
   /** Title: Data */
   title?: string

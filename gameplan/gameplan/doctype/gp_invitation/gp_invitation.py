@@ -4,6 +4,8 @@
 import frappe
 from frappe.model.document import Document
 
+from gameplan.gameplan.doctype.gp_guest_access.gp_guest_access import GPGuestAccess
+
 
 class GPInvitation(Document):
 	def before_insert(self):
@@ -65,17 +67,11 @@ class GPInvitation(Document):
 		if self.role == "Gameplan Guest":
 			teams = frappe.parse_json(self.teams) if self.teams else []
 			for team in teams:
-				guest_access = frappe.get_doc(doctype="GP Guest Access")
-				guest_access.user = user.name
-				guest_access.team = team
-				guest_access.save(ignore_permissions=True)
+				GPGuestAccess.create(user.name, team=team)
 
 			projects = frappe.parse_json(self.projects) if self.projects else []
 			for project in projects:
-				guest_access = frappe.get_doc(doctype="GP Guest Access")
-				guest_access.user = user.name
-				guest_access.project = project
-				guest_access.save(ignore_permissions=True)
+				GPGuestAccess.create(user.name, project=project)
 
 	def create_user_if_not_exists(self):
 		if not frappe.db.exists("User", self.email):

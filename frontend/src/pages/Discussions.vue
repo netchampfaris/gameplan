@@ -13,7 +13,7 @@
 
     <div class="overflow-x-auto flex gap-2 px-3 py-1 mb-3 items-center">
       <TabButtons :buttons="feedOptions" v-model="currentFeedType" />
-      <div class="ml-auto flex space-x-2" v-if="currentFeedType !== 'drafts'">
+      <div class="ml-auto flex space-x-2">
         <Button
           v-if="discussionListRef?.discussions?.loading"
           :loading="discussionListRef?.discussions?.loading"

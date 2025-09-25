@@ -5,7 +5,7 @@ import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig(async ({ mode }) => {
-  const isDev = mode === 'development'
+  const isDev = mode === 'development' || true
   const frappeui = await importFrappeUIPlugin(isDev)
 
   const config = {

@@ -27,3 +27,4 @@ gameplan.gameplan.doctype.gp_project.patches.migrate_members_from_team
 gameplan.gameplan.doctype.gp_discussion.patches.set_last_post
 gameplan.gameplan.doctype.gp_project_visit.patches.add_indexes
 gameplan.gameplan.doctype.gp_unread_record.patches.migrate_to_unread_records
+gameplan.gameplan.doctype.gp_guest_access.patches.delete_duplicate_guest_access

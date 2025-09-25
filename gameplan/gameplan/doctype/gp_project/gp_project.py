@@ -11,6 +11,7 @@ from pypika.terms import ExistsCriterion
 
 import gameplan
 from gameplan.api import invite_by_email
+from gameplan.gameplan.doctype.gp_guest_access.gp_guest_access import GPGuestAccess
 from gameplan.gameplan.doctype.gp_unread_record.gp_unread_record import GPUnreadRecord
 from gameplan.gemoji import get_random_gemoji
 from gameplan.mixins.archivable import Archivable
@@ -122,9 +123,7 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 
 	@frappe.whitelist()
 	def remove_guest(self, email):
-		name = frappe.db.get_value("GP Guest Access", {"project": self.name, "user": email})
-		if name:
-			frappe.delete_doc("GP Guest Access", name)
+		GPGuestAccess.delete(user=email, project=self.name)
 
 	@frappe.whitelist()
 	def track_visit(self):

@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-[3rem] overflow-hidden bg-surface-gray-2">
-    <div class="group relative h-[130px] w-full" v-if="validatedImageUrl">
+    <div class="group relative w-full" :style="{ height: height + 'px' }" v-if="validatedImageUrl">
       <img
-        class="h-[130px] w-full object-cover"
+        class="w-full object-cover"
         :class="{ 'animate-pulse': loading }"
-        :style="{ objectPosition }"
+        :style="{ objectPosition, height: height + 'px' }"
         :src="validatedImageUrl"
         @load="loading = false"
       />
@@ -28,7 +28,16 @@
           >
             Save position
           </Button>
-          <Button class="ml-2 mt-2" @click="reposition = false">Cancel</Button>
+          <Button
+            class="ml-2 mt-2"
+            @click="
+              () => {
+                reposition = false
+                $emit('cancel')
+              }
+            "
+            >Cancel</Button
+          >
         </div>
       </div>
       <div
@@ -66,7 +75,8 @@
     </div>
     <div
       v-else
-      class="flex h-[130px] w-full items-center justify-center bg-surface-menu-bar text-sm text-ink-gray-4"
+      class="flex w-full items-center justify-center bg-surface-menu-bar text-sm text-ink-gray-4"
+      :style="{ height: height + 'px' }"
     >
       <UnsplashImageBrowser
         v-if="editable"
@@ -104,6 +114,10 @@ export default {
     editable: {
       type: Boolean,
       default: false,
+    },
+    height: {
+      type: Number,
+      default: 130,
     },
   },
   components: { UnsplashImageBrowser },

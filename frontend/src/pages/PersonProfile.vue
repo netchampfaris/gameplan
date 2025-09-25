@@ -12,66 +12,86 @@
       />
       <div class="h-7"></div>
     </header>
-    <div>
-      <CoverImage
-        :imageUrl="profile.cover_image"
-        :imagePosition="profile.cover_image_position"
-        :editable="$isSessionUser(profile.user)"
-        @change="
-          ({ imageUrl, imagePosition }) => {
-            $resources.profile.setValue.submit({
-              cover_image: imageUrl,
-              cover_image_position: imagePosition,
-            })
-          }
-        "
-      />
-    </div>
-    <div class="mx-auto -mt-4 max-w-4xl translate-x-0 px-5">
-      <div class="flex items-center">
-        <div class="-mx-1 inline-flex translate-y-0">
-          <ImagePreview v-model:show="imagePreview.show" :imageUrl="imagePreview.imageUrl" />
-          <button
-            v-if="currentUser.user_image"
-            @click="
-              () => {
-                imagePreview.imageUrl = currentUser.user_image
-                imagePreview.show = true
-              }
-            "
-            class="rounded-full shrink-0 bg-surface-white outline-none hover:brightness-110 focus-visible:ring focus-visible:ring-outline-gray-3"
+    <div class="mt-5 mx-auto max-w-4xl translate-x-0 px-5">
+      <div class="rounded-xl relative overflow-hidden group">
+        <CoverImage
+          :height="160"
+          :imageUrl="profile.cover_image"
+          :imagePosition="profile.cover_image_position"
+          :editable="editCoverImage && $isSessionUser(profile.user)"
+          @change="
+            ({ imageUrl, imagePosition }) => {
+              $resources.profile.setValue.submit({
+                cover_image: imageUrl,
+                cover_image_position: imagePosition,
+              })
+              editCoverImage = false
+            }
+          "
+          @cancel="editCoverImage = false"
+        />
+        <div
+          v-if="!editCoverImage"
+          class="flex items-center absolute bottom-0 w-full p-4 bg-gradient-to-t from-black/60 to-transparent"
+        >
+          <div class="inline-flex translate-y-0">
+            <ImagePreview v-model:show="imagePreview.show" :imageUrl="imagePreview.imageUrl" />
+            <button
+              v-if="currentUser.user_image"
+              @click="
+                () => {
+                  imagePreview.imageUrl = currentUser.user_image
+                  imagePreview.show = true
+                }
+              "
+              class="rounded-full shrink-0 bg-surface-white outline-none hover:brightness-110 focus-visible:ring focus-visible:ring-outline-gray-3"
+            >
+              <UserImage class="size-16 rounded-full object-cover" :user="currentUser.name" />
+            </button>
+            <button
+              v-else
+              @click="editDialog.show = true"
+              class="h-32 w-32 rounded-full border-4 border-white bg-surface-gray-3 text-sm text-ink-gray-5"
+              :class="{ 'hover:bg-surface-gray-4': $isSessionUser(profile.user) }"
+              :disabled="!$isSessionUser(profile.user)"
+            >
+              <span v-if="$isSessionUser(profile.user)"> Upload Image </span>
+            </button>
+          </div>
+          <div class="ml-4 flex-1">
+            <h2 class="mt-2 text-2xl font-semibold text-ink-white">
+              {{ user ? user.full_name : profile.full_name }}
+            </h2>
+            <p v-if="profile.bio" class="mt-2 text-base text-ink-gray-1">
+              {{ profile.bio }}
+            </p>
+          </div>
+          <div
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            v-if="$isSessionUser(profile.user)"
           >
-            <UserImage
-              class="h-[100px] w-[100px] rounded-full border-4 border-outline-white object-cover"
-              :user="currentUser.name"
-            />
-          </button>
-          <button
-            v-else
-            @click="editDialog.show = true"
-            class="h-32 w-32 rounded-full border-4 border-white bg-surface-gray-3 text-sm text-ink-gray-5"
-            :class="{ 'hover:bg-surface-gray-4': $isSessionUser(profile.user) }"
-            :disabled="!$isSessionUser(profile.user)"
-          >
-            <span v-if="$isSessionUser(profile.user)"> Upload Image </span>
-          </button>
-        </div>
-        <div class="ml-6 flex-1">
-          <h2 class="mt-2 text-3xl font-semibold text-ink-gray-8">
-            {{ user ? user.full_name : profile.full_name }}
-          </h2>
-          <p v-if="profile.bio" class="mt-2 text-base text-ink-gray-6">
-            {{ profile.bio }}
-          </p>
-        </div>
-        <div v-if="$isSessionUser(profile.user)">
-          <Button @click="editDialog.show = true" class="hidden sm:flex">
-            <template #prefix><LucideEdit class="w-4" /></template>
-            Edit Profile
-          </Button>
-          <Button label="Edit Profile" @click="editDialog.show = true" class="sm:hidden">
-            <template #icon><LucideEdit class="w-4" /></template>
-          </Button>
+            <Dropdown
+              :options="[
+                { label: 'Edit Cover Image', onClick: () => (editCoverImage = true) },
+                {
+                  label: 'Edit Profile',
+                  onClick: () => (editDialog.show = true),
+                },
+              ]"
+              placement="right"
+            >
+              <Button>
+                <LucideMoreHorizontal />
+              </Button>
+            </Dropdown>
+            <!-- <Button @click="editDialog.show = true" class="hidden sm:flex">
+              <template #prefix><LucideEdit class="w-4" /></template>
+              Edit Profile
+            </Button>
+            <Button label="Edit Profile" @click="editDialog.show = true" class="sm:hidden">
+              <template #icon><LucideEdit class="w-4" /></template>
+            </Button> -->
+          </div>
         </div>
       </div>
 
@@ -126,13 +146,14 @@
   </div>
 </template>
 <script>
-import { Breadcrumbs, Dialog, FileUploader, FormControl, TabButtons } from 'frappe-ui'
+import { Breadcrumbs, Dialog, FileUploader, FormControl, TabButtons, Dropdown } from 'frappe-ui'
 import CoverImage from '@/components/CoverImage.vue'
 import ImagePreview from '../components/ImagePreview.vue'
 import ColorPicker from '@/components/ColorPicker.vue'
 import ProfileImageEditor from '@/components/ProfileImageEditor.vue'
 import UserImage from '@/components/UserImage.vue'
 import { isSessionUser } from '@/data/session'
+import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
 export default {
   name: 'PersonProfile',
@@ -140,6 +161,7 @@ export default {
   components: {
     CoverImage,
     Dialog,
+    Dropdown,
     FileUploader,
     ImagePreview,
     ColorPicker,
@@ -153,6 +175,7 @@ export default {
     return {
       editing: false,
       editDialog: { show: false, editingProfilePhoto: false },
+      editCoverImage: false,
       profilePhotoDialog: { show: false },
       imagePreview: { show: false, imageUrl: null },
     }
