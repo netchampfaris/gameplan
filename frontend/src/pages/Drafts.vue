@@ -1,10 +1,35 @@
 <template>
   <PageHeader>
     <Breadcrumbs class="h-7" :items="[{ label: 'Drafts', route: { name: 'Drafts' } }]" />
-    <Button variant="solid" :route="{ name: 'NewDiscussion' }">
-      <template #prefix><LucidePlus class="h-4 w-4" /></template>
-      Add new
-    </Button>
+    <div class="ml-auto flex items-center space-x-2">
+      <template v-if="isBulkDeleteMode">
+        <Button @click="cancelBulkDelete">Cancel</Button>
+        <Button
+          v-if="selectedDrafts.size > 0"
+          variant="subtle"
+          theme="red"
+          @click="showDeleteConfirmation = true"
+        >
+          <template #prefix><LucideTrash2 class="h-4 w-4" /></template>
+          Delete {{ selectedDrafts.size }} {{ selectedDrafts.size === 1 ? 'draft' : 'drafts' }}
+        </Button>
+      </template>
+      <template v-else>
+        <DropdownMoreOptions
+          placement="right"
+          :options="[
+            {
+              label: 'Delete drafts',
+              onClick: () => enterBulkDeleteMode(),
+            },
+          ]"
+        />
+        <Button variant="solid" :route="{ name: 'NewDiscussion' }">
+          <template #prefix><LucidePlus class="h-4 w-4" /></template>
+          Add new
+        </Button>
+      </template>
+    </div>
   </PageHeader>
   <div class="mx-auto max-w-4xl pt-5 sm:px-5 pb-40">
     <div>
@@ -14,10 +39,23 @@
       </EmptyStateBox>
       <div v-else>
         <template v-for="(draft, index) in drafts.data" :key="draft.name">
-          <router-link
+          <component
+            :is="isBulkDeleteMode ? 'div' : 'router-link'"
             class="flex items-center py-2 px-3 group relative h-15 rounded-[10px] transition hover:bg-surface-gray-2"
-            :to="{ name: 'NewDiscussion', query: { draft: draft.name } }"
+            :to="
+              !isBulkDeleteMode
+                ? { name: 'NewDiscussion', query: { draft: draft.name } }
+                : undefined
+            "
+            @click="isBulkDeleteMode ? toggleDraftSelection(draft.name) : undefined"
           >
+            <div v-if="isBulkDeleteMode" class="mr-3 flex items-center">
+              <Checkbox
+                :modelValue="selectedDrafts.has(draft.name)"
+                @update:modelValue="toggleDraftSelection(draft.name)"
+                @click.stop
+              />
+            </div>
             <UserAvatarWithHover :user="draft.owner" size="2xl" />
             <div class="ml-4 flex-1 min-w-0">
               <div class="flex items-center min-w-0">
@@ -52,7 +90,7 @@
                 </div>
               </Tooltip>
             </div>
-          </router-link>
+          </component>
           <div
             class="mx-3 h-px border-t border-outline-gray-modals transition-opacity group-hover:opacity-0"
             v-if="index < (drafts.data?.length || 0) - 1"
@@ -61,15 +99,35 @@
       </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <Dialog
+    v-model="showDeleteConfirmation"
+    :options="{
+      title: 'Delete drafts',
+      message: `Are you sure you want to delete ${selectedDrafts.size} ${selectedDrafts.size === 1 ? 'draft' : 'drafts'}? This action cannot be undone.`,
+      actions: [
+        {
+          label: 'Delete',
+          variant: 'solid',
+          theme: 'red',
+          loading: deleteDraftsCall.loading,
+          onClick: () => deleteDrafts(),
+        },
+      ],
+    }"
+  />
 </template>
 <script setup lang="ts">
-import { Tooltip, dayjsLocal, Breadcrumbs, Button } from 'frappe-ui'
+import { ref } from 'vue'
+import { Tooltip, dayjsLocal, Breadcrumbs, Button, Dialog, Checkbox, useCall } from 'frappe-ui'
 import { GPDraft } from '@/types/doctypes'
 import { useList } from 'frappe-ui'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { useSpace } from '@/data/spaces'
 import { relativeTimestamp } from '@/utils'
 import PageHeader from '@/components/PageHeader.vue'
+import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
 interface Draft extends GPDraft {
   project_title: string
@@ -103,5 +161,51 @@ function contentPreview(content?: string) {
 function isSpacePrivate(spaceId?: string) {
   if (!spaceId) return false
   return useSpace(spaceId).value?.is_private
+}
+
+// Bulk delete mode
+const isBulkDeleteMode = ref(false)
+const selectedDrafts = ref(new Set<string>())
+const showDeleteConfirmation = ref(false)
+
+function enterBulkDeleteMode() {
+  isBulkDeleteMode.value = true
+  selectedDrafts.value.clear()
+}
+
+function cancelBulkDelete() {
+  isBulkDeleteMode.value = false
+  selectedDrafts.value.clear()
+}
+
+function toggleDraftSelection(draftName: string) {
+  if (selectedDrafts.value.has(draftName)) {
+    selectedDrafts.value.delete(draftName)
+  } else {
+    selectedDrafts.value.add(draftName)
+  }
+}
+
+interface BulkDeleteResponse {
+  deleted: string[]
+  failed: { name: string; error: string }[]
+  total: number
+  success_count: number
+  failure_count: number
+}
+
+const deleteDraftsCall = useCall<BulkDeleteResponse, { names: string[] }>({
+  url: '/api/v2/document/GP Draft/bulk_delete',
+  method: 'POST',
+  immediate: false,
+})
+
+function deleteDrafts() {
+  deleteDraftsCall.submit({ names: Array.from(selectedDrafts.value) }).then(() => {
+    drafts.reload()
+
+    showDeleteConfirmation.value = false
+    cancelBulkDelete()
+  })
 }
 </script>
