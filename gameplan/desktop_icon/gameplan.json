@@ -1,0 +1,19 @@
+{
+ "app": "gameplan",
+ "creation": "2026-01-01 14:29:30.281515",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "App",
+ "idx": 0,
+ "label": "Gameplan",
+ "link": "/g",
+ "link_type": "External",
+ "logo_url": "/assets/gameplan/manifest/favicon-196.png",
+ "modified": "2026-01-01 14:29:30.281515",
+ "modified_by": "Administrator",
+ "name": "Gameplan",
+ "owner": "Administrator",
+ "roles": [],
+ "standard": 1
+}
