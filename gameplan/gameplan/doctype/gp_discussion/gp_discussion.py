@@ -25,7 +25,7 @@ class GPDiscussion(HasActivity, HasMentions, HasReactions, Document):
 	mentions_field = "content"
 
 	def as_dict(self, *args, **kwargs):
-		d = super(__class__, self).as_dict(*args, **kwargs)
+		d = super().as_dict(*args, **kwargs)
 		last_visit = frappe.db.get_value(
 			"GP Discussion Visit", {"discussion": self.name, "user": frappe.session.user}, "last_visit"
 		)
