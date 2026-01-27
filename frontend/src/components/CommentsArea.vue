@@ -72,8 +72,8 @@
     <!-- Comment Box -->
     <div
       v-if="!readOnlyMode && !disableNewComment"
-      class="fixed z-[2] left-0 right-0 sm:px-0 mb-px mt-2 w-full standalone:bottom-16"
-      :class="[isNewCommentOpen ? 'bottom-0' : 'bottom-12 sm:bottom-0']"
+      class="fixed z-[2] left-0 right-0 mt-2 w-full"
+      :class="[isNewCommentOpen ? 'bottom-0' : 'bottom-12 sm:bottom-0 standalone:bottom-16']"
       ref="addComment"
     >
       <div class="sm:ml-60">
