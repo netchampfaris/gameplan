@@ -30,7 +30,7 @@
           <div class="mb-2 mt-0.5 space-y-0.5">
             <div class="flex h-7 items-center rounded px-2 text-ink-gray-7 transition">
               <span class="inline-flex min-w-0 items-center space-x-2">
-                <span class="flex-shrink-0 flex h-5 w-6 items-center justify-center text-xl">
+                <span class="shrink-0 flex h-5 w-6 items-center justify-center text-xl">
                   {{ space.icon }}
                 </span>
                 <span class="truncate text-sm flex-grow">

@@ -8,7 +8,7 @@
         class="flex items-center justify-between py-2"
       >
         <div class="flex items-center space-x-2">
-          <span class="flex-shrink-0">
+          <span class="shrink-0">
             <span class="h-6 w-6 rounded-full">{{ team.icon }}</span>
           </span>
           <span class="text-base font-medium text-ink-gray-8">

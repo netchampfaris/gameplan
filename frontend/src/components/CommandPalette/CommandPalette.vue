@@ -575,7 +575,7 @@ onBeforeUnmount(() => {
 </script>
 <style>
 mark {
-  background-color: theme('colors.amber.100');
+  background-color: var(--color-amber-100);
   font-weight: 500;
 }
 </style>

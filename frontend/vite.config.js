@@ -4,6 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import { existsSync } from 'node:fs'
 import { visualizer } from 'rollup-plugin-visualizer'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(async ({ mode }) => {
   const isDev = mode === 'development'
@@ -22,7 +23,7 @@ export default defineConfig(async ({ mode }) => {
   // Base aliases shared across all modes
   const baseAliases = {
     '@': path.resolve(__dirname, 'src'),
-    'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
+    // 'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
   }
 
   // Local frappe-ui aliases for development
@@ -30,6 +31,7 @@ export default defineConfig(async ({ mode }) => {
     ? {
         // CSS alias must come before general alias for proper resolution
         'frappe-ui/style.css': path.resolve(localFrappeUIPath, 'src', 'style.css'),
+        'frappe-ui/tailwind/v4.css': path.resolve(localFrappeUIPath, 'tailwind', 'v4.css'),
         'frappe-ui': localFrappeUIPath,
       }
     : {}
@@ -39,6 +41,7 @@ export default defineConfig(async ({ mode }) => {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     },
     plugins: [
+      tailwindcss(),
       frappeui({
         frappeProxy: true,
         lucideIcons: true,

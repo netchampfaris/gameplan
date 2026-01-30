@@ -1,4 +1,6 @@
-@import 'frappe-ui/style.css';
+@import 'tailwindcss';
+@import 'frappe-ui/tailwind/v4.css';
+@source '../frappe-ui';
 
 /* disable webkit tap highlight color */
 body {
@@ -11,7 +13,7 @@ body {
 }
 
 .body-container {
-  @apply max-w-[940px] w-full px-3 sm:px-5 mx-auto;
+  @apply max-w-235 w-full px-3 sm:px-5 mx-auto;
 }
 
 .debug {

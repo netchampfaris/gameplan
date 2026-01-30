@@ -29,7 +29,7 @@ export default {
 }
 
 circle {
-  fill: theme('colors.gray.100');
+  fill: var(--color-gray-100);
   stroke-dasharray: 0 100;
   animation: fillup 0.2s linear forwards;
 }

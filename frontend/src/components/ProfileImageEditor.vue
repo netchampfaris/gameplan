@@ -12,7 +12,7 @@
             class="absolute inset-0 grid place-items-center rounded-full bg-gray-400/20 text-base text-ink-gray-5 transition-opacity"
             :class="[
               uploading ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-              'drop-shadow-sm',
+              'drop-shadow-xs',
             ]"
           >
             <span class="inline-block rounded-md bg-surface-gray-7/60 px-2 py-1 text-ink-white">

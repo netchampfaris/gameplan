@@ -47,7 +47,7 @@
             Login via email
           </Button>
           <a
-            class="block w-full rounded border bg-surface-gray-7 px-3 py-1 text-center text-base h-7 focus:outline-none focus:ring-2 focus:ring-outline-gray-3 text-ink-white transition-colors hover:bg-surface-gray-5"
+            class="block w-full rounded border bg-surface-gray-7 px-3 py-1 text-center text-base h-7 focus:outline-hidden focus:ring-2 focus:ring-outline-gray-3 text-ink-white transition-colors hover:bg-surface-gray-5"
             v-for="provider in authProviders.data"
             :key="provider.name"
             :href="provider.auth_url"

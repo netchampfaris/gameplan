@@ -33,7 +33,7 @@
                     name: 'Project',
                     params: { projectId: project.name },
                   }"
-                  class="inline-flex w-full overflow-hidden text-ellipsis whitespace-nowrap focus:outline-none"
+                  class="inline-flex w-full overflow-hidden text-ellipsis whitespace-nowrap focus:outline-hidden"
                 >
                   <span class="absolute inset-0" aria-hidden="true" />
                   <span class="inline-flex items-center">
@@ -76,7 +76,7 @@
           @click="createNewProjectDialog = true"
         >
           <div
-            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-surface-gray-2 transition-colors group-hover:bg-surface-white"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-gray-2 transition-colors group-hover:bg-surface-white"
           >
             <LucidePlus class="w-5 text-ink-gray-5" />
           </div>

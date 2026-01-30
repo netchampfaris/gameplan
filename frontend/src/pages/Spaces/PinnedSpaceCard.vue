@@ -1,7 +1,7 @@
 <template>
   <router-link
     v-if="space"
-    class="relative rounded-md flex flex-col focus:outline-none focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 hover:bg-surface-gray-2 group transition-colors"
+    class="relative rounded-md flex flex-col focus:outline-hidden focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 hover:bg-surface-gray-2 group transition-colors"
     :to="{
       name: 'Space',
       params: {
@@ -11,7 +11,7 @@
   >
     <div class="flex items-start w-full">
       <div class="inline-flex min-w-0 flex-1 mr-1">
-        <span class="text-lg mr-1.5 font-[emoji] leading-5 flex-shrink-0">
+        <span class="text-lg mr-1.5 font-[emoji] leading-5 shrink-0">
           {{ space.icon }}
         </span>
         <span class="text-base leading-5 text-ink-gray-9 font-medium truncate flex-1">

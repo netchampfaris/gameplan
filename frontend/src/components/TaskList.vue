@@ -21,7 +21,7 @@
               name: d.project ? 'SpaceTask' : 'Task',
               params: { spaceId: d.project, taskId: d.name },
             }"
-            class="flex h-15 w-full items-center rounded p-2.5 transition hover:bg-surface-gray-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3 group"
+            class="flex h-15 w-full items-center rounded p-2.5 transition hover:bg-surface-gray-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-outline-gray-3 group"
             :class="{
               'pointer-events-none': tasks.delete.loading && tasks.delete.params.name === d.name,
             }"
@@ -45,7 +45,7 @@
                     "
                   >
                     <button
-                      class="flex rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+                      class="flex rounded-full focus:outline-hidden focus-visible:ring-2 focus-visible:ring-outline-gray-3"
                     >
                       <TaskStatusIcon :status="d.status" />
                     </button>

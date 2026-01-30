@@ -1,6 +1,6 @@
 <template>
   <Popover
-    popover-class="mt-2 w-64 divide-y divide-outline-gray-modals rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+    popover-class="mt-2 w-64 divide-y divide-outline-gray-modals rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black/5 focus:outline-hidden"
     :matchTargetWidth="false"
     transition="default"
     @open="handlePopoverOpen"
@@ -30,7 +30,7 @@
                     v-if="option.image"
                     :image="option.image"
                     :label="option.label"
-                    class="border-2 border-white flex-shrink-0"
+                    class="border-2 border-white shrink-0"
                     size="sm"
                   />
                 </div>
@@ -64,7 +64,7 @@
             ref="inputRef"
             v-model="filterText"
             :placeholder="label"
-            class="px-2 flex-1 bg-transparent border-none outline-none text-sm focus:border-none focus:ring-0 text-ink-gray-6 placeholder-ink-gray-4"
+            class="px-2 flex-1 bg-transparent border-none outline-hidden text-sm focus:border-none focus:ring-0 text-ink-gray-6 placeholder-ink-gray-4"
             @click.stop
             @keydown="handleInputKeydown"
           />
@@ -87,10 +87,7 @@
             :class="{ 'bg-surface-gray-2': isHighlighted(option) }"
             @click="toggleOption(option)"
           >
-            <Checkbox
-              :modelValue="props.modelValue.includes(option.value)"
-              class="mr-2 flex-shrink-0"
-            />
+            <Checkbox :modelValue="props.modelValue.includes(option.value)" class="mr-2 shrink-0" />
 
             <component v-if="option.icon" :is="renderIcon(option.icon)" />
 
@@ -98,7 +95,7 @@
               v-else-if="hasAnyVisualElements"
               :image="option.image"
               :label="option.label"
-              class="mr-2 flex-shrink-0"
+              class="mr-2 shrink-0"
               size="sm"
             />
 
@@ -129,10 +126,7 @@
             :class="{ 'bg-surface-gray-2': isHighlighted(option) }"
             @click="toggleOption(option)"
           >
-            <Checkbox
-              :modelValue="props.modelValue.includes(option.value)"
-              class="mr-2 flex-shrink-0"
-            />
+            <Checkbox :modelValue="props.modelValue.includes(option.value)" class="mr-2 shrink-0" />
 
             <component v-if="option.icon" :is="renderIcon(option.icon)" />
 
@@ -140,12 +134,12 @@
               v-else-if="option.image"
               :image="option.image"
               :label="option.label"
-              class="mr-2 flex-shrink-0"
+              class="mr-2 shrink-0"
               size="sm"
             />
 
             <!-- Spacer for alignment when other options have visual elements -->
-            <div v-else-if="hasAnyVisualElements" class="mr-2 w-6 h-6 flex-shrink-0"></div>
+            <div v-else-if="hasAnyVisualElements" class="mr-2 w-6 h-6 shrink-0"></div>
 
             <span class="text-ink-gray-7 flex-1 text-left truncate">
               {{ option.label }}
@@ -351,7 +345,7 @@ function renderIcon(icon: string | any) {
   return h(
     'span',
     {
-      class: 'flex-shrink-0 w-4 h-4 inline-flex items-center justify-center mr-2',
+      class: 'shrink-0 w-4 h-4 inline-flex items-center justify-center mr-2',
     },
     [iconContent],
   )

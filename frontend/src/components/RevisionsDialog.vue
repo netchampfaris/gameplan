@@ -177,10 +177,10 @@ export default {
 <style>
 ins {
   all: unset;
-  background-color: theme('colors.green.100');
+  background-color: var(--color-green-100);
 }
 del {
   all: unset;
-  background-color: theme('colors.red.100');
+  background-color: var(--color-red-100);
 }
 </style>

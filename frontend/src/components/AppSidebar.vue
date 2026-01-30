@@ -129,13 +129,13 @@
               inactiveClass="hover:bg-surface-gray-2"
             >
               <span class="inline-flex min-w-0 items-center w-full">
-                <span class="flex-shrink-0 flex h-5 w-6 items-center justify-center text-xl">
+                <span class="shrink-0 flex h-5 w-6 items-center justify-center text-xl">
                   {{ space.icon }}
                 </span>
                 <span class="truncate text-sm flex-grow w-full ml-2">
                   {{ space.title }}
                 </span>
-                <LucideLock v-if="space.is_private" class="flex-shrink-0 h-3 w-3 ml-2" />
+                <LucideLock v-if="space.is_private" class="shrink-0 h-3 w-3 ml-2" />
                 <span
                   v-if="getSpaceUnreadCount(space.name) > 0"
                   class="ml-auto pl-2 text-xs text-ink-gray-5"

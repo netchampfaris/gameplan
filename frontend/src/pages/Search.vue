@@ -25,7 +25,7 @@
                 <button
                   v-if="query"
                   @click="clearSearch"
-                  class="p-1 size-6 grid place-content-center focus:outline-none focus:ring focus:ring-outline-gray-3 rounded"
+                  class="p-1 size-6 grid place-content-center focus:outline-hidden focus:ring focus:ring-outline-gray-3 rounded"
                 >
                   <LucideX class="w-4 text-ink-gray-7" />
                 </button>
@@ -664,7 +664,7 @@ function submitFeedback(isHelpful: boolean) {
 </script>
 <style>
 mark {
-  background-color: theme('colors.amber.100');
+  background-color: var(--color-amber-100);
   font-weight: 500;
 }
 </style>

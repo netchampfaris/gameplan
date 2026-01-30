@@ -1,6 +1,6 @@
 <template>
   <router-link
-    class="relative rounded-md flex flex-col focus:outline-none focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 sm:hover:bg-surface-gray-2 group transition-colors duration-150 active:bg-surface-gray-2"
+    class="relative rounded-md flex flex-col focus:outline-hidden focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 sm:hover:bg-surface-gray-2 group transition-colors duration-150 active:bg-surface-gray-2"
     :to="{
       name: 'Space',
       params: {

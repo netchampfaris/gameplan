@@ -10,7 +10,7 @@
           <input
             type="text"
             placeholder="Title"
-            class="-ml-0.5 w-full rounded-sm border-none p-0.5 text-2xl bg-surface-white font-semibold text-ink-gray-8 focus:outline-none focus:ring-2 focus:ring-outline-gray-3"
+            class="-ml-0.5 w-full rounded-sm border-none p-0.5 text-2xl bg-surface-white font-semibold text-ink-gray-8 focus:outline-hidden focus:ring-2 focus:ring-outline-gray-3"
             @blur="
               task.setValue.submit({
                 title: ($event.target as HTMLInputElement).value,

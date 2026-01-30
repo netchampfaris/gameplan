@@ -39,7 +39,7 @@
                 imagePreview.show = true
               }
             "
-            class="rounded-full shrink-0 bg-surface-white outline-none hover:brightness-110 focus-visible:ring focus-visible:ring-outline-gray-3"
+            class="rounded-full shrink-0 bg-surface-white outline-hidden hover:brightness-110 focus-visible:ring focus-visible:ring-outline-gray-3"
           >
             <UserImage
               class="h-[100px] w-[100px] rounded-full border-4 border-outline-white object-cover"
