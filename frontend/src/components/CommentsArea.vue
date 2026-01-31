@@ -70,70 +70,137 @@
     </div>
 
     <!-- Comment Box -->
-    <div
-      v-if="!readOnlyMode && !disableNewComment"
-      class="fixed z-[2] left-0 right-0 mt-2 w-full"
-      :class="[isNewCommentOpen ? 'bottom-0' : 'bottom-12 sm:bottom-0 standalone:bottom-16']"
-      ref="addComment"
-    >
-      <div class="sm:ml-60">
-        <div class="body-container border-t sm:border-t-0 bg-surface-white sm:py-3">
-          <div v-show="!showCommentBox" class="py-3 sm:py-0">
-            <button
-              class="flex w-full items-center rounded-lg bg-surface-gray-2 px-2 py-2 text-left text-base text-ink-gray-5 hover:bg-surface-gray-3"
-              @click="showCommentBox = true"
-            >
-              <UserAvatar class="mr-3" :user="$user().name" size="sm" />
-              Add a comment
-            </button>
-          </div>
-          <div
-            v-show="showCommentBox"
-            class="w-full sm:rounded-lg sm:border bg-surface-white py-3 sm:p-4 focus-within:border-outline-gray-3"
-            @keydown.ctrl.enter.capture.stop="submitComment"
-            @keydown.meta.enter.capture.stop="submitComment"
+    <div v-if="!readOnlyMode && !disableNewComment">
+      <div
+        v-if="isMobile"
+        class="fixed z-[2] left-0 right-0 bottom-12 mt-2 w-full standalone:bottom-16"
+        ref="addComment"
+      >
+        <div class="body-container border-t bg-surface-white py-3">
+          <button
+            class="flex w-full items-center rounded-lg bg-surface-gray-2 px-2 py-2 text-left text-base text-ink-gray-5 hover:bg-surface-gray-3"
+            @click="openCommentBox"
           >
-            <div class="mb-4 flex items-center">
-              <UserAvatar :user="$user().name" size="md" />
-              <span class="ml-2 text-base font-medium text-ink-gray-8">
-                {{ $user().full_name }}
-              </span>
-              <TabButtons
-                class="ml-auto"
-                :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
-                v-model="newCommentType"
-              />
+            <UserAvatar class="mr-3" :user="$user().name" size="sm" />
+            Add a comment
+          </button>
+        </div>
+      </div>
+      <BottomSheet v-if="isMobile" v-model="showCommentBox" title="Add a comment">
+        <div
+          class="w-full bg-surface-white px-4 pb-6"
+          @keydown.ctrl.enter.capture.stop="submitComment"
+          @keydown.meta.enter.capture.stop="submitComment"
+        >
+          <div class="mb-4 flex items-center">
+            <UserAvatar :user="$user().name" size="md" />
+            <span class="ml-2 text-base font-medium text-ink-gray-8">
+              {{ $user().full_name }}
+            </span>
+            <TabButtons
+              class="ml-auto"
+              :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
+              v-model="newCommentType"
+            />
+          </div>
+          <CommentEditor
+            ref="newCommentEditor"
+            v-if="newCommentType == 'Comment'"
+            :key="commentEditorKey"
+            :value="newComment"
+            @change="onNewCommentChange"
+            :submitButtonProps="{
+              variant: 'solid',
+              onClick: submitComment,
+              loading: comments.insert.loading,
+              disabled: commentEmpty,
+            }"
+            :discardButtonProps="{
+              onClick: discardComment,
+            }"
+            :editable="true"
+            placeholder="Add a comment..."
+          />
+          <PollEditor
+            v-show="newCommentType == 'Poll'"
+            v-model:poll="newPoll"
+            :submitButtonProps="{
+              onClick: submitPoll,
+              loading: polls.insert.loading,
+            }"
+            :discardButtonProps="{
+              onClick: discardPoll,
+            }"
+          />
+          <ErrorMessage :message="polls.insert.error" />
+        </div>
+      </BottomSheet>
+
+      <div
+        v-else
+        class="fixed z-[2] left-0 right-0 mt-2 w-full"
+        :class="[isNewCommentOpen ? 'bottom-0' : 'bottom-12 sm:bottom-0 standalone:bottom-16']"
+        ref="addComment"
+      >
+        <div class="sm:ml-60">
+          <div class="body-container border-t sm:border-t-0 bg-surface-white sm:py-3">
+            <div v-show="!showCommentBox" class="py-3 sm:py-0">
+              <button
+                class="flex w-full items-center rounded-lg bg-surface-gray-2 px-2 py-2 text-left text-base text-ink-gray-5 hover:bg-surface-gray-3"
+                @click="openCommentBox"
+              >
+                <UserAvatar class="mr-3" :user="$user().name" size="sm" />
+                Add a comment
+              </button>
             </div>
-            <CommentEditor
-              ref="newCommentEditor"
-              v-if="showCommentBox && newCommentType == 'Comment'"
-              :key="commentEditorKey"
-              :value="newComment"
-              @change="onNewCommentChange"
-              :submitButtonProps="{
-                variant: 'solid',
-                onClick: submitComment,
-                loading: comments.insert.loading,
-                disabled: commentEmpty,
-              }"
-              :discardButtonProps="{
-                onClick: discardComment,
-              }"
-              :editable="true"
-              placeholder="Add a comment..."
-            />
-            <PollEditor
-              v-show="newCommentType == 'Poll'"
-              v-model:poll="newPoll"
-              :submitButtonProps="{
-                onClick: submitPoll,
-                loading: polls.insert.loading,
-              }"
-              :discardButtonProps="{
-                onClick: discardPoll,
-              }"
-            />
-            <ErrorMessage :message="polls.insert.error" />
+            <div
+              v-show="showCommentBox"
+              class="w-full sm:rounded-lg sm:border bg-surface-white py-3 sm:p-4 focus-within:border-outline-gray-3"
+              @keydown.ctrl.enter.capture.stop="submitComment"
+              @keydown.meta.enter.capture.stop="submitComment"
+            >
+              <div class="mb-4 flex items-center">
+                <UserAvatar :user="$user().name" size="md" />
+                <span class="ml-2 text-base font-medium text-ink-gray-8">
+                  {{ $user().full_name }}
+                </span>
+                <TabButtons
+                  class="ml-auto"
+                  :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
+                  v-model="newCommentType"
+                />
+              </div>
+              <CommentEditor
+                ref="newCommentEditor"
+                v-if="showCommentBox && newCommentType == 'Comment'"
+                :key="commentEditorKey"
+                :value="newComment"
+                @change="onNewCommentChange"
+                :submitButtonProps="{
+                  variant: 'solid',
+                  onClick: submitComment,
+                  loading: comments.insert.loading,
+                  disabled: commentEmpty,
+                }"
+                :discardButtonProps="{
+                  onClick: discardComment,
+                }"
+                :editable="true"
+                placeholder="Add a comment..."
+              />
+              <PollEditor
+                v-show="newCommentType == 'Poll'"
+                v-model:poll="newPoll"
+                :submitButtonProps="{
+                  onClick: submitPoll,
+                  loading: polls.insert.loading,
+                }"
+                :discardButtonProps="{
+                  onClick: discardPoll,
+                }"
+              />
+              <ErrorMessage :message="polls.insert.error" />
+            </div>
           </div>
         </div>
       </div>
@@ -143,9 +210,11 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted, watch, useTemplateRef } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { useRouter, useRoute } from 'vue-router'
 import { useList } from 'frappe-ui'
 import { TabButtons, ErrorMessage } from 'frappe-ui'
+import BottomSheet from '@/components/BottomSheet.vue'
 import CommentEditor from '@/components/CommentEditor.vue'
 import Comment from './Comment.vue'
 import Activity from './Activity.vue'
@@ -190,6 +259,7 @@ defineEmits<{
 const router = useRouter()
 const route = useRoute()
 const socket = useSocket()
+const isMobile = useMediaQuery('(max-width: 639px)')
 
 const showCommentBox = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')
