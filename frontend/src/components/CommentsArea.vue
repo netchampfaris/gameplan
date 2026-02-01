@@ -73,7 +73,11 @@
     <div
       v-if="!readOnlyMode && !disableNewComment"
       class="fixed z-[2] left-0 right-0 mt-2 w-full"
-      :class="[isNewCommentOpen ? 'bottom-0' : 'bottom-12 sm:bottom-0 standalone:bottom-16']"
+      :class="[
+        isNewCommentOpen
+          ? 'bottom-0'
+          : 'bottom-12 sm:bottom-0 standalone:bottom-16 standalone:sm:bottom-0',
+      ]"
       ref="addComment"
     >
       <div class="sm:ml-60">

@@ -7,6 +7,7 @@
     </Button>
   </PageHeader>
   <div class="body-container pt-5 pb-40">
+    <div class="standalone:bg-pink-300">asdf</div>
     <LastPostReminder class="mb-3" />
 
     <div class="overflow-x-auto flex gap-2 py-1 mb-3 items-center -mx-3 px-3">

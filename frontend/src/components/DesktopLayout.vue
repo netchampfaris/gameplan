@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex h-full flex-col" v-if="users.isFinished">
-    <div class="h-full flex-1">
+    <div class="h-full flex-1 standalone:border-t">
       <div class="flex h-full">
         <ScrollAreaRoot class="relative block min-h-0 flex-shrink-0">
           <slot name="sidebar" />
