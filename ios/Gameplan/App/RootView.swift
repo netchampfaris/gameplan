@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct RootView: View {
-    private let apiClient = APIClient(baseURL: AppConfig.apiBaseURL)
-    @State private var session = UserSession()
+    private let apiClient: APIClient
+    @State private var session: UserSession
+
+    init() {
+        let apiClient = APIClient(baseURL: AppConfig.apiBaseURL)
+        self.apiClient = apiClient
+        _session = State(initialValue: UserSession.restore(hasAuthenticatedSession: apiClient.hasAuthenticatedSession()))
+    }
 
     var body: some View {
         NavigationStack {

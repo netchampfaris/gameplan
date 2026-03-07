@@ -22,6 +22,10 @@ struct APIClient {
         self.session = session
     }
 
+    func hasAuthenticatedSession() -> Bool {
+        hasAuthenticatedSessionCookie()
+    }
+
     func login(email: String, password: String) async throws -> String {
         guard let url = URL(string: "/api/method/login", relativeTo: baseURL) else {
             throw APIError.invalidURL
