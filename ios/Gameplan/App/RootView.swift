@@ -21,14 +21,11 @@ struct RootView: View {
             } else {
                 LoginView { email, password in
                     do {
-                        let response = try await apiClient.login(email: email, password: password)
+                        _ = try await apiClient.login(email: email, password: password)
                         session.login(email: email)
-                        return LoginAttemptResult(errorMessage: nil, debugResponse: response)
+                        return LoginAttemptResult(errorMessage: nil)
                     } catch {
-                        return LoginAttemptResult(
-                            errorMessage: (error as? LocalizedError)?.errorDescription ?? "Login failed.",
-                            debugResponse: nil
-                        )
+                        return LoginAttemptResult(errorMessage: error.localizedDescription)
                     }
                 }
             }

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct LoginAttemptResult {
     let errorMessage: String?
-    let debugResponse: String?
 }
 
 struct LoginView: View {
@@ -10,7 +9,6 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var debugResponse = ""
     let onLogin: (String, String) async -> LoginAttemptResult
 
     private var canSubmit: Bool {
@@ -42,23 +40,10 @@ struct LoginView: View {
                         isLoading = true
                         let result = await onLogin(email, password)
                         errorMessage = result.errorMessage
-                        debugResponse = result.debugResponse ?? ""
                         isLoading = false
                     }
                 }
                 .disabled(!canSubmit)
-            }
-
-            if !debugResponse.isEmpty {
-                Section("Debug response") {
-                    ScrollView {
-                        Text(debugResponse)
-                            .font(.caption)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .frame(maxHeight: 180)
-                }
             }
 
             Section("Notes") {
@@ -73,8 +58,6 @@ struct LoginView: View {
 
 #Preview {
     NavigationStack {
-        LoginView { _, _ in
-            LoginAttemptResult(errorMessage: nil, debugResponse: "{\"message\":\"Logged In\"}")
-        }
+        LoginView { _, _ in LoginAttemptResult(errorMessage: nil) }
     }
 }

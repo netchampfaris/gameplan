@@ -40,10 +40,14 @@ This boilerplate uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) so the
 - API base URL is set in `Gameplan/Resources/Config.xcconfig`:
 
   ```
-  API_BASE_URL = http://gameplan.frappe.test:8000
+   API_BASE_URL = http://127.0.0.1:8000
+   FRAPPE_SITE_NAME = gameplan.frappe.test
   ```
 
-- Update this value per environment (local/staging/production).
+- For local Frappe development on the iOS simulator, the app connects to
+   `127.0.0.1:8000` and sends `X-Frappe-Site-Name` so Frappe can resolve the
+   correct site.
+- Update these values per environment (local/staging/production).
 
 ## Next steps
 

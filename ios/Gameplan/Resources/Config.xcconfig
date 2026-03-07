@@ -1,1 +1,2 @@
-API_BASE_URL = http://gameplan.frappe.test:8000
+API_BASE_URL = http://127.0.0.1:8000
+FRAPPE_SITE_NAME = gameplan.frappe.test

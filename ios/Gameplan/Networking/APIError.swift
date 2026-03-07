@@ -6,6 +6,7 @@ enum APIError: LocalizedError {
     case httpError(statusCode: Int)
     case decoding(Error)
     case authenticationFailed
+    case transport(Error)
 
     var errorDescription: String? {
         switch self {
@@ -19,6 +20,8 @@ enum APIError: LocalizedError {
             return "Response decoding failed: \(error.localizedDescription)"
         case .authenticationFailed:
             return "Login failed. Please verify email and password."
+        case .transport(let error):
+            return error.localizedDescription
         }
     }
 }

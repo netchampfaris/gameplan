@@ -6,8 +6,13 @@ enum AppConfig {
             let raw = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String,
             let url = URL(string: raw)
         else {
-            return URL(string: "http://gameplan.frappe.test:8000")!
+            return URL(string: "http://127.0.0.1:8000")!
         }
         return url
+    }
+
+    static var frappeSiteName: String {
+        (Bundle.main.object(forInfoDictionaryKey: "FRAPPE_SITE_NAME") as? String)
+            ?? "gameplan.frappe.test"
     }
 }
