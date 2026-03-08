@@ -15,4 +15,21 @@ enum AppConfig {
         (Bundle.main.object(forInfoDictionaryKey: "FRAPPE_SITE_NAME") as? String)
             ?? "gameplan.frappe.test"
     }
+
+    static var siteAssetBaseURL: URL {
+        guard var components = URLComponents(url: apiBaseURL, resolvingAgainstBaseURL: false) else {
+            return apiBaseURL
+        }
+
+        if let siteComponents = URLComponents(string: "http://\(frappeSiteName)") {
+            components.host = siteComponents.host
+            if let explicitPort = siteComponents.port {
+                components.port = explicitPort
+            }
+        } else {
+            components.host = frappeSiteName
+        }
+
+        return components.url ?? apiBaseURL
+    }
 }

@@ -22,13 +22,9 @@ targets:
         SWIFT_VERSION: 5.10
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Gameplan
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Gameplan/Resources/Info.plist
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
-        INFOPLIST_KEY_NSAppTransportSecurity_NSExceptionDomains_gameplan.frappe.test_NSExceptionAllowsInsecureHTTPLoads: YES
-        INFOPLIST_KEY_NSAppTransportSecurity_NSExceptionDomains_gameplan.frappe.test_NSIncludesSubdomains: YES
 
   GameplanTests:
     type: bundle.unit-test
