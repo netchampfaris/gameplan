@@ -24,6 +24,7 @@ import { createDialog } from './utils/dialogs'
 import { useUser, users } from './data/users'
 import { isSessionUser, session } from './data/session'
 import { initSocket } from './socket'
+import { serverEvents } from './serverEvents'
 import resetDataMixin from './utils/resetDataMixin'
 
 let globalComponents = {
@@ -55,6 +56,7 @@ app.config.globalProperties.$session = session
 app.config.globalProperties.$readOnlyMode = window.read_only_mode
 app.config.globalProperties.$platform = getPlatform()
 app.config.globalProperties.$isSessionUser = isSessionUser
+app.config.globalProperties.$serverEvents = serverEvents
 
 let socket
 if (import.meta.env.DEV) {
@@ -67,6 +69,7 @@ if (import.meta.env.DEV) {
       }
       window.system_timezone && setConfig('systemTimezone', window.system_timezone)
       socket = initSocket()
+      serverEvents.connect()
       app.config.globalProperties.$socket = socket
       app.mount('#app')
     },
@@ -74,6 +77,7 @@ if (import.meta.env.DEV) {
 } else {
   window.system_timezone && setConfig('systemTimezone', window.system_timezone)
   socket = initSocket()
+  serverEvents.connect()
   app.config.globalProperties.$socket = socket
   app.mount('#app')
 }

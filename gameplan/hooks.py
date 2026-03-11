@@ -63,6 +63,7 @@ fixtures = [
 # }
 
 website_route_rules = [
+	{"from_route": "/g/events", "to_route": "g-events"},
 	{"from_route": "/g/<path:app_path>", "to_route": "g"},
 ]
 
@@ -153,6 +154,8 @@ doc_events = {
 }
 
 on_login = "gameplan.www.g.on_login"
+
+page_renderer = ["gameplan.server_events.GPServerEventsPage"]
 
 # Scheduled Tasks
 # ---------------

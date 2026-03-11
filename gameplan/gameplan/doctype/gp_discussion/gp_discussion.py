@@ -72,6 +72,14 @@ class GPDiscussion(HasActivity, HasMentions, HasReactions, HasTags, Document):
 	def after_insert(self):
 		self.update_discussions_count()
 		GPUnreadRecord.create_unread_records_for_discussion(self)
+		recipients = [
+			user for user in GPUnreadRecord._get_project_members(self.project) if user != self.owner
+		]
+		gameplan.send_event(
+			"discussion:created",
+			{"name": self.name, "project": self.project, "team": self.team, "owner": self.owner},
+			user=recipients,
+		)
 
 	def on_trash(self):
 		self.remove_bookmark()
