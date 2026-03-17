@@ -262,7 +262,7 @@ def add_indexes():
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def get_unread_count(projects: list[str] = None):
+def get_unread_count(projects: list[str | int] = None):
 	"""Get unread count for specific projects"""
 	user = frappe.session.user
 	return GPUnreadRecord.get_unread_count_for_projects(user, projects)

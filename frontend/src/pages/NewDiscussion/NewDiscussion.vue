@@ -6,6 +6,7 @@
     :content="draftData.content"
     @change="(content: string) => (draftData.content = content)"
     :editable="author.name === sessionUser.name"
+    :interceptPageDrops="true"
     placeholder="Type '/' for commands or select text to format"
   >
     <template #editor="{ editor }">
