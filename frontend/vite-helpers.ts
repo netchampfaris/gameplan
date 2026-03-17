@@ -44,6 +44,7 @@ export function getLocalFrappeUIDevConfig({
 
   const localFrappeUIAliases: Record<string, string> = useLocalFrappeUI
     ? {
+        'frappe-ui/tailwind': path.resolve(localFrappeUIPath, 'tailwind', 'index.js'),
         'frappe-ui/style.css': path.resolve(localFrappeUIPath, 'src', 'style.css'),
         'frappe-ui': localFrappeUIPath,
       }

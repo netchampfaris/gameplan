@@ -1,8 +1,14 @@
 import frappeUIPreset from 'frappe-ui/tailwind'
+import localFrappeUIPreset from '../frappe-ui/tailwind/index.js'
 import containerQueries from '@tailwindcss/container-queries'
 
+function getFrappeUIPreset() {
+  const isDev = import.meta.env?.DEV ?? process.env.NODE_ENV === 'development'
+  return isDev ? localFrappeUIPreset : frappeUIPreset
+}
+
 export default {
-  presets: [frappeUIPreset],
+  presets: [getFrappeUIPreset()],
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',

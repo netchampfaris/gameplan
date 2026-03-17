@@ -6,7 +6,7 @@
   }
 
   .discussion-container {
-    max-width: calc(800px + var(--discussion-padding));
+    max-width: calc(700px + var(--discussion-padding));
     @apply w-full px-3 sm:px-5 mx-auto;
     @apply [--discussion-padding:1.5rem] sm:[--discussion-padding:2.5rem];
   }
