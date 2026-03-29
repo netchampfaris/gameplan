@@ -21,6 +21,19 @@ let router = createRouter({
       redirect: defaultRoute,
     },
     {
+      path: '/test',
+      component: () => import('@/pages/TestPage.vue'),
+    },
+    {
+      path: '/test2',
+      component: () => import('@/pages/TestPage2.vue'),
+    },
+    {
+      path: '/test/:taskId',
+      component: () => import('@/pages/TestTaskPage.vue'),
+      props: true,
+    },
+    {
       path: '/home',
       name: 'Home',
       redirect: () => {

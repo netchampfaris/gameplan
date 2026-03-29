@@ -63,6 +63,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       alias: {
         ...localFrappeUIAliases,
         ...baseAliases,
+        '~client': path.resolve(__dirname, './src/client.ts'),
       },
     },
     optimizeDeps: {
