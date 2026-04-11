@@ -1,4 +1,4 @@
-import { MaybeRefOrGetter } from 'vue'
+import { MaybeRefOrGetter, toValue } from 'vue'
 import { GPDiscussion } from '@/doctypes'
 import type { GPDiscussionInterface } from '@/doctypes'
 
@@ -13,7 +13,7 @@ export interface Discussion extends GPDiscussionInterface {
 export interface UseDiscussionOptions {
   filters?: Record<string, any>
   limit?: number
-  orderBy?: string
+  orderBy?: MaybeRefOrGetter<string | undefined>
 }
 
 export function useDiscussions(options: UseDiscussionOptions) {
@@ -21,7 +21,7 @@ export function useDiscussions(options: UseDiscussionOptions) {
     url: '/api/v2/method/gameplan.gameplan.doctype.gp_discussion.api.get_discussions',
     filters: options.filters,
     limit: options.limit || 50,
-    orderBy: options.orderBy,
+    orderBy: toValue(options.orderBy),
   })
 }
 
