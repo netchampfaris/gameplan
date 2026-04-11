@@ -284,7 +284,7 @@ import IconPicker from '@/components/IconPicker.vue'
 import Links from '@/components/Links.vue'
 import Tabs from '@/components/Tabs.vue'
 import InviteGuestDialog from '@/components/InviteGuestDialog.vue'
-import { projects } from '@/data/projects'
+import { spaces } from '@/data/spaces'
 import { activeTeams, teams } from '@/data/teams'
 import { isMobile as useMobile } from '@/composables/isMobile'
 
@@ -331,7 +331,7 @@ export default {
         }))
     },
     mergeProjectsList() {
-      return projects.data
+      return spaces.data
         .filter((d) => d.name != this.project.name)
         .map((d) => ({
           label: d.title,
@@ -485,7 +485,7 @@ export default {
     },
     onProjectMove() {
       this.projectMoveDialog.show = false
-      projects.reload()
+      spaces.reload()
       for (let team of teams.data || []) {
         if ([this.team.doc.name, this.projectMoveDialog.team.value].includes(team.name)) {
           if (this.projectMoveDialog.team.value === team.name) {

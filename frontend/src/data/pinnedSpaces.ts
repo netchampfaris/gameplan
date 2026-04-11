@@ -1,16 +1,12 @@
-import { GPPinnedProject } from '@/types/doctypes'
-import { useList } from 'frappe-ui'
+import { GPPinnedProject } from '@/doctypes'
 
-export const pinnedSpaces = useList<GPPinnedProject>({
-  doctype: 'GP Pinned Project',
+export const pinnedSpaces = GPPinnedProject.getList({
   fields: ['project', 'team', 'user', 'name'],
   filters: {
     'project.archived_at': ['=', null],
   },
-  initialData: [],
   orderBy: 'creation desc',
   limit: 99999,
-  cacheKey: 'pinnedSpaces',
 })
 
 export function isPinned(spaceId: string) {
@@ -18,7 +14,7 @@ export function isPinned(spaceId: string) {
 }
 
 export function pinSpace(spaceId: string) {
-  return pinnedSpaces.insert.submit({
+  return pinnedSpaces.insert.call({
     project: spaceId,
   })
 }
@@ -26,7 +22,7 @@ export function pinSpace(spaceId: string) {
 export function unpinSpace(spaceId: string) {
   let pin = pinnedSpaces.data?.find((p) => p.project.toString() === spaceId.toString())
   if (pin) {
-    return pinnedSpaces.delete.submit({ name: pin.name.toString() })
+    return pinnedSpaces.delete.call(pin.name.toString())
   }
   return Promise.resolve()
 }
@@ -34,8 +30,8 @@ export function unpinSpace(spaceId: string) {
 export function isPinActionLoading(spaceId: string) {
   let pin = pinnedSpaces.data?.find((p) => p.project.toString() === spaceId.toString())
   if (pin) {
-    return pinnedSpaces.delete.loading && pinnedSpaces.delete.params?.name === pin.name.toString()
+    return pinnedSpaces.isItemLoading(pin.name.toString(), 'delete')
   } else {
-    return pinnedSpaces.insert.loading && pinnedSpaces.insert.params?.project === spaceId.toString()
+    return pinnedSpaces.insert.loading
   }
 }

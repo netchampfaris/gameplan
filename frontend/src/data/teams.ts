@@ -1,21 +1,16 @@
 import { computed, MaybeRefOrGetter, toValue } from 'vue'
-import { useList } from 'frappe-ui'
-import { GPTeam } from '@/types/doctypes'
+import { GPTeam } from '@/doctypes'
+import type { GPTeamInterface } from '@/doctypes'
 
-export interface Team
-  extends Pick<
-    GPTeam,
-    'name' | 'title' | 'icon' | 'modified' | 'creation' | 'archived_at' | 'is_private'
-  > {}
+export type Team = Pick<
+  GPTeamInterface,
+  'name' | 'title' | 'icon' | 'modified' | 'creation' | 'archived_at' | 'is_private'
+>
 
-export let teams = useList<Team>({
-  doctype: 'GP Team',
+export let teams = GPTeam.getList({
   fields: ['name', 'title', 'icon', 'modified', 'creation', 'archived_at', 'is_private'],
   orderBy: 'title asc',
-  initialData: [],
-  cacheKey: 'Teams',
   limit: 999,
-  immediate: true,
 })
 
 export let activeTeams = computed(() => {

@@ -1,5 +1,5 @@
-import { useCall, useDoctype } from 'frappe-ui'
-import { GPProject } from '@/types/doctypes'
+import { useCall } from 'frappe-ui'
+import { GPProject } from '@/doctypes'
 import { reactive } from 'vue'
 
 interface ProjectUnreadCount {
@@ -26,30 +26,17 @@ export function getProjectUnreadCount(spaceId: string) {
   return unreadCounts[spaceId] ?? 0
 }
 
-const Project = useDoctype<GPProject>('GP Project')
-
 export function markSpaceAsRead(spaceId: string) {
-  return Project.runDocMethod
-    .submit({
-      name: spaceId,
-      method: 'mark_all_as_read',
-    })
-    .then(() => {
-      return refreshUnreadCountForProjects([spaceId])
-    })
+  const handle = GPProject.getDoc(spaceId)
+  return handle.promise
+    .then(() => handle.markAllAsRead.call())
+    .then(() => refreshUnreadCountForProjects([spaceId]))
 }
 
 export function markSpacesAsRead(spaceIds: string[]) {
-  return Project.runMethod
-    .submit({
-      method: 'mark_all_as_read',
-      params: {
-        spaces: spaceIds,
-      },
-    })
-    .then(() => {
-      return refreshUnreadCountForProjects(spaceIds)
-    })
+  return GPProject.markAllAsRead
+    .call({ spaces: spaceIds })
+    .then(() => refreshUnreadCountForProjects(spaceIds))
 }
 
 export function refreshUnreadCountForProjects(projects: string[]) {

@@ -1,13 +1,14 @@
-import { computed, MaybeRefOrGetter, toValue } from 'vue'
-import { useCall, useList, useDoctype, dialog } from 'frappe-ui'
-import { GPProject, GPMember } from '@/types/doctypes'
+import { computed, MaybeRefOrGetter, ref, toValue } from 'vue'
+import { useCall, dialog } from 'frappe-ui'
+import { GPProject } from '@/doctypes'
+import type { GPProjectInterface, GPMemberInterface } from '@/doctypes'
 import { getProjectUnreadCount, markSpacesAsRead } from './unreadCount'
 
-interface Member extends Pick<GPMember, 'user'> {}
+interface Member extends Pick<GPMemberInterface, 'user'> {}
 
 export interface Space
   extends Pick<
-    GPProject,
+    GPProjectInterface,
     | 'name'
     | 'title'
     | 'icon'
@@ -22,8 +23,7 @@ export interface Space
   members: Member[]
 }
 
-export let spaces = useList<Space>({
-  doctype: 'GP Project',
+export let spaces = GPProject.getList<Space>({
   fields: [
     'name',
     'title',
@@ -35,19 +35,14 @@ export let spaces = useList<Space>({
     'tasks_count',
     'discussions_count',
     'team.title as team_title',
-    { members: ['user'] },
+    { members: ['user'] } as any,
   ],
-  initialData: [],
   orderBy: 'title asc',
   limit: 99999,
-  cacheKey: 'spaces',
-  transform(data) {
-    for (let space of data) {
-      space.name = space.name.toString()
-    }
-    return data
+  transform(doc) {
+    doc.name = doc.name.toString()
+    return doc
   },
-  immediate: true,
 })
 
 export function useSpace(name: MaybeRefOrGetter<string | undefined>) {
@@ -72,62 +67,30 @@ export function getSpaceUnreadCount(spaceId: string) {
   return getProjectUnreadCount(spaceId)
 }
 
-const spaceDoctype = useDoctype<GPProject>('GP Project')
-
 export function joinSpace(space: Space) {
-  return spaceDoctype.runDocMethod
-    .submit({
-      method: 'join',
-      name: space.name,
-    })
-    .then(() => {
-      joinedSpaces.reload()
-    })
+  const handle = GPProject.getDoc(space.name)
+  return handle.promise.then(() => handle.join.call()).then(() => joinedSpaces.reload())
 }
 
 export function joinSpaces(spaceIds: string[]) {
-  return spaceDoctype.runMethod
-    .submit({
-      method: 'join_spaces',
-      params: {
-        spaces: spaceIds,
-      },
-    })
-    .then(() => {
-      joinedSpaces.reload()
-    })
+  return GPProject.joinSpaces.call({ spaces: spaceIds }).then(() => joinedSpaces.reload())
 }
 
 export function leaveSpace(space: Space) {
-  return spaceDoctype.runDocMethod
-    .submit({
-      method: 'leave',
-      name: space.name,
-    })
-    .then(() => {
-      joinedSpaces.reload()
-    })
+  const handle = GPProject.getDoc(space.name)
+  return handle.promise.then(() => handle.leave.call()).then(() => joinedSpaces.reload())
 }
 
 export function leaveSpaces(spaceIds: string[]) {
-  return spaceDoctype.runMethod
-    .submit({
-      method: 'leave_spaces',
-      params: {
-        spaces: spaceIds,
-      },
-    })
-    .then(() => {
-      joinedSpaces.reload()
-    })
+  return GPProject.leaveSpaces.call({ spaces: spaceIds }).then(() => joinedSpaces.reload())
 }
 
 export function unarchiveSpace(space: Space) {
-  return spaceDoctype.runDocMethod.submit({
-    method: 'unarchive',
-    name: space.name,
-  })
+  const handle = GPProject.getDoc(space.name)
+  return handle.promise.then(() => handle.unarchive.call())
 }
+
+const _markAllAsReadLoading = ref(false)
 
 export function markAllAsRead(spaceIds: string[], groupTitle: string) {
   dialog.confirm({
@@ -138,10 +101,32 @@ export function markAllAsRead(spaceIds: string[], groupTitle: string) {
   })
 }
 
-export function isDocMethodLoading(docname: string, method: string) {
-  return spaceDoctype.runDocMethod.isLoading(docname, method)
+export function isMethodLoading(method: string) {
+  if (method === 'mark_all_as_read') {
+    return GPProject.markAllAsRead.loading
+  }
+  return false
 }
 
-export function isMethodLoading(method: string) {
-  return spaceDoctype.runMethod.isLoading(method)
+// Convenience aliases for project-oriented consumers (TeamOverview, Project page)
+
+export let activeProjects = computed(
+  () => spaces.data?.filter((space) => !space.archived_at) || [],
+)
+
+export let archivedProjects = computed(
+  () => spaces.data?.filter((space) => space.archived_at) || [],
+)
+
+export function getTeamProjects(team: string) {
+  return activeProjects.value.filter((project) => project.team === team) || []
+}
+
+export function getTeamArchivedProjects(team: string) {
+  return archivedProjects.value.filter((project) => project.team === team) || []
+}
+
+export function getProject(projectId: string | null) {
+  if (projectId == null) return null
+  return spaces.data?.find((p) => p.name.toString() === projectId.toString()) ?? null
 }

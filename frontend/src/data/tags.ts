@@ -1,8 +1,6 @@
-import { GPTag } from '@/types/doctypes'
-import { useList } from 'frappe-ui'
+import { GPTag } from '@/doctypes'
 
-export const tags = useList<GPTag>({
-  doctype: 'GP Tag',
+export const tags = GPTag.getList({
   fields: ['name', 'label'],
   limit: 9999,
 })

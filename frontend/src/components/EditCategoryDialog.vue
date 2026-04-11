@@ -7,7 +7,7 @@
           variant="solid"
           :disabled="!category"
           @click="handleSubmit"
-          :loading="teams.setValue.loading"
+          :loading="GPTeam.setValue.loading"
         >
           Submit
         </Button>
@@ -19,15 +19,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { Dialog, FormControl, Button } from 'frappe-ui'
-import { useDoctype } from 'frappe-ui'
-import type { GPTeam } from '@/types/doctypes'
+import { GPTeam } from '@/doctypes'
 import type { GroupedSpaceItem } from '@/data/groupedSpaces'
 
 const show = ref(false)
 const categoryTitle = ref('')
 const category = ref<GroupedSpaceItem | null>(null)
-
-const teams = useDoctype<GPTeam>('GP Team')
 
 function openDialog(groupCategory: GroupedSpaceItem) {
   category.value = groupCategory
@@ -37,8 +34,8 @@ function openDialog(groupCategory: GroupedSpaceItem) {
 
 function handleSubmit() {
   if (category.value) {
-    teams.setValue
-      .submit({
+    GPTeam.setValue
+      .call({
         name: category.value.name,
         title: categoryTitle.value,
       })

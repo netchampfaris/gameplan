@@ -47,12 +47,10 @@ export default {
   },
   methods: {
     createTeam() {
-      teams.insert.submit(this.newTeam, {
-        onSuccess: (team) => {
-          this.$resetData('newTeam')
-          this.showDialog = false
-          this.$emit('success', team)
-        },
+      teams.insert.call(this.newTeam).then((team) => {
+        this.$resetData('newTeam')
+        this.showDialog = false
+        this.$emit('success', team)
       })
     },
   },

@@ -1,9 +1,8 @@
-import { MaybeRefOrGetter, toValue } from 'vue'
-import { useDoc, useList } from 'frappe-ui'
-import { UseListOptions } from 'frappe-ui'
-import { GPDiscussion } from '@/types/doctypes'
+import { MaybeRefOrGetter } from 'vue'
+import { GPDiscussion } from '@/doctypes'
+import type { GPDiscussionInterface } from '@/doctypes'
 
-export interface Discussion extends GPDiscussion {
+export interface Discussion extends GPDiscussionInterface {
   project_title: string
   last_post_at: string
   unread: number
@@ -11,63 +10,21 @@ export interface Discussion extends GPDiscussion {
   last_poll_title?: string
 }
 
-export type UseDiscussionOptions = Pick<
-  UseListOptions<Discussion>,
-  'cacheKey' | 'filters' | 'limit' | 'orderBy' | 'immediate'
->
+export interface UseDiscussionOptions {
+  filters?: Record<string, any>
+  limit?: number
+  orderBy?: string
+}
 
 export function useDiscussions(options: UseDiscussionOptions) {
-  const discussions = useList<Discussion>({
+  return GPDiscussion.getList<Discussion>({
     url: '/api/v2/method/gameplan.gameplan.doctype.gp_discussion.api.get_discussions',
-    doctype: 'GP Discussion',
-    cacheKey: options.cacheKey ? ['Discussions', options.cacheKey] : undefined,
     filters: options.filters,
     limit: options.limit || 50,
     orderBy: options.orderBy,
-    immediate: options.immediate ?? true,
   })
-  return discussions
 }
 
-let discussionsCache: Record<string, ReturnType<typeof useDoc>> = {}
-
 export function useDiscussion(discussionId: MaybeRefOrGetter<string>) {
-  interface Discussion extends GPDiscussion {
-    last_unread_comment: string
-    last_unread_poll: string
-    is_bookmarked: boolean
-    views: number
-  }
-
-  interface DiscussionMethods {
-    trackVisit: () => void
-    markAsUnread: () => void
-    closeDiscussion: () => void
-    reopenDiscussion: () => void
-    pinDiscussion: (data: { pin_scope: 'Global' | 'Space' }) => void
-    unpinDiscussion: () => void
-    addBookmark: () => void
-    removeBookmark: () => void
-    moveToProject: (data: { project: string }) => void
-  }
-
-  let name = toValue(discussionId)
-  if (!discussionsCache[name]) {
-    discussionsCache[name] = useDoc<Discussion, DiscussionMethods>({
-      doctype: 'GP Discussion',
-      name: discussionId,
-      methods: {
-        trackVisit: 'track_visit',
-        markAsUnread: 'mark_as_unread',
-        closeDiscussion: 'close_discussion',
-        reopenDiscussion: 'reopen_discussion',
-        pinDiscussion: 'pin_discussion',
-        unpinDiscussion: 'unpin_discussion',
-        addBookmark: 'add_bookmark',
-        removeBookmark: 'remove_bookmark',
-        moveToProject: 'move_to_project',
-      },
-    })
-  }
-  return discussionsCache[name] as ReturnType<typeof useDoc<Discussion, DiscussionMethods>>
+  return GPDiscussion.getDoc(discussionId)
 }

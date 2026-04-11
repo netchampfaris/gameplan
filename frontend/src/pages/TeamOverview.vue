@@ -119,7 +119,7 @@
 </template>
 <script>
 import { Dialog, FormControl, TextInput, TabButtons, dayjsLocal } from 'frappe-ui'
-import { projects, getTeamProjects, getTeamArchivedProjects } from '@/data/projects'
+import { spaces, getTeamProjects, getTeamArchivedProjects } from '@/data/spaces'
 
 export default {
   name: 'TeamOverview',
@@ -144,7 +144,7 @@ export default {
   },
   computed: {
     projects() {
-      return projects
+      return spaces
     },
     projectsList() {
       return this.activeTab === 'Active' ? this.activeProjects : this.archivedProjects
@@ -161,23 +161,20 @@ export default {
   },
   methods: {
     createProject() {
-      projects.insert.submit(
-        {
+      spaces.insert
+        .call({
           team: this.team.name,
           ...this.newProject,
-        },
-        {
-          onSuccess: (project) => {
-            projects.reload()
-            this.newProject = this.$options.data().newProject
-            this.createNewProjectDialog = false
-            this.$router.push({
-              name: 'Project',
-              params: { projectId: project.name },
-            })
-          },
-        },
-      )
+        })
+        .then((project) => {
+          spaces.reload()
+          this.newProject = this.$options.data().newProject
+          this.createNewProjectDialog = false
+          this.$router.push({
+            name: 'Project',
+            params: { projectId: project.name },
+          })
+        })
     },
   },
 }
