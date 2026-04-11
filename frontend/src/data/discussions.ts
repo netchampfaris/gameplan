@@ -1,4 +1,4 @@
-import { MaybeRefOrGetter, toValue } from 'vue'
+import { MaybeRefOrGetter } from 'vue'
 import { GPDiscussion } from '@/doctypes'
 import type { GPDiscussionInterface } from '@/doctypes'
 
@@ -21,7 +21,7 @@ export function useDiscussions(options: UseDiscussionOptions) {
     url: '/api/v2/method/gameplan.gameplan.doctype.gp_discussion.api.get_discussions',
     filters: options.filters,
     limit: options.limit || 50,
-    orderBy: toValue(options.orderBy),
+    orderBy: options.orderBy,
   })
 }
 
