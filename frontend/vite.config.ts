@@ -3,15 +3,23 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { getLocalFrappeUIDevConfig, importFrappeUIPlugin } from './vite-helpers'
+import {
+  getLocalFrappeUIDevConfig,
+  importFrappeUIPlugin,
+  localFrappeUIWatchPlugin,
+  LOCAL_FRAPPE_UI_DEDUPE_DEPS,
+} from './vite-helpers'
 
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
-  const { useLocalFrappeUI, localFrappeUIAliases } = getLocalFrappeUIDevConfig({
+  const { useLocalFrappeUI, localFrappeUIPath, localFrappeUIAliases } = getLocalFrappeUIDevConfig({
     mode,
     rootDir: __dirname,
   })
 
-  const frappeui = await importFrappeUIPlugin({ useLocalFrappeUI })
+  const frappeui = await importFrappeUIPlugin({
+    useLocalFrappeUI,
+    localFrappeUIPath,
+  })
 
   const baseAliases = {
     '@': path.resolve(__dirname, 'src'),
@@ -49,6 +57,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           },
         },
       }),
+      useLocalFrappeUI ? localFrappeUIWatchPlugin(localFrappeUIPath) : null,
       vue(),
       vueJsx(),
       visualizer({ emitFile: true }) as PluginOption,
@@ -65,8 +74,10 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
         ...localFrappeUIAliases,
         ...baseAliases,
       },
+      dedupe: useLocalFrappeUI ? LOCAL_FRAPPE_UI_DEDUPE_DEPS : ['vue', 'vue-router'],
     },
     optimizeDeps: {
+      exclude: ['frappe-ui', 'frappe-ui/icons', 'frappe-ui/tailwind'],
       include: ['feather-icons', 'tailwind.config.js'],
     },
   }
