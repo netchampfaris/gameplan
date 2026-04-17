@@ -1,15 +1,19 @@
 # Phase 01 — Current category and routing
 
-Status: not started
-Commit checkpoint:
+Status: completed
+Commit checkpoint: pending
 Notes:
-- 
+- Refactored category state into `frontend/src/data/activeCategory.ts` using a session-style semantic module.
+- Tightened canonical routes to strict `/c/:teamId/...` paths and added explicit `NotFound` handling.
+- Replaced generic redirect helpers with smaller inline redirects and route-specific checks.
+
+Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 
 ---
 
 ## Goal
 
-Create the new routing foundation for category-scoped collaboration.
+Create the new routing foundation for category scope.
 
 This phase should establish:
 - current-category resolution
@@ -24,19 +28,21 @@ Do **not** change sidebar UX or discussion page behavior deeply yet beyond what 
 ## Files
 
 ### Create
-- `frontend/src/data/currentCategory.ts`
+- `frontend/src/data/activeCategory.ts`
+- `frontend/src/pages/NotFound.vue`
 
 ### Edit
 - `frontend/src/router.js`
+- `frontend/src/data/spaces.ts`
 - `frontend/src/data/teams.ts` if small helper exports are needed
-- optionally `frontend/src/main.js` only if route bootstrapping needs a small helper import
+- route call sites touched as needed to keep strict scoped routes working
 
 ---
 
 ## Tasks
 
 ### 1. Add current-category helpers
-In `frontend/src/data/currentCategory.ts` implement:
+In `frontend/src/data/activeCategory.ts` implement:
 - persisted last selected category id
 - helper to get first accessible active category from `teams.data`
 - helper to get resolved default category id
@@ -54,10 +60,10 @@ Key rules:
   - non-admin -> resolve to an empty state page/route
   - do not show onboarding (onboarding is only for sites with zero data)
 
-### 2. Replace primary collaboration routes with scoped paths
+### 2. Replace primary category-scoped routes with scoped paths
 In `frontend/src/router.js`:
 - keep existing route names where possible
-- move canonical collaboration paths under `/c/:teamId/...`
+- move canonical category-scoped paths under `/c/:teamId/...`
 - make `/c/:teamId` redirect to `/c/:teamId/discussions`
 - add `/c/:teamId/discussions/:feedType?`
 - add scoped space paths
@@ -96,7 +102,7 @@ Instead:
 - when redirecting, include correct `teamId`
 
 ### 5b. Handle inaccessible or invalid `teamId` in routes
-In `currentCategory.ts` or as a router guard:
+In `activeCategory.ts` or as a router guard:
 - if `teamId` in the URL is invalid, archived, or inaccessible -> redirect to first accessible category
 - if no accessible categories exist at all (all archived or none created):
   - admin (`Gameplan Admin` role) -> redirect to `/spaces` so they can manage/unarchive
@@ -108,7 +114,7 @@ In `currentCategory.ts` or as a router guard:
 When navigating to a route with a different `teamId` than the current persisted category:
 - update the persisted category to match the route
 - this ensures shared links and notification clicks set the correct category context
-- implement this in a `router.afterEach` guard or within `currentCategory.ts` as a route watcher
+- implement this in a `router.afterEach` guard or within `activeCategory.ts` as a route watcher
 
 ### 6. Update onboarding redirect behavior in router
 If the app exits onboarding due to existing data, do not send users to old global discussions.

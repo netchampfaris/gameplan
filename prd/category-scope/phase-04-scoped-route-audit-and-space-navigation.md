@@ -5,11 +5,13 @@ Commit checkpoint:
 Notes:
 - 
 
+Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
+
 ---
 
 ## Goal
 
-Audit and fix all routes that now require `teamId`, especially links from global surfaces into scoped collaboration routes.
+Audit and fix all routes that now require `teamId`, especially links from global surfaces into scoped category routes.
 
 This phase should make route usage internally consistent across the app.
 

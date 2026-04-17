@@ -5,6 +5,8 @@ Commit checkpoint:
 Notes:
 - 
 
+Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
+
 ---
 
 ## Goal
@@ -137,4 +139,4 @@ Ensure frontend type definitions reflect:
 
 ## Suggested commit checkpoint
 
-`feat(category-scope): add onboarding and migration support for category-scoped collaboration`
+`feat(category-scope): add onboarding and migration support for category scope`

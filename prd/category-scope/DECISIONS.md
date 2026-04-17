@@ -95,7 +95,7 @@ Do not over-scope global pages just because the shell now has a selected categor
 
 ### Safe first milestone
 If splitting work, land these first:
-1. `currentCategory.ts`
+1. `activeCategory.ts`
 2. Router changes for `/c/:teamId/...`
 3. AppSidebar rewrite
 4. Category discussions page changes

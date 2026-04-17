@@ -1,8 +1,9 @@
-# Category-Scoped Collaboration
+# Category Scope
 
-Execution plan for implementing category-scoped collaboration in **one branch** and **one pull request**.
+Execution plan for implementing category scope in **one branch** and **one pull request**.
 
 Product decisions and strategy principles: `./DECISIONS.md`
+Implementation style guidelines: `./CODE_STYLE.md`
 
 ---
 
@@ -51,6 +52,7 @@ After each phase:
 - Verify touched pages load without console-breaking errors.
 - Verify route objects include `teamId` where required.
 - Verify no global surface was accidentally category-filtered.
+- Verify new code still follows `./CODE_STYLE.md`.
 
 ---
 
