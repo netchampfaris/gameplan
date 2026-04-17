@@ -41,7 +41,7 @@ import { Combobox } from 'frappe-ui'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDoctype } from 'frappe-ui'
 import { GPProject } from '@/types/doctypes'
-import { useSpace } from '@/data/spaces'
+import { getSpace, useSpace } from '@/data/spaces'
 
 const props = defineProps<{
   spaceId: string
@@ -77,7 +77,10 @@ function submit() {
         show.value = false
         return router.replace({
           name: 'Space',
-          params: { spaceId: selectedSpace.value },
+          params: {
+            teamId: getSpace(selectedSpace.value)?.team,
+            spaceId: selectedSpace.value,
+          },
         })
       }
     })

@@ -279,6 +279,7 @@ import { GPSearchFeedback } from '@/types/doctypes'
 import { useSessionUser } from '@/data/users'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
+import { getSpace } from '@/data/spaces'
 import { activeTeams } from '@/data/teams'
 import { activeUsers } from '@/data/users'
 import { vFocus } from '@/directives'
@@ -673,6 +674,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'Discussion',
         params: {
+          teamId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           postId: item.name,
         },
@@ -684,6 +686,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'SpaceTask',
         params: {
+          teamId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           taskId: item.name,
         },
@@ -692,6 +695,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'SpacePage',
         params: {
+          teamId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           pageId: item.name,
         },
@@ -701,6 +705,7 @@ function getItemRoute(item: SearchResultItem) {
         return {
           name: 'Discussion',
           params: {
+            teamId: item.team || getSpace(item.project)?.team,
             spaceId: item.project,
             postId: item.reference_name,
           },
@@ -711,6 +716,7 @@ function getItemRoute(item: SearchResultItem) {
         return {
           name: 'SpaceTask',
           params: {
+            teamId: item.team || getSpace(item.project)?.team,
             spaceId: item.project,
             taskId: item.reference_name,
           },

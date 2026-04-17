@@ -23,7 +23,7 @@
                 <div class="flex justify-center pb-2 pt-3">
                   <div class="h-1.5 w-10 rounded-full bg-surface-gray-3" />
                 </div>
-                <div class="px-2 pb-3 pt-2 text-center">
+                <div v-if="title" class="px-2 pb-3 pt-2 text-center">
                   <div class="text-3xl-semibold text-ink-gray-9">{{ title }}</div>
                 </div>
               </div>

@@ -38,14 +38,26 @@
       <span v-if="activity.action == 'Discussion Moved'">
         moved this discussion from
         <router-link
-          :to="{ name: 'Space', params: { spaceId: activity.data.old_project } }"
+          :to="{
+            name: 'Space',
+            params: {
+              teamId: getSpace(activity.data.old_project)?.team,
+              spaceId: activity.data.old_project,
+            },
+          }"
           class="text-ink-gray-8 hover:text-ink-gray-5"
         >
           {{ spaceTitle(activity.data.old_project) }}
         </router-link>
         to
         <router-link
-          :to="{ name: 'Space', params: { spaceId: activity.data.new_project } }"
+          :to="{
+            name: 'Space',
+            params: {
+              teamId: getSpace(activity.data.new_project)?.team,
+              spaceId: activity.data.new_project,
+            },
+          }"
           class="text-ink-gray-8 hover:text-ink-gray-5"
         >
           {{ spaceTitle(activity.data.new_project) }}
@@ -68,14 +80,26 @@
           changed project
           <span v-if="activity.data.old_value">from&nbsp;</span>
           <router-link
-            :to="{ name: 'Space', params: { spaceId: activity.data.old_value } }"
+            :to="{
+              name: 'Space',
+              params: {
+                teamId: getSpace(activity.data.old_value)?.team,
+                spaceId: activity.data.old_value,
+              },
+            }"
             class="text-ink-gray-8 hover:text-ink-gray-5"
           >
             {{ spaceTitle(activity.data.old_value) }}
           </router-link>
           to
           <router-link
-            :to="{ name: 'Space', params: { spaceId: activity.data.new_value } }"
+            :to="{
+              name: 'Space',
+              params: {
+                teamId: getSpace(activity.data.new_value)?.team,
+                spaceId: activity.data.new_value,
+              },
+            }"
             class="text-ink-gray-8 hover:text-ink-gray-5"
           >
             {{ spaceTitle(activity.data.new_value) }}
@@ -98,6 +122,7 @@
 <script setup lang="ts">
 import { dayjsLocal, Tooltip } from 'frappe-ui'
 import UserProfileLink from './UserProfileLink.vue'
+import { getSpace } from '@/data/spaces'
 import { spaceTitle } from '@/utils/formatters'
 
 interface Activity {

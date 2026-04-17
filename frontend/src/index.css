@@ -23,6 +23,16 @@ html {
     'cv11' 1;
 }
 
+@layer base {
+  :where(a, button, input, textarea, select, summary, [role='button'], [role='tab']):focus {
+    @apply outline-none;
+  }
+
+  :where(a, button, input, textarea, select, summary, [role='button'], [role='tab']):focus-visible {
+    @apply ring ring-gray-400;
+  }
+}
+
 /* ProseMirror disables ligatures by default; restore so the font-feature-settings
    set on html are inherited inside the editor */
 .ProseMirror {

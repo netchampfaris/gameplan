@@ -7,11 +7,14 @@
         :items="[
           {
             label: 'Tasks',
-            route: { name: 'SpaceTasks' },
+            route: { name: 'SpaceTasks', params: { teamId: space?.team, spaceId: space?.name } },
           },
           {
             label: task.doc ? task.doc.title : route.params.taskId.toString(),
-            route: { name: 'Task' },
+            route: {
+              name: 'SpaceTask',
+              params: { teamId: space?.team, spaceId: space?.name, taskId: props.taskId },
+            },
           },
         ]"
       />
@@ -25,7 +28,7 @@
           },
           {
             label: task.doc ? task.doc.title : route.params.taskId.toString(),
-            route: { name: 'Task' },
+            route: { name: 'Task', params: { taskId: props.taskId } },
           },
         ]"
       />

@@ -1,7 +1,25 @@
 <template>
   <PageHeader>
-    <Breadcrumbs class="h-7" :items="[{ label: 'Discussions', route: { name: 'Discussions' } }]" />
-    <Button variant="solid" icon-left="lucide-plus" :route="{ name: 'NewDiscussion' }">
+    <button
+      v-if="activeCategory.team"
+      class="flex sm:hidden min-w-0 items-center gap-2 rounded-md text-left transition hover:opacity-80"
+      @click="showCategorySpacesSheet = true"
+    >
+      <span class="text-xl">{{ activeCategory.team.icon }}</span>
+      <span class="ml-1 truncate text-lg font-semibold text-ink-gray-9">{{
+        activeCategory.team.title
+      }}</span>
+      <LucideChevronsUpDown class="ml-2 size-4 shrink-0 text-ink-gray-5" />
+    </button>
+    <Breadcrumbs
+      class="hidden h-7 sm:flex"
+      :items="[{ label: 'Discussions', route: { name: 'Discussions', params: { teamId } } }]"
+    />
+    <Button
+      variant="solid"
+      icon-left="lucide-plus"
+      :route="{ name: 'NewDiscussion', params: { teamId } }"
+    >
       Add new
     </Button>
   </PageHeader>
@@ -24,7 +42,6 @@
       <DiscussionList
         class="-mx-3"
         ref="discussionListRef"
-        routeName="ProjectDiscussion"
         :filters="filters"
         :orderBy="() => orderBy"
         :cacheKey="`HomeDiscussions-${currentFeedType}`"
@@ -42,10 +59,14 @@ import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import LastPostReminder from '@/components/LastPostReminder.vue'
 import { useRouter } from 'vue-router'
+import { activeCategory } from '@/data/activeCategory'
+import { showCategorySpacesSheet } from '@/data/categorySpacesSheet'
+import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'
 
 type FeedType = 'following' | 'participating' | 'recent' | 'bookmarks' | 'unread'
 
 interface Props {
+  teamId: string
   feedType?: FeedType
 }
 
@@ -60,7 +81,7 @@ const discussionListRef = useTemplateRef('discussionListRef')
 const currentFeedType = computed({
   get: () => props.feedType,
   set: (value: FeedType) => {
-    router.push({ name: 'DiscussionsTab', params: { feedType: value } })
+    router.push({ name: 'DiscussionsTab', params: { teamId: props.teamId, feedType: value } })
   },
 })
 

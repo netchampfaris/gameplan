@@ -4,6 +4,7 @@
     :to="{
       name: 'Space',
       params: {
+        teamId: space.team,
         spaceId: space.name,
       },
     }"

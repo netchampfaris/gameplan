@@ -14,9 +14,9 @@
         </div>
         <span class="lucide-chevron-down ml-auto hidden h-4 w-4 sm:inline text-ink-gray-7" />
       </button>
-      <AboutDialog v-model="showAboutDialog" />
     </template>
   </Dropdown>
+  <AboutDialog v-model="showAboutDialog" />
 </template>
 <script setup>
 import { h, computed, ref, markRaw } from 'vue'

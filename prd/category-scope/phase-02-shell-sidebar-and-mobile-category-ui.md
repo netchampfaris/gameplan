@@ -1,9 +1,11 @@
 # Phase 02 — Shell, sidebar, and mobile category UI
 
-Status: not started
-Commit checkpoint:
+Status: completed
+Commit checkpoint: pending
 Notes:
-- 
+- Added a reusable `CategorySwitcher` and `categorySpaces` state for current-category shell UI.
+- Rewrote desktop and mobile shell navigation around current-category discussions and spaces.
+- Removed active preferred-home usage from the sidebar flow without deleting the old dialog files.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 

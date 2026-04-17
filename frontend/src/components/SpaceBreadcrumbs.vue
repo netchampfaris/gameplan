@@ -4,13 +4,13 @@
     :items="[
       {
         label: category?.title || 'Spaces',
-        route: { name: 'Spaces', query: category ? { teamId: category.name } : undefined },
+        route: { name: 'Spaces' },
       },
       {
         label: space?.title,
         prefix: h('span', { class: 'grid place-items-center font-[emoji] text-xl' }, space?.icon),
         suffix: space?.is_private ? 'lucide-lock' : null,
-        route: { name: 'Space', params: { spaceId } },
+        route: { name: 'Space', params: { teamId: category?.name, spaceId } },
       },
       ...(items || []),
     ]"

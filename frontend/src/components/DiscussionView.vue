@@ -273,7 +273,7 @@ import UserProfileLink from './UserProfileLink.vue'
 import RevisionsDialog from './RevisionsDialog.vue'
 import { vFocus } from '@/directives'
 import { copyToClipboard } from '@/utils'
-import { useSpace } from '@/data/spaces'
+import { getSpace, useSpace } from '@/data/spaces'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDiscussion } from '@/data/discussions'
 import { tags } from '@/data/tags'
@@ -385,9 +385,12 @@ function moveToSpace() {
           discussionMoveDialog.show = false
           discussionMoveDialog.project = null
 
+          const teamId = discussion.doc?.project ? getSpace(discussion.doc.project)?.team : null
+
           router.replace({
             name: 'Discussion',
             params: {
+              teamId,
               spaceId: discussion.doc?.project,
               postId: discussion.doc?.name,
             },
@@ -546,7 +549,13 @@ const actions = computed(() => [
         message: 'Are you sure you want to delete this post? This is irreversible!',
         onConfirm: async () => {
           await discussion.delete.submit()
-          router.replace({ name: 'Space' })
+          router.replace({
+            name: 'Space',
+            params: {
+              teamId: route.params.teamId,
+              spaceId: route.params.spaceId,
+            },
+          })
         },
       })
     },

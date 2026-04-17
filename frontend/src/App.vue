@@ -2,7 +2,7 @@
   <FrappeUIProvider>
     <ScrollAreaRoot class="h-full overflow-hidden">
       <router-view v-if="['Onboarding', 'Login'].includes($route.name)" />
-      <Layout class="hello" v-else-if="$session.isLoggedIn">
+      <Layout v-else-if="$session.isLoggedIn">
         <router-view />
       </Layout>
     </ScrollAreaRoot>

@@ -16,7 +16,7 @@
         <Button
           icon-left="lucide-plus"
           variant="solid"
-          @click="router.push({ name: 'NewDiscussion' })"
+          @click="router.push(newDiscussionRoute)"
         >
           Add new
         </Button>
@@ -43,7 +43,7 @@
       <div class="-mx-3" v-else>
         <template v-for="(draft, index) in drafts.data" :key="draft.name">
           <RouterLink
-            :to="{ name: 'NewDiscussion', query: { draft: draft.name } }"
+            :to="{ name: 'LegacyNewDiscussion', query: { draft: draft.name } }"
             custom
             v-slot="{ href, navigate }"
           >
@@ -152,10 +152,11 @@ import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { useSpace } from '@/data/spaces'
 import { relativeTimestamp } from '@/utils'
 import PageHeader from '@/components/PageHeader.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion, AnimatePresence } from 'motion-v'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
+import { activeCategory } from '@/data/activeCategory'
 
 interface Draft extends GPDraft {
   project_title: string
@@ -173,6 +174,17 @@ const isBulkDeleteMode = ref(false)
 const selectedDrafts = ref<string[]>([])
 const showDeleteConfirm = ref(false)
 const router = useRouter()
+
+const newDiscussionRoute = computed(() => {
+  if (!activeCategory.id) {
+    return { name: 'LegacyNewDiscussion' }
+  }
+
+  return {
+    name: 'NewDiscussion',
+    params: { teamId: activeCategory.id },
+  }
+})
 
 function toggleSelection(name: string) {
   if (selectedDrafts.value.includes(name)) {

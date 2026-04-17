@@ -6,7 +6,7 @@
         { label: 'Drafts', route: { name: 'Drafts' } },
         {
           label: draftDoc?.doc ? draftData.title : 'New Discussion',
-          route: { name: 'NewDiscussion' },
+          route: discussionRoute,
         },
       ]"
     />
@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { Breadcrumbs, Tooltip } from 'frappe-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import { useNewDiscussionContext } from './useNewDiscussion'
@@ -61,4 +63,16 @@ const {
   publishing,
   immediateSave,
 } = useNewDiscussionContext()
+
+const route = useRoute()
+const discussionRoute = computed(() => {
+  if (!route.params.teamId) {
+    return { name: 'LegacyNewDiscussion' }
+  }
+
+  return {
+    name: 'NewDiscussion',
+    params: { teamId: route.params.teamId },
+  }
+})
 </script>

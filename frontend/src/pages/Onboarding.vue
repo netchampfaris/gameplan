@@ -127,7 +127,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCall } from 'frappe-ui'
 import UserDropdown from '@/components/UserDropdown.vue'
-import { joinedSpaces, spaces } from '@/data/spaces'
+import { getSpace, joinedSpaces, spaces } from '@/data/spaces'
 import { teams } from '@/data/teams'
 
 const space = reactive({
@@ -171,10 +171,13 @@ const onboarding = useCall<string, OnboardingParams>({
   },
   onSuccess(spaceId) {
     teams.reload()
-    spaces.reload()
+    spaces.reload().then(() => {
+      router.replace({
+        name: 'Space',
+        params: { teamId: getSpace(spaceId)?.team, spaceId },
+      })
+    })
     joinedSpaces.reload()
-
-    router.replace({ name: 'Space', params: { spaceId } })
   },
 })
 

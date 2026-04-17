@@ -1,41 +1,15 @@
 <template>
   <ScrollAreaViewport
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
-    class="inline-flex group/sidebar h-full flex-1 flex-col overflow-y-auto border-r bg-surface-sidebar pb-40 w-60"
+    class="inline-flex h-full w-60 flex-1 flex-col overflow-y-auto border-r bg-surface-sidebar pb-40"
   >
-    <div class="flex flex-col px-2 py-2">
+    <div class="px-2 py-2">
       <UserDropdown />
     </div>
-    <div class="flex-1">
-      <nav class="space-y-0.5 px-2">
+
+    <div class="flex-1 px-2 pb-4">
+      <nav class="space-y-0.5">
         <AppSidebarLink
-          class="group"
-          :to="{ name: 'Home' }"
-          :isActive="
-            preferredHomePage === 'Discussions' ? testRoute(/Discussions/g) : testRoute(/Spaces/g)
-          "
-        >
-          <template #prefix>
-            <span
-              v-if="preferredHomePage === 'Discussions'"
-              class="lucide-newspaper h-4 w-4 text-ink-gray-6"
-            />
-            <span v-else class="lucide-layout-grid h-4 w-4 text-ink-gray-6" />
-          </template>
-          {{ preferredHomePage }}
-          <template #suffix>
-            <button
-              @click.stop.prevent="showHomePageSettingsDialog = true"
-              class="transition-opacity flex items-center justify-center p-0.5 hover:bg-surface-gray-1 rounded-sm"
-              :class="{ 'opacity-100': showButtons, 'opacity-0': !showButtons }"
-            >
-              <span class="lucide-settings-2 h-4 w-4 text-ink-gray-6" />
-            </button>
-          </template>
-        </AppSidebarLink>
-        <AppSidebarLink
-          v-for="link in navigation"
+          v-for="link in globalNavigation"
           :key="link.name"
           :to="link.route"
           :isActive="link.isActive"
@@ -48,280 +22,169 @@
             <span v-if="link.count" class="block text-xs text-ink-gray-5">
               {{ link.count }}
             </span>
-            <span v-if="link.name === 'Search'">
-              <span class="text-sm text-ink-gray-4">
-                <template v-if="$platform === 'mac'">⌘K</template>
-                <template v-else>Ctrl+K</template>
-              </span>
+            <span v-if="link.name === 'Search'" class="text-sm text-ink-gray-4">
+              <template v-if="$platform === 'mac'">⌘K</template>
+              <template v-else>Ctrl+K</template>
             </span>
           </template>
         </AppSidebarLink>
       </nav>
-      <div class="mt-6 flex items-center justify-between px-2">
-        <h3 class="px-2 py-1.5 text-sm text-ink-gray-5">Spaces</h3>
-        <div class="space-x-1 flex items-center">
-          <Button
-            class="transition-opacity"
-            :class="{ 'opacity-100': showButtons, 'opacity-0': !showButtons }"
-            variant="ghost"
-            @click="toggleAllGroups"
-            :tooltip="allGroupsExpanded ? 'Collapse all' : 'Expand all'"
-            :icon="allGroupsExpanded ? 'lucide-fold-vertical' : 'lucide-unfold-vertical'"
-          />
-          <Dropdown
-            align="end"
-            :options="[
-              {
-                label: 'Show all spaces',
-                onClick: () => setSpaceFilter('all'),
-                icon: spaceFilter === 'all' ? 'lucide-check' : undefined,
-              },
-              {
-                label: 'Show joined spaces',
-                onClick: () => setSpaceFilter('joined'),
-                icon: spaceFilter === 'joined' ? 'lucide-check' : undefined,
-              },
-            ]"
-            v-slot="{ open }"
+
+      <div v-if="activeCategory.team" class="mt-6">
+        <div class="px-2 pb-1 text-xs text-ink-gray-5">Category</div>
+
+        <CategorySwitcher v-if="activeTeams.length > 1" :is-active="isCategoryActive" />
+
+        <AppSidebarLink v-else :to="categoryRoute" :isActive="isCategoryActive">
+          <template #prefix>
+            <span class="grid h-5 w-6 place-items-center text-base text-ink-gray-6">
+              {{ activeCategory.team.icon }}
+            </span>
+          </template>
+          {{ activeCategory.team.title }}
+        </AppSidebarLink>
+
+        <nav class="mt-2 space-y-0.5 pl-6">
+          <AppLink
+            v-for="space in visibleSpaces"
+            :key="space.name"
+            :to="{ name: 'Space', params: { teamId: space.team, spaceId: space.name } }"
+            class="flex h-7 items-center rounded px-2 text-ink-gray-7 transition"
+            activeClass="bg-surface-elevation-3 shadow-sm"
+            inactiveClass="hover:bg-surface-gray-2"
           >
-            <Button
-              :variant="open ? 'subtle' : 'ghost'"
-              class="transition-opacity focus:opacity-100"
-              :class="{ 'opacity-100': showButtons || open, 'opacity-0': !showButtons && !open }"
-              icon="lucide-more-horizontal"
-            />
-          </Dropdown>
-        </div>
-      </div>
-      <nav class="mt-1 space-y-1 px-2">
-        <div v-for="group in groupedSpaces" :key="group.name">
-          <button
-            v-show="!noCategories"
-            @click.prevent="
-              () => {
-                isGroupOpen[group.name] = !isGroupOpen[group.name]
-              }
-            "
-            class="flex w-full items-center px-2 py-1.5 rounded hover:bg-surface-gray-2"
-          >
-            <ChevronTriangle
-              class="h-3 w-3 ml-1.5 mr-1.5 text-ink-gray-4 transition duration-200"
-              :class="[isGroupOpen[group.name] ? 'rotate-90' : 'rotate-0']"
-            />
-            <div class="flex w-full items-center">
-              <span class="text-sm text-ink-gray-7">{{ group.title }}</span>
-            </div>
-          </button>
-          <div
-            class="mb-2 mt-0.5 space-y-0.5"
-            :class="!noCategories && 'pl-6'"
-            v-show="isGroupOpen[group.name]"
-          >
-            <AppLink
-              v-for="space in group.spaces"
-              :key="space.name"
-              :to="{ name: 'Space', params: { spaceId: space.name } }"
-              class="flex h-7 items-center rounded px-2 text-ink-gray-7 transition"
-              activeClass="bg-surface-elevation-3 shadow-sm"
-              inactiveClass="hover:bg-surface-gray-2"
-            >
-              <span class="inline-flex min-w-0 items-center w-full">
-                <span class="flex-shrink-0 flex h-5 w-6 items-center justify-center text-3xl">
-                  {{ space.icon }}
-                </span>
-                <span class="truncate text-sm flex-grow w-full ml-2">
-                  {{ space.title }}
-                </span>
-                <span v-if="space.is_private" class="lucide-lock flex-shrink-0 h-3 w-3 ml-2" />
-                <span
-                  v-if="getSpaceUnreadCount(space.name) > 0"
-                  class="ml-auto pl-2 text-xs text-ink-gray-5"
-                >
-                  {{ getSpaceUnreadCount(space.name) }}
-                </span>
+            <span class="inline-flex min-w-0 w-full items-center">
+              <span class="flex h-5 w-6 flex-shrink-0 items-center justify-center text-3xl">
+                {{ space.icon }}
               </span>
-            </AppLink>
-            <div
-              class="flex h-7 items-center px-2 text-sm text-ink-gray-5"
-              v-if="group.spaces.length === 0"
-            >
-              No spaces
-            </div>
+              <span class="ml-2 w-full flex-grow truncate text-sm">
+                {{ space.title }}
+              </span>
+              <span v-if="space.is_private" class="lucide-lock ml-2 h-3 w-3 flex-shrink-0" />
+              <span
+                v-if="getSpaceUnreadCount(space.name) > 0"
+                class="ml-auto pl-2 text-xs text-ink-gray-5"
+              >
+                {{ getSpaceUnreadCount(space.name) }}
+              </span>
+            </span>
+          </AppLink>
+
+          <div
+            v-if="visibleSpaces.length === 0"
+            class="flex h-7 items-center px-2 text-sm text-ink-gray-5"
+          >
+            No spaces
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
     </div>
-    <NewSpaceDialog v-model="showAddTeamDialog" />
   </ScrollAreaViewport>
   <ScrollBar />
-  <HomePageSettingsDialog v-model="showHomePageSettingsDialog" />
 </template>
+
 <script setup lang="ts">
-import { computed, ref, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Dropdown } from 'frappe-ui'
-import { useLocalStorage } from '@vueuse/core'
-import { noCategories, useGroupedSpaces } from '@/data/groupedSpaces'
+import { activeCategory } from '@/data/activeCategory'
+import { categorySpaces } from '@/data/categorySpaces'
 import { unreadNotifications } from '@/data/notifications'
-import { joinedSpaces, getSpaceUnreadCount } from '@/data/spaces'
+import { getSpaceUnreadCount } from '@/data/spaces'
+import { activeTeams } from '@/data/teams'
 import { useSessionUser } from '@/data/users'
-import { usePreferredHomePage } from '@/composables/usePreferredHomePage'
-import NewSpaceDialog from './NewSpaceDialog.vue'
+import CategorySwitcher from './CategorySwitcher.vue'
 import AppSidebarLink from './AppSidebarLink.vue'
 import AppLink from './AppLink.vue'
 import UserDropdown from './UserDropdown.vue'
 import { ScrollAreaViewport } from 'reka-ui'
 import ScrollBar from './ScrollBar.vue'
-import HomePageSettingsDialog from './HomePageSettingsDialog.vue'
-
-import ChevronTriangle from './icons/ChevronTriangle.vue'
-const showAddTeamDialog = ref(false)
-const showHomePageSettingsDialog = ref(false)
-const preferredHomePage = usePreferredHomePage()
-
-const spaceFilter = useLocalStorage<'all' | 'joined'>('gameplan:spaceFilter', 'joined')
-const isGroupOpen = useLocalStorage<{ [key: string]: boolean }>('gameplan:groupOpenState', {})
 
 const route = useRoute()
 const sessionUser = useSessionUser()
 
-let groupedSpaces = computed(() => {
-  let _groups = useGroupedSpaces({
-    filterFn: (space) => {
-      const isNotArchived = !space.archived_at
-      if (spaceFilter.value === 'all') {
-        return isNotArchived
-      } else {
-        return isNotArchived && joinedSpaces.data?.includes(space.name)
-      }
-    },
-  })
-  for (let group of _groups.value) {
-    if (isGroupOpen.value[group.name] === undefined) {
-      isGroupOpen.value[group.name] = true
-    }
+const categoryRoute = computed(() => {
+  if (!activeCategory.id) {
+    return { name: 'Home' }
   }
-  return _groups.value
+
+  return {
+    name: 'Discussions',
+    params: { teamId: activeCategory.id },
+  }
 })
 
-function setSpaceFilter(filter: 'all' | 'joined') {
-  spaceFilter.value = filter
-}
-
-const allGroupsExpanded = computed(() => {
-  if (groupedSpaces.value.length === 0) return true
-  return groupedSpaces.value.every((group) => isGroupOpen.value[group.name] === true)
+const isCategoryActive = computed(() => {
+  return isCurrentRoute('Discussions', 'DiscussionsTab', 'NewDiscussion')
 })
 
-function toggleAllGroups() {
-  const shouldExpand = !allGroupsExpanded.value
-  groupedSpaces.value.forEach((group) => {
-    isGroupOpen.value[group.name] = shouldExpand
-  })
-}
+const visibleSpaces = computed(() => {
+  return categorySpaces.list
+})
 
-const navigation = computed(() => {
+const globalNavigation = computed(() => {
   return [
     {
-      name: 'Spaces',
-      icon: 'lucide-layout-grid',
-      route: {
-        name: 'Spaces',
-      },
-      isActive: testRoute(/Spaces/g),
-      condition: () => preferredHomePage.value == 'Discussions',
-    },
-    {
-      name: 'Discussions',
-      icon: 'lucide-newspaper',
-      route: {
-        name: 'DiscussionsTab',
-        params: { feedType: 'recent' },
-      },
-      isActive: testRoute(/Discussions/g),
-      condition: () => preferredHomePage.value == 'Spaces',
+      name: 'Bookmarks',
+      icon: 'lucide-bookmark',
+      route: { name: 'Bookmarks' },
+      isActive: isCurrentRoute('Bookmarks'),
     },
     {
       name: 'Inbox',
       icon: 'lucide-inbox',
-      route: {
-        name: 'Notifications',
-      },
+      route: { name: 'Notifications' },
       count: unreadNotifications.data || 0,
-      isActive: testRoute(/Notifications/g),
+      isActive: isCurrentRoute('Notifications'),
     },
     {
       name: 'Drafts',
       icon: 'lucide-pencil-line',
-      route: {
-        name: 'Drafts',
-      },
-      isActive: testRoute(/Drafts/g),
+      route: { name: 'Drafts' },
+      isActive: isCurrentRoute('Drafts'),
     },
     {
       name: 'Tasks',
       icon: 'lucide-list-todo',
-      route: {
-        name: 'MyTasks',
-      },
-      isActive: testRoute(/MyTasks|Task/g),
+      route: { name: 'MyTasks' },
+      isActive: isCurrentRoute('MyTasks', 'Task'),
     },
     {
       name: 'Pages',
       icon: 'lucide-files',
-      route: {
-        name: 'MyPages',
-      },
-      isActive: testRoute(/MyPages|Page/g),
+      route: { name: 'MyPages' },
+      isActive: isCurrentRoute('MyPages', 'Page'),
     },
     {
       name: 'People',
       icon: 'lucide-users-2',
-      route: {
-        name: 'People',
-      },
-      isActive: testRoute(/People|PersonProfile/g),
+      route: { name: 'People' },
+      isActive: isCurrentRoute(
+        'People',
+        'PersonProfile',
+        'PersonProfileAboutMe',
+        'PersonProfilePosts',
+        'PersonProfileReplies',
+        'PersonProfileBookmarks',
+      ),
       condition: () => sessionUser.isNotGuest,
     },
     {
       name: 'Search',
       icon: 'lucide-search',
-      route: {
-        name: 'Search',
-      },
-      isActive: testRoute(/Search/g),
+      route: { name: 'Search' },
+      isActive: isCurrentRoute('Search'),
     },
-  ].filter((nav) => (nav.condition ? nav.condition() : true))
+    {
+      name: 'Spaces',
+      icon: 'lucide-layout-grid',
+      route: { name: 'Spaces' },
+      isActive: isCurrentRoute('Spaces'),
+    },
+  ].filter((link) => (link.condition ? link.condition() : true))
 })
 
-function testRoute(regex: RegExp) {
-  return route.name ? regex.test(route.name.toString()) : false
+function isCurrentRoute(...names: string[]) {
+  let routeName = route.name?.toString() || ''
+  return names.includes(routeName)
 }
-
-// Show/hide buttons on hover
-
-const showButtons = ref(false)
-let hideTimeout: ReturnType<typeof setTimeout> | null = null
-
-function onMouseEnter() {
-  showButtons.value = true
-  if (hideTimeout) {
-    clearTimeout(hideTimeout)
-    hideTimeout = null
-  }
-}
-
-function onMouseLeave() {
-  if (showButtons.value) {
-    hideTimeout = setTimeout(() => {
-      showButtons.value = false
-    }, 2000)
-  }
-}
-
-onUnmounted(() => {
-  if (hideTimeout) {
-    clearTimeout(hideTimeout)
-  }
-})
 </script>

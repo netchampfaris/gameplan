@@ -131,7 +131,7 @@ import { computed } from 'vue'
 import { Tooltip, Badge, dayjsLocal, Checkbox } from 'frappe-ui'
 import { motion, AnimatePresence } from 'motion-v'
 import UserAvatarWithHover from './UserAvatarWithHover.vue'
-import { useSpace } from '@/data/spaces'
+import { getSpace, useSpace } from '@/data/spaces'
 import { Discussion } from '@/data/discussions'
 import { relativeTimestamp } from '@/utils'
 
@@ -152,6 +152,7 @@ const linkTo = computed(() => {
   return {
     name: 'Discussion',
     params: {
+      teamId: getSpace(props.discussion.project)?.team,
       spaceId: props.discussion.project,
       postId: props.discussion.name,
       slug: props.discussion.slug,

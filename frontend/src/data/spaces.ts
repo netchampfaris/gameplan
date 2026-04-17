@@ -54,8 +54,12 @@ export function useSpace(name: MaybeRefOrGetter<string | undefined>) {
   return computed(() => {
     let _name = toValue(name)
     if (!_name) return null
-    return spaces.data?.find((space) => space.name.toString() === _name?.toString()) ?? null
+    return getSpace(_name)
   })
+}
+
+export function getSpace(name: string) {
+  return spaces.data?.find((space) => space.name.toString() === name.toString()) ?? null
 }
 
 export const joinedSpaces = useCall<string[]>({

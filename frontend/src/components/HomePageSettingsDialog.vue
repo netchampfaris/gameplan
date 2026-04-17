@@ -46,6 +46,7 @@ import { Dialog, Select } from 'frappe-ui'
 import { RadioGroupRoot, RadioGroupItem, RadioGroupIndicator } from 'reka-ui'
 import { useRouter } from 'vue-router'
 import { usePreferredHomePage } from '@/composables/usePreferredHomePage'
+import { activeCategory } from '@/data/activeCategory'
 import { CircleCheckIcon } from 'frappe-ui/icons'
 
 const props = defineProps<{
@@ -77,7 +78,13 @@ watch(
 
 function saveSelection() {
   preferredHomePage.value = selectedHomePage.value
-  router.push({ name: selectedHomePage.value })
+
+  if (selectedHomePage.value === 'Discussions' && activeCategory.id) {
+    router.push({ name: 'Discussions', params: { teamId: activeCategory.id } })
+  } else {
+    router.push({ name: selectedHomePage.value })
+  }
+
   emit('update:modelValue', false)
 }
 </script>

@@ -35,3 +35,7 @@ export let useTeam = (teamId: MaybeRefOrGetter<string | undefined>) => {
 export let getTeam = (teamId: string) => {
   return (teams.data || []).find((team) => team.name.toString() === teamId.toString())
 }
+
+export let getActiveTeam = (teamId: string) => {
+  return activeTeams.value.find((team) => team.name.toString() === teamId.toString())
+}

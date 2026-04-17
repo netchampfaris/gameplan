@@ -2,21 +2,26 @@
   <div>
     <PageHeader>
       <SpaceBreadcrumbs
-        v-if="spaceId"
+        v-if="space"
         :spaceId="spaceId"
         :items="[
           {
             label: 'Pages',
             route: {
               name: 'SpacePages',
-              params: { spaceId: space?.name },
+              params: { teamId: space?.team, spaceId: space?.name },
             },
           },
           {
             label: pageTitle,
             route: {
               name: 'SpacePage',
-              params: { pageId: props.pageId, slug: props.slug, spaceId: space?.name },
+              params: {
+                teamId: space?.team,
+                pageId: props.pageId,
+                slug: props.slug,
+                spaceId: space?.name,
+              },
             },
           },
         ]"
@@ -146,7 +151,7 @@ const isDirty = computed(() => {
   return page.doc?.title !== title.value || page.doc?.content !== content.value
 })
 
-const space = useSpace(() => page.doc?.project)
+const space = useSpace(() => page.doc?.project || props.spaceId)
 
 const pageTitle = computed(() => {
   return page.doc?.title || props.pageId

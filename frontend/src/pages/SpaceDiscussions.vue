@@ -15,7 +15,13 @@
         <Button
           variant="solid"
           icon-left="lucide-plus"
-          @click="router.push({ name: 'NewDiscussion', query: { spaceId: spaceId } })"
+          @click="
+            router.push({
+              name: 'NewDiscussion',
+              params: { teamId: route.params.teamId },
+              query: { spaceId: spaceId },
+            })
+          "
         >
           Add new
         </Button>
@@ -79,7 +85,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Combobox, Dialog, ErrorMessage, useCall, toast } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import SpaceHeaderActions from '@/components/SpaceHeaderActions.vue'
@@ -100,6 +106,7 @@ const props = defineProps<{
   spaceId: string
 }>()
 
+const route = useRoute()
 const isBulkMoveMode = ref(false)
 const selectedDiscussions = ref<string[]>([])
 const showMoveDialog = ref(false)

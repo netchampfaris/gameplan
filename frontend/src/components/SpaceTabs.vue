@@ -38,7 +38,10 @@ const currentTab = computed({
       pages: 'SpacePages',
       tasks: 'SpaceTasks',
     }[value]
-    router.push({ name: routeName, params: { spaceId: props.spaceId } })
+    router.push({
+      name: routeName,
+      params: { teamId: currentRoute.params.teamId, spaceId: props.spaceId },
+    })
   },
 })
 </script>

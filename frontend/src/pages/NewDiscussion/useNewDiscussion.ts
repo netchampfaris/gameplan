@@ -4,6 +4,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { useDoc, useNewDoc, useDoctype, dialog } from 'frappe-ui'
 import { debounce } from 'frappe-ui'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
+import { getSpace } from '@/data/spaces'
 import { useSessionUser, useUser } from '@/data/users'
 import { tags } from '@/data/tags'
 import type { TextEditorRef, DraftDocument, DraftMethods, DraftData } from './types'
@@ -86,7 +87,16 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
 
     const doc = await draft.submit()
     persistedDraftData.value = getDraftData(doc)
-    router.replace({ name: 'NewDiscussion', query: { draft: doc.name } })
+
+    if (currentRoute.params.teamId) {
+      router.replace({
+        name: 'NewDiscussion',
+        params: { teamId: currentRoute.params.teamId },
+        query: { draft: doc.name },
+      })
+    } else {
+      router.replace({ name: 'LegacyNewDiscussion', query: { draft: doc.name } })
+    }
     fetchDraftDoc(doc.name)
   }
 
@@ -257,11 +267,14 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
         .then((discussionId: any) => {
           if (discussionId) {
             const spaceId = draftData.value.project
+            const teamId = currentRoute.params.teamId || (spaceId ? getSpace(spaceId)?.team : null)
+
             resetValues()
             router
               .replace({
                 name: 'Discussion',
                 params: {
+                  teamId,
                   spaceId: spaceId,
                   postId: discussionId,
                 },
@@ -285,12 +298,15 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
       })
       .then((doc) => {
         if (doc) {
+          const teamId = currentRoute.params.teamId || getSpace(doc.project)?.team
+
           isPublishingSuccessfully.value = true
           resetValues()
           router
             .replace({
               name: 'Discussion',
               params: {
+                teamId,
                 spaceId: doc.project,
                 postId: doc.name,
               },

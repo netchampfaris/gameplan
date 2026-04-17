@@ -1,17 +1,17 @@
 interface DocType {
-  name: string
-  creation: string
-  modified: string
-  owner: string
-  modified_by: string
-}
+    name: string;
+    creation: string;
+    modified: string;
+    owner: string;
+    modified_by: string;
+  }
 
-interface ChildDocType extends DocType {
-  parent?: string
-  parentfield?: string
-  parenttype?: string
-  idx?: number
-}
+  interface ChildDocType extends DocType {
+    parent?: string;
+    parentfield?: string;
+    parenttype?: string;
+    idx?: number;
+  }
 
 // Last updated: 2023-06-15 21:01:42.058336
 export interface GPTask extends DocType {
@@ -96,25 +96,25 @@ export interface GPMember extends ChildDocType {
 // Last updated: 2026-02-01 13:07:33.079297
 export interface GPNotification extends DocType {
   /** From User: Link (User) */
-  from_user?: string
+  from_user?: string;
   /** To User: Link (User) */
-  to_user: string
+  to_user: string;
   /** Type: Select */
-  type: 'Mention' | 'Reaction' | 'Rich Quote'
+  type: 'Mention' | 'Reaction' | 'Rich Quote';
   /** Message: Text Editor */
-  message?: string
+  message?: string;
   /** Read: Check */
-  read: 0 | 1
+  read: 0 | 1;
   /** Comment: Link (GP Comment) */
-  comment?: string
+  comment?: string;
   /** Discussion: Link (GP Discussion) */
-  discussion?: string
+  discussion?: string;
   /** Task: Link (GP Task) */
-  task?: string
+  task?: string;
   /** Project: Link (GP Project) */
-  project?: string
+  project?: string;
   /** Team: Link (GP Team) */
-  team?: string
+  team?: string;
 }
 
 // Last updated: 2025-10-20 20:19:55.468697
