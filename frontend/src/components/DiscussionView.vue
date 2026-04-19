@@ -105,6 +105,7 @@
             </div>
             <CommentEditor
               :value="discussion.doc.content"
+              :creation="discussion.doc.creation"
               @change="discussion.doc.content = $event"
               @rich-quote="
                 handleRichQuote($event, {

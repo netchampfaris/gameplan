@@ -25,7 +25,9 @@
           >
             <div class="overflow-hidden text-ellipsis whitespace-nowrap">
               <div
-                class="prose prose-v3 pointer-events-none w-[200%] origin-top-left scale-[.55] md:w-[250%] md:scale-[.39]"
+                :class="`prose ${useProseClass(
+                  d.creation,
+                )} pointer-events-none w-[200%] origin-top-left scale-[.55] md:w-[250%] md:scale-[.39]`"
                 v-html="d.content"
               />
             </div>
@@ -70,6 +72,7 @@ import EmptyStateBox from '@/components/EmptyStateBox.vue'
 import { createDialog } from '@/utils/dialogs'
 import { GPPage } from '@/types/doctypes'
 import { useSpace } from '@/data/spaces'
+import { useProseClass } from '@/utils/useProseClass'
 
 const props = defineProps<{
   listOptions: {

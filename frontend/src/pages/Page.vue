@@ -93,7 +93,7 @@
           />
         </div>
         <TextEditor
-          editor-class="rounded-b-lg max-w-[unset] prose-v3 pb-[50vh] md:px-[70px]"
+          :editor-class="`rounded-b-lg max-w-[unset] ${proseClass} pb-[50vh] md:px-[70px]`"
           :content="content"
           @change="
             (value) => {
@@ -122,8 +122,7 @@ import SpaceBreadcrumbs from '@/components/SpaceBreadcrumbs.vue'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 import { createDialog } from '@/utils/dialogs'
 import { relativeTimestamp } from '@/utils'
-import LucideSave from '~icons/lucide/save'
-import LucideTrash2 from '~icons/lucide/trash-2'
+import { useProseClass } from '@/utils/useProseClass'
 
 const props = defineProps<{
   pageId: string
@@ -146,6 +145,8 @@ const page = useDoc<GPPage>({
   doctype: 'GP Page',
   name: () => props.pageId,
 })
+
+const proseClass = computed(() => useProseClass(page.doc?.creation))
 
 page.onSuccess((doc) => {
   title.value = doc.title || ''

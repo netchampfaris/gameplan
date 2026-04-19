@@ -1,7 +1,7 @@
 <template>
   <TextEditor
     ref="textEditor"
-    :editor-class="['prose-v3 max-w-none', editable && 'min-h-[4rem]']"
+    :editor-class="[proseClass, 'max-w-none', editable && 'min-h-[4rem]']"
     :content="value"
     @change="editable ? $emit('change', $event) : null"
     :starterkit-options="{ heading: { levels: [2, 3, 4, 5, 6] } }"
@@ -29,6 +29,7 @@
 import { EditorContent } from '@tiptap/vue-3'
 import TextEditor from '@/components/TextEditor.vue'
 import { TextEditorFixedMenu } from 'frappe-ui'
+import { useProseClass } from '@/utils/useProseClass'
 
 export default {
   name: 'CommentEditor',
@@ -36,6 +37,10 @@ export default {
     value: {
       type: String,
       default: '',
+    },
+    creation: {
+      type: String,
+      default: null,
     },
     placeholder: {
       type: String,
@@ -64,6 +69,9 @@ export default {
   computed: {
     editor() {
       return this.$refs.textEditor.editor
+    },
+    proseClass() {
+      return useProseClass(this.creation)
     },
     textEditorMenuButtons() {
       return [

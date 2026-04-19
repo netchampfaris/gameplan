@@ -61,6 +61,7 @@
           <CommentEditor
             v-if="comment.deleted_at == null"
             :value="isEditing ? draftContent : comment.content"
+            :creation="comment.creation"
             @change="
               (value: string) => {
                 if (isEditing) {

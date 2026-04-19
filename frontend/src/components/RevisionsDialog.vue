@@ -52,7 +52,7 @@
           <div
             v-if="currentRevision"
             v-html="htmlDiff"
-            class="ProseMirror max-w-none prose prose-v3 rounded-md prose-table:table-fixed prose-th:relative prose-th:border prose-th:border-outline-gray-2 prose-th:bg-surface-gray-2 prose-th:p-2 prose-td:relative prose-td:border prose-td:border-outline-gray-2 prose-td:p-2"
+            :class="`ProseMirror max-w-none prose ${proseClass} rounded-md prose-table:table-fixed prose-th:relative prose-th:border prose-th:border-outline-gray-2 prose-th:bg-surface-gray-2 prose-th:p-2 prose-td:relative prose-td:border prose-td:border-outline-gray-2 prose-td:p-2`"
           />
         </div>
       </div>
@@ -109,7 +109,7 @@
         <div
           v-if="sheetContentReady && currentRevision"
           v-html="htmlDiff"
-          class="ProseMirror max-w-none prose prose-v3 rounded-md prose-table:table-fixed prose-th:relative prose-th:border prose-th:border-outline-gray-2 prose-th:bg-surface-gray-2 prose-th:p-2 prose-td:relative prose-td:border prose-td:border-outline-gray-2 prose-td:p-2"
+          :class="`ProseMirror max-w-none prose ${proseClass} rounded-md prose-table:table-fixed prose-th:relative prose-th:border prose-th:border-outline-gray-2 prose-th:bg-surface-gray-2 prose-th:p-2 prose-td:relative prose-td:border prose-td:border-outline-gray-2 prose-td:p-2`"
         />
         <div v-else class="h-40 rounded-md bg-surface-gray-1" aria-hidden="true" />
       </div>
@@ -120,6 +120,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMediaQuery, usePointerSwipe } from '@vueuse/core'
 import { dayjsLocal, useCall } from 'frappe-ui'
+import { useProseClass } from '@/utils/useProseClass'
 import HtmlDiff from 'htmldiff-js'
 import { Motion } from 'motion-v'
 import BottomSheet from './BottomSheet.vue'
@@ -206,6 +207,8 @@ const title = computed(() => {
 const currentRevision = computed(() => {
   return orderedRevisions.value[currentRevisionIndex.value] ?? null
 })
+
+const proseClass = computed(() => useProseClass(currentRevision.value?.creation))
 
 const handleSheetCloseComplete = () => {
   currentRevisionIndex.value = 0

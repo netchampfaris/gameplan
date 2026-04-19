@@ -49,7 +49,7 @@
         </div>
         <TextEditor
           ref="description"
-          editor-class="prose-v3 max-w-none focus-within:ring-2 focus-within:ring-outline-gray-3 rounded-sm p-0.5 -ml-0.5 min-h-[4rem]"
+          :editor-class="`${proseClass} max-w-none focus-within:ring-2 focus-within:ring-outline-gray-3 rounded-sm p-0.5 -ml-0.5 min-h-[4rem]`"
           placeholder="Description"
           :content="task.doc.description"
           :bubbleMenu="true"
@@ -180,6 +180,7 @@ import { Dropdown, LoadingText, DatePicker, Button, Combobox } from 'frappe-ui'
 import { vFocus } from '@/directives'
 import { activeUsers } from '@/data/users'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
+import { useProseClass } from '@/utils/useProseClass'
 import { useTask } from '@/data/tasks'
 import { GPTask } from '@/types/doctypes'
 
@@ -191,6 +192,7 @@ const router = useRouter()
 const route = useRoute()
 
 const task = useTask(() => props.taskId)
+const proseClass = computed(() => useProseClass(task.doc?.creation))
 
 task.onSuccess((doc) => {
   if (['Task', 'SpaceTask'].includes(route.name as string) && route.params.taskId === doc.name) {
