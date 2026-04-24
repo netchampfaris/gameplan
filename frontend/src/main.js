@@ -22,7 +22,6 @@ import './index.css'
 import { getPlatform } from './utils'
 import { useUser, users } from './data/users'
 import { isSessionUser, session } from './data/session'
-import { initSocket } from './socket'
 import resetDataMixin from './utils/resetDataMixin'
 
 let globalComponents = {
@@ -54,7 +53,6 @@ app.config.globalProperties.$readOnlyMode = window.read_only_mode
 app.config.globalProperties.$platform = getPlatform()
 app.config.globalProperties.$isSessionUser = isSessionUser
 
-let socket
 if (import.meta.env.DEV) {
   useCall({
     url: '/api/v2/method/gameplan.www.g.get_context_for_dev',
@@ -64,15 +62,11 @@ if (import.meta.env.DEV) {
         window[key] = values[key]
       }
       window.system_timezone && setConfig('systemTimezone', window.system_timezone)
-      socket = initSocket()
-      app.config.globalProperties.$socket = socket
       app.mount('#app')
     },
   })
 } else {
   window.system_timezone && setConfig('systemTimezone', window.system_timezone)
-  socket = initSocket()
-  app.config.globalProperties.$socket = socket
   app.mount('#app')
 }
 

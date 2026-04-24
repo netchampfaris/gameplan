@@ -158,7 +158,7 @@ import Poll from './Poll.vue'
 import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { dialog } from 'frappe-ui'
-import { useSocket } from '@/socket'
+import { socket } from '@/client'
 import { GPActivity, GPComment, GPPoll } from '@/types/doctypes'
 import type { Editor } from '@tiptap/vue-3'
 import { tags } from '@/data/tags'
@@ -193,7 +193,6 @@ defineEmits<{
 
 const router = useRouter()
 const route = useRoute()
-const socket = useSocket()
 
 const showCommentBox = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')

@@ -1,20 +1,16 @@
 import path from 'path'
 import { existsSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 import type { PluginOption } from 'vite'
 
-interface LocalFrappeUIDevConfigParams {
+interface ResolveFrappeUIPluginParams {
   mode: string
   rootDir: string
 }
 
-interface LocalFrappeUIDevConfig {
-  useLocalFrappeUI: boolean
-  localFrappeUIPath: string
-  localFrappeUIAliases: Record<string, string>
-}
-
-interface ImportFrappeUIPluginParams {
-  useLocalFrappeUI: boolean
+interface ResolvedFrappeUIPlugin {
+  frappeui: FrappeUIPluginFactory
+  aliases: Record<string, string>
 }
 
 type FrappeUIPluginFactory = (...args: any[]) => PluginOption
@@ -24,48 +20,46 @@ async function loadFrappeUIPluginModule(modulePath: string): Promise<FrappeUIPlu
   return (await import(modulePath)) as FrappeUIPluginModule
 }
 
-export function getLocalFrappeUIDevConfig({
+export async function resolveFrappeUIPlugin({
   mode,
   rootDir,
-}: LocalFrappeUIDevConfigParams): LocalFrappeUIDevConfig {
+}: ResolveFrappeUIPluginParams): Promise<ResolvedFrappeUIPlugin> {
   const isDev = mode === 'development'
   const localFrappeUIPath = path.resolve(rootDir, '../frappe-ui')
+  const hasLocalFrappeUI = existsSync(localFrappeUIPath)
   const useLocalFrappeUI = isDev && existsSync(path.join(localFrappeUIPath, 'node_modules'))
 
-  if (isDev && existsSync(localFrappeUIPath) && !useLocalFrappeUI) {
+  if (isDev && hasLocalFrappeUI && !useLocalFrappeUI) {
     console.warn('⚠️  Local frappe-ui found but dependencies not installed.')
     console.warn('   Run: cd ../frappe-ui && yarn install')
   }
 
-  const localFrappeUIAliases: Record<string, string> = useLocalFrappeUI
+  const aliases: Record<string, string> = useLocalFrappeUI
     ? {
         'frappe-ui/style.css': path.resolve(localFrappeUIPath, 'src', 'style.css'),
         'frappe-ui': localFrappeUIPath,
       }
     : {}
-
-  return {
-    useLocalFrappeUI,
-    localFrappeUIPath,
-    localFrappeUIAliases,
-  }
-}
-
-export async function importFrappeUIPlugin({
-  useLocalFrappeUI,
-}: ImportFrappeUIPluginParams): Promise<FrappeUIPluginFactory> {
   const npmModulePath = 'frappe-ui/vite'
-  const modulePath = useLocalFrappeUI ? '../frappe-ui/vite/index.js' : npmModulePath
+  const modulePath = useLocalFrappeUI
+    ? pathToFileURL(path.resolve(localFrappeUIPath, 'vite', 'index.js')).href
+    : npmModulePath
 
   try {
     const module = await loadFrappeUIPluginModule(modulePath)
-    return module.default as FrappeUIPluginFactory
+    return {
+      frappeui: module.default as FrappeUIPluginFactory,
+      aliases,
+    }
   } catch (error) {
     if (useLocalFrappeUI) {
       console.warn('⚠️  Failed to import local frappe-ui plugin, falling back to npm package')
       console.warn('   Error:', error instanceof Error ? error.message : String(error))
       const fallbackModule = await loadFrappeUIPluginModule(npmModulePath)
-      return fallbackModule.default as FrappeUIPluginFactory
+      return {
+        frappeui: fallbackModule.default as FrappeUIPluginFactory,
+        aliases: {},
+      }
     }
     throw error
   }

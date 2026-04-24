@@ -242,3 +242,27 @@ scheduler_events = {
 # Recommended only for DocTypes which have limited documents with untranslated names
 # For example: Role, Gender, etc.
 # translated_search_doctypes = []
+
+typescript_interface_generator = {
+	"output_file": "frontend/src/doctypes.ts",
+	"client_import": "@/client",
+	"doctypes": [
+		"GP Project",
+		"GP Member",
+		"GP Team",
+		"GP Comment",
+		"GP Discussion",
+		"GP Page",
+		"GP Task",
+		"GP Poll",
+		"GP Guest Access",
+		"GP Invitation",
+		"GP User Profile",
+		"GP Notification",
+		"GP Activity",
+		"GP Search Feedback",
+		"GP Draft",
+		"GP Tag",
+		"GP Pinned Project",
+	],
+}

@@ -101,7 +101,7 @@ import Activity from './Activity.vue'
 import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { dialog } from 'frappe-ui'
-import { useSocket } from '@/socket'
+import { socket } from '@/client'
 import { GPActivity, GPComment } from '@/types/doctypes'
 
 interface Props {
@@ -119,7 +119,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const router = useRouter()
 const route = useRoute()
-const socket = useSocket()
 
 const showCommentBox = ref(false)
 const newComment = ref(localStorage.getItem(draftCommentKey()) || '')

@@ -21,6 +21,395 @@ interface ChildDocType extends DocType {
   idx: number
 }
 
+// @doctype: GP Project
+// @migration_hash: 80af1985a2b7c20e3cebda4df85feb95
+export interface GPMemberInterface extends ChildDocType {
+  /** User: Link (User) */
+  user?: string
+}
+
+export interface GPProjectInterface extends DocType {
+  /** Title: Data */
+  title: string
+  /** Icon: Data */
+  icon?: string
+  /** Team: Link (GP Team) */
+  team?: string
+  /** Is Private: Check */
+  is_private: boolean
+  /** Description: Text Editor */
+  description?: string
+  /** Readme: Text Editor */
+  readme?: string
+  /** Members: Table (GP Member) */
+  members?: GPMemberInterface[]
+  /** Tasks Count: Int */
+  tasks_count?: number
+  /** Discussions Count: Int */
+  discussions_count?: number
+  /** Archived At: Datetime */
+  archived_at?: string
+  /** Archived By: Link (User) */
+  archived_by?: string
+  /** Is Followed: Check */
+  is_followed: boolean
+}
+
+export const GPProject = defineDoctype<GPProjectInterface>()({
+  doctype: 'GP Project',
+  controllerMethods: {
+    getJoinedSpaces: {
+      method: 'get_joined_spaces',
+      httpMethod: 'POST',
+      args: () => ({}),
+    },
+    getUnreadCount: {
+      method: 'get_unread_count',
+      httpMethod: 'POST',
+      args: () => ({}),
+    },
+    inviteByEmail: {
+      method: 'invite_by_email',
+      httpMethod: 'POST',
+      args: (params: { emails: string, role: string, projects?: any[] }) => params,
+      returns: null as unknown as void,
+    },
+    joinSpaces: {
+      method: 'join_spaces',
+      httpMethod: 'POST',
+      args: (params: { spaces?: any[] }) => params,
+      returns: null as unknown as void,
+    },
+    leaveSpaces: {
+      method: 'leave_spaces',
+      httpMethod: 'POST',
+      args: (params: { spaces?: any[] }) => params,
+      returns: null as unknown as void,
+    },
+    markAllAsRead: {
+      method: 'mark_all_as_read',
+      httpMethod: 'POST',
+      args: (params: { spaces?: any[] }) => params,
+      returns: null as unknown as void,
+    },
+  },
+  docMethods: {
+    addMember: {
+      method: 'add_member',
+      httpMethod: 'POST',
+      args: (params: { user: any }) => params,
+      returns: null as unknown as void,
+    },
+    archive: {
+      method: 'archive',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    follow: {
+      method: 'follow',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    inviteGuest: {
+      method: 'invite_guest',
+      httpMethod: 'POST',
+      args: (params: { email: any }) => params,
+      returns: null as unknown as void,
+    },
+    join: {
+      method: 'join',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    leave: {
+      method: 'leave',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    markAllAsRead: {
+      method: 'mark_all_as_read',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    mergeWithProject: {
+      method: 'merge_with_project',
+      httpMethod: 'POST',
+      args: (params: { project?: any }) => params,
+    },
+    moveToTeam: {
+      method: 'move_to_team',
+      httpMethod: 'POST',
+      args: (params: { team?: any }) => params,
+      returns: null as unknown as void,
+    },
+    removeGuest: {
+      method: 'remove_guest',
+      httpMethod: 'POST',
+      args: (params: { email: any }) => params,
+      returns: null as unknown as void,
+    },
+    trackVisit: {
+      method: 'track_visit',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    unfollow: {
+      method: 'unfollow',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+  },
+})
+// @doctype: GP Project end
+
+// @doctype: GP Member
+// @migration_hash: 61592110d5780ef603dba262ffa7b9e9
+export interface GPMemberInterface extends DocType {
+  /** User: Link (User) */
+  user?: string
+}
+
+export const GPMember = defineDoctype<GPMemberInterface>()({
+  doctype: 'GP Member',
+})
+// @doctype: GP Member end
+
+// @doctype: GP Team
+// @migration_hash: fdbc03fadc81f12b78e1f5404b3703f7
+
+export interface GPTeamInterface extends DocType {
+  /** Title: Data */
+  title: string
+  /** Icon: Data */
+  icon?: string
+  /** Is Private: Check */
+  is_private: boolean
+  /** Members: Table (GP Member) */
+  members?: GPMemberInterface[]
+  /** Cover Image: Attach Image */
+  cover_image?: string
+  /** Cover Image Position: Float */
+  cover_image_position?: number
+  /** Archived By: Link (User) */
+  archived_by?: string
+  /** Archived At: Datetime */
+  archived_at?: string
+  /** Readme: Text Editor */
+  readme?: string
+}
+
+export const GPTeam = defineDoctype<GPTeamInterface>()({
+  doctype: 'GP Team',
+  docMethods: {
+    addMembers: {
+      method: 'add_members',
+      httpMethod: 'POST',
+      args: (params: { users: any }) => params,
+      returns: null as unknown as void,
+    },
+    removeMember: {
+      method: 'remove_member',
+      httpMethod: 'POST',
+      args: (params: { user: any }) => params,
+      returns: null as unknown as void,
+    },
+  },
+})
+// @doctype: GP Team end
+
+// @doctype: GP Comment
+// @migration_hash: 92f100145e3b1868d43636ab4471ed4c
+export interface GPReactionInterface extends ChildDocType {
+  /** Emoji: Data */
+  emoji: string
+  /** User: Data */
+  user?: string
+}
+
+export interface GPTagLinkInterface extends ChildDocType {
+  /** Tag: Link (GP Tag) */
+  tag?: string
+  /** Label: Data */
+  label?: string
+}
+
+export interface GPCommentInterface extends DocType {
+  /** Content: Text Editor */
+  content: string
+  /** Reference DocType: Link (DocType) */
+  reference_doctype?: string
+  /** Reference Name: Dynamic Link */
+  reference_name?: string
+  /** Reactions: Table (GP Reaction) */
+  reactions?: GPReactionInterface[]
+  /** Tags: Table (GP Tag Link) */
+  tags?: GPTagLinkInterface[]
+  /** Deleted At: Datetime */
+  deleted_at?: string
+  /** Content (Text): Long Text */
+  custom_content_text?: string
+}
+
+export const GPComment = defineDoctype<GPCommentInterface>()({
+  doctype: 'GP Comment',
+  docMethods: {
+    getRevisions: {
+      method: 'get_revisions',
+      httpMethod: 'POST',
+      args: (params: { fieldname?: string }) => params,
+    },
+  },
+})
+// @doctype: GP Comment end
+
+// @doctype: GP Discussion
+// @migration_hash: d11154bbc2a5cd9717049847bf463203
+
+export interface GPDiscussionInterface extends DocType {
+  /** Project: Link (GP Project) */
+  project: string
+  /** Team: Link (GP Team) */
+  team?: string
+  /** Status: Data */
+  status?: string
+  /** Title: Data */
+  title: string
+  /** Slug: Data */
+  slug?: string
+  /** Content: Text Editor */
+  content?: string
+  /** Reactions: Table (GP Reaction) */
+  reactions?: GPReactionInterface[]
+  /** Tags: Table (GP Tag Link) */
+  tags?: GPTagLinkInterface[]
+  /** Last Post At: Datetime */
+  last_post_at?: string
+  /** Last Post Type: Select */
+  last_post_type: 'GP Comment' | 'GP Poll' // @manual
+  /** Last Post: Dynamic Link */
+  last_post?: string
+  /** Last Post By: Link (User) */
+  last_post_by?: string
+  /** Closed At: Datetime */
+  closed_at?: string
+  /** Closed By: Link (User) */
+  closed_by?: string
+  /** Pinned At: Datetime */
+  pinned_at?: string
+  /** Pin Scope: Select */
+  pin_scope: 'Global' | 'Space'
+  /** Pinned By: Link (User) */
+  pinned_by?: string
+  /** Comments Count: Int */
+  comments_count?: number
+  /** Participants Count: Int */
+  participants_count?: number
+  /** Content (Text): Long Text */
+  custom_content_text?: string
+}
+
+export const GPDiscussion = defineDoctype<GPDiscussionInterface>()({
+  doctype: 'GP Discussion',
+  controllerMethods: {
+    moveDiscussions: {
+      method: 'move_discussions',
+      httpMethod: 'POST',
+      args: (params: { discussions: any[] }) => params,
+      returns: null as unknown as Record<string, any>,
+    },
+  },
+  docMethods: {
+    addBookmark: {
+      method: 'add_bookmark',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    closeDiscussion: {
+      method: 'close_discussion',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    getRevisions: {
+      method: 'get_revisions',
+      httpMethod: 'POST',
+      args: (params: { fieldname?: string }) => params,
+    },
+    markAsUnread: {
+      method: 'mark_as_unread',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    moveToProject: {
+      method: 'move_to_project',
+      httpMethod: 'POST',
+      args: (params: { project: any }) => params,
+    },
+    pinDiscussion: {
+      method: 'pin_discussion',
+      httpMethod: 'POST',
+      args: (params: { pin_scope?: string }) => params,
+      returns: null as unknown as void,
+    },
+    removeBookmark: {
+      method: 'remove_bookmark',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    reopenDiscussion: {
+      method: 'reopen_discussion',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    trackVisit: {
+      method: 'track_visit',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    unpinDiscussion: {
+      method: 'unpin_discussion',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+  },
+})
+// @doctype: GP Discussion end
+
+// @doctype: GP Page
+// @migration_hash: d71655c61640ddd7c3cc5dcea1041689
+export interface GPPageInterface extends DocType {
+  /** Title: Data */
+  title?: string
+  /** Content: Text Editor */
+  content?: string
+  /** Slug: Data */
+  slug?: string
+  /** Project: Link (GP Project) */
+  project?: string
+  /** User: Link (User) */
+  user?: string
+  /** Team: Link (GP Team) */
+  team?: string
+}
+
+export const GPPage = defineDoctype<GPPageInterface>()({
+  doctype: 'GP Page',
+})
+// @doctype: GP Page end
+
 // @doctype: GP Task
 // @migration_hash: 99f5c7f311148cee0a905c6194949355
 export interface GPTaskInterface extends DocType {
@@ -61,125 +450,311 @@ export const GPTask = defineDoctype<GPTaskInterface>()({
       method: 'track_visit',
       httpMethod: 'POST',
       args: () => ({}),
+      returns: null as unknown as void,
     },
   },
 })
 // @doctype: GP Task end
 
-// @doctype: GP Discussion
-// @migration_hash: d11154bbc2a5cd9717049847bf463203
-export interface GPReactionInterface extends ChildDocType {
-  /** Emoji: Data */
-  emoji: string
-  /** User: Data */
-  user?: string
+// @doctype: GP Poll
+// @migration_hash: 795b6f9a9b16261624e99b798f0d5ef8
+export interface GPPollOptionInterface extends ChildDocType {
+  /** Title: Data */
+  title: string
+  /** Percentage: Percent */
+  percentage?: number
+  /** Votes: Int */
+  votes?: number
 }
 
-export interface GPTagLinkInterface extends ChildDocType {
-  /** Tag: Link (GP Tag) */
-  tag?: string
-  /** Label: Data */
-  label?: string
+export interface GPPollVoteInterface extends ChildDocType {
+  /** User: Link (User) */
+  user: string
+  /** Option: Data */
+  option?: string
 }
 
-export interface GPDiscussionInterface extends DocType {
+export interface GPPollInterface extends DocType {
+  /** Title: Data */
+  title: string
+  /** Options: Table (GP Poll Option) */
+  options: GPPollOptionInterface[]
+  /** Multiple Answers: Check */
+  multiple_answers: boolean
+  /** Anonymous: Check */
+  anonymous: boolean
+  /** Votes: Table (GP Poll Vote) */
+  votes?: GPPollVoteInterface[]
+  /** Total Votes: Int */
+  total_votes?: number
+  /** Stopped At: Datetime */
+  stopped_at?: string
+  /** Discussion: Link (GP Discussion) */
+  discussion?: string
+  /** Reactions: Table (GP Reaction) */
+  reactions?: GPReactionInterface[]
+}
+
+export const GPPoll = defineDoctype<GPPollInterface>()({
+  doctype: 'GP Poll',
+  docMethods: {
+    retractVote: {
+      method: 'retract_vote',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    stopPoll: {
+      method: 'stop_poll',
+      httpMethod: 'POST',
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+    submitVote: {
+      method: 'submit_vote',
+      httpMethod: 'POST',
+      args: (params: { option: any }) => params,
+      returns: null as unknown as void,
+    },
+  },
+})
+// @doctype: GP Poll end
+
+// @doctype: GP Guest Access
+// @migration_hash: a3dad3e78130c3256809077dcf713c52
+export interface GPGuestAccessInterface extends DocType {
+  /** User: Link (User) */
+  user: string
   /** Project: Link (GP Project) */
   project: string
   /** Team: Link (GP Team) */
   team?: string
-  /** Status: Data */
-  status?: string
-  /** Title: Data */
-  title: string
-  /** Slug: Data */
-  slug?: string
-  /** Content: Text Editor */
-  content?: string
-  /** Reactions: Table (GP Reaction) */
-  reactions?: GPReactionInterface[]
-  /** Tags: Table (GP Tag Link) */
-  tags?: GPTagLinkInterface[]
-  /** Last Post At: Datetime */
-  last_post_at?: string
-  /** Last Post Type: Select */
-  last_post_type?: '' | 'GP Comment' | 'GP Poll'
-  /** Last Post: Dynamic Link */
-  last_post?: string
-  /** Last Post By: Link (User) */
-  last_post_by?: string
-  /** Closed At: Datetime */
-  closed_at?: string
-  /** Closed By: Link (User) */
-  closed_by?: string
-  /** Pinned At: Datetime */
-  pinned_at?: string
-  /** Pin Scope: Select */
-  pin_scope: 'Global' | 'Space'
-  /** Pinned By: Link (User) */
-  pinned_by?: string
-  /** Comments Count: Int */
-  comments_count?: number
-  /** Participants Count: Int */
-  participants_count?: number
-  /** Content (Text): Long Text */
-  custom_content_text?: string
 }
 
-export const GPDiscussion = defineDoctype<GPDiscussionInterface>()({
-  doctype: 'GP Discussion',
-  controllerMethods: {
-    moveDiscussions: {
-      method: 'move_discussions',
+export const GPGuestAccess = defineDoctype<GPGuestAccessInterface>()({
+  doctype: 'GP Guest Access',
+})
+// @doctype: GP Guest Access end
+
+// @doctype: GP Invitation
+// @migration_hash: 30ebf2da3018a49ec927c86ba9ab0222
+export interface GPInvitationInterface extends DocType {
+  /** Email: Data */
+  email: string
+  /** Role: Select */
+  role: 'Gameplan Admin' | 'Gameplan Member' | 'Gameplan Guest'
+  /** Teams: Small Text */
+  teams?: string
+  /** Projects: Small Text */
+  projects?: string
+  /** Key: Data */
+  key?: string
+  /** Status: Select */
+  status?: '' | 'Pending' | 'Accepted' | 'Expired'
+  /** Email Sent At: Datetime */
+  email_sent_at?: string
+  /** Invited By: Link (User) */
+  invited_by?: string
+  /** Accepted At: Datetime */
+  accepted_at?: string
+}
+
+export const GPInvitation = defineDoctype<GPInvitationInterface>()({
+  doctype: 'GP Invitation',
+  docMethods: {
+    acceptInvitation: {
+      method: 'accept_invitation',
       httpMethod: 'POST',
-      args: (params: { discussions: any[] }) => params,
+      args: () => ({}),
+      returns: null as unknown as void,
+    },
+  },
+})
+// @doctype: GP Invitation end
+
+// @doctype: GP User Profile
+// @migration_hash: 98e3cb20fde382d2f21cb7adbbaea8ea
+export interface GPUserProfileInterface extends DocType {
+  /** User: Link (User) */
+  user: string
+  /** Enabled: Check */
+  enabled: boolean
+  /** Full Name: Data */
+  full_name?: string
+  /** Bio: Data */
+  bio?: string
+  /** Readme: Text Editor */
+  readme?: string
+  /** Cover Image: Attach Image */
+  cover_image?: string
+  /** Cover Image Position: Float */
+  cover_image_position?: number
+  /** Image: Attach Image */
+  image?: string
+  /** Is Image Background Removed: Check */
+  is_image_background_removed: boolean
+  /** Original Image: Attach Image */
+  original_image?: string
+  /** Image Background Color: Color */
+  image_background_color?: string
+}
+
+export const GPUserProfile = defineDoctype<GPUserProfileInterface>()({
+  doctype: 'GP User Profile',
+  controllerMethods: {
+    getLastPost: {
+      method: 'get_last_post',
+      httpMethod: 'POST',
+      args: () => ({}),
     },
   },
   docMethods: {
-    addBookmark: {
-      method: 'add_bookmark',
+    isBackgroundRemovalAvailable: {
+      method: 'is_background_removal_available',
       httpMethod: 'POST',
       args: () => ({}),
     },
-    closeDiscussion: {
-      method: 'close_discussion',
+    removeImageBackground: {
+      method: 'remove_image_background',
+      httpMethod: 'POST',
+      args: (params: { default_color?: any }) => params,
+      returns: null as unknown as void,
+    },
+    revertImageBackground: {
+      method: 'revert_image_background',
       httpMethod: 'POST',
       args: () => ({}),
+      returns: null as unknown as void,
     },
-    getRevisions: {
-      method: 'get_revisions',
+    setImage: {
+      method: 'set_image',
       httpMethod: 'POST',
-      args: (params: { fieldname?: string }) => params,
+      args: (params: { image: any }) => params,
+      returns: null as unknown as void,
     },
-    moveToProject: {
-      method: 'move_to_project',
-      httpMethod: 'POST',
-      args: (params: { project: any }) => params,
-    },
-    pinDiscussion: {
-      method: 'pin_discussion',
-      httpMethod: 'POST',
-      args: (params: { pin_scope?: string }) => params,
-    },
-    removeBookmark: {
-      method: 'remove_bookmark',
-      httpMethod: 'POST',
-      args: () => ({}),
-    },
-    reopenDiscussion: {
-      method: 'reopen_discussion',
-      httpMethod: 'POST',
-      args: () => ({}),
-    },
-    trackVisit: {
-      method: 'track_visit',
-      httpMethod: 'POST',
-      args: () => ({}),
-    },
-    unpinDiscussion: {
-      method: 'unpin_discussion',
+  },
+})
+// @doctype: GP User Profile end
+
+// @doctype: GP Notification
+// @migration_hash: ec90a24eaa29e0d1fe0bd79e58abc3b6
+export interface GPNotificationInterface extends DocType {
+  /** From User: Link (User) */
+  from_user?: string
+  /** To User: Link (User) */
+  to_user: string
+  /** Type: Select */
+  type: 'Mention' | 'Reaction' | 'Rich Quote'
+  /** Message: Text Editor */
+  message?: string
+  /** Comment: Link (GP Comment) */
+  comment?: string
+  /** Discussion: Link (GP Discussion) */
+  discussion?: string
+  /** Task: Link (GP Task) */
+  task?: string
+  /** Project: Link (GP Project) */
+  project?: string
+  /** Team: Link (GP Team) */
+  team?: string
+  /** Read: Check */
+  read: boolean
+}
+
+export const GPNotification = defineDoctype<GPNotificationInterface>()({
+  doctype: 'GP Notification',
+})
+// @doctype: GP Notification end
+
+// @doctype: GP Activity
+// @migration_hash: 72444648fd1e949f7aeb81b145522b1f
+export interface GPActivityInterface extends DocType {
+  /** Reference DocType: Link (DocType) */
+  reference_doctype?: string
+  /** Reference Name: Dynamic Link */
+  reference_name?: string
+  /** User: Link (User) */
+  user?: string
+  /** Action: Data */
+  action?: string
+  /** Data: Code */
+  data?: string
+}
+
+export const GPActivity = defineDoctype<GPActivityInterface>()({
+  doctype: 'GP Activity',
+})
+// @doctype: GP Activity end
+
+// @doctype: GP Search Feedback
+// @migration_hash: 1ba823a378d17711e537a77520518064
+export interface GPSearchFeedbackInterface extends DocType {
+  /** User: Link (User) */
+  user: string
+  /** Query: Data */
+  query?: string
+  /** Helpful: Select */
+  helpful: 'Yes' | 'No'
+}
+
+export const GPSearchFeedback = defineDoctype<GPSearchFeedbackInterface>()({
+  doctype: 'GP Search Feedback',
+})
+// @doctype: GP Search Feedback end
+
+// @doctype: GP Draft
+// @migration_hash: 0670eb68362db1f7c43f4063c23f022d
+export interface GPDraftInterface extends DocType {
+  /** Title: Data */
+  title?: string
+  /** Content: Text Editor */
+  content?: string
+  /** Type: Select */
+  type?: '' | 'Discussion' | 'Comment'
+  /** Project: Link (GP Project) */
+  project?: string
+  /** Team: Link (GP Team) */
+  team?: string
+}
+
+export const GPDraft = defineDoctype<GPDraftInterface>()({
+  doctype: 'GP Draft',
+  docMethods: {
+    publish: {
+      method: 'publish',
       httpMethod: 'POST',
       args: () => ({}),
     },
   },
 })
-// @doctype: GP Discussion end
+// @doctype: GP Draft end
+
+// @doctype: GP Tag
+// @migration_hash: 3e4a190985116e8ec70f2ea30c7cc7a2
+export interface GPTagInterface extends DocType {
+  /** Label: Data */
+  label?: string
+}
+
+export const GPTag = defineDoctype<GPTagInterface>()({
+  doctype: 'GP Tag',
+})
+// @doctype: GP Tag end
+
+// @doctype: GP Pinned Project
+// @migration_hash: 5d0279907445b5f310b5d1be9092cecc
+export interface GPPinnedProjectInterface extends DocType {
+  /** Project: Link (GP Project) */
+  project: string
+  /** Team: Link (GP Team) */
+  team?: string
+  /** User: Link (User) */
+  user: string
+  /** Order: Int */
+  order?: number
+}
+
+export const GPPinnedProject = defineDoctype<GPPinnedProjectInterface>()({
+  doctype: 'GP Pinned Project',
+})
+// @doctype: GP Pinned Project end
