@@ -213,7 +213,7 @@
                 @click="
                   () => {
                     discussion.pinDiscussion
-                      .submit({ pin_scope: pinDialog.pinGlobally ? 'Global' : 'Space' })
+                      .call({ pin_scope: pinDialog.pinGlobally ? 'Global' : 'Space' })
                       .then(() => {
                         pinDialog.show = false
                         pinDialog.pinGlobally = false
@@ -348,7 +348,7 @@ async function scrollToUnread() {
   }
 
   if (route.name === 'Discussion' && route.params.postId === doc?.name) {
-    discussion.trackVisit.submit().then(() => {
+    discussion.trackVisit.call().then(() => {
       refreshUnreadCountForProjects([doc.project])
     })
   }
@@ -364,7 +364,7 @@ function copyLink() {
 function moveToSpace() {
   if (discussionMoveDialog.project) {
     discussion.moveToProject
-      .submit({
+      .call({
         project: discussionMoveDialog.project,
       })
       .then(() => {
@@ -389,7 +389,7 @@ function moveToSpace() {
 
 function updatePost() {
   discussion.setValue
-    .submit({
+    .call({
       title: discussion.doc?.title,
       content: discussion.doc?.content,
     })
@@ -441,7 +441,7 @@ const actions = computed(() => [
     label: 'Mark as unread',
     icon: 'mail',
     onClick: () => {
-      discussion.markAsUnread.submit().then(() => {
+      discussion.markAsUnread.call().then(() => {
         if (discussion.doc?.project) {
           refreshUnreadCountForProjects([discussion.doc.project])
         }
@@ -451,7 +451,7 @@ const actions = computed(() => [
   {
     label: 'Bookmark',
     icon: 'bookmark',
-    onClick: () => discussion.addBookmark.submit(),
+    onClick: () => discussion.addBookmark.call(),
     condition: () => !discussion.doc?.is_bookmarked,
   },
   {
@@ -477,7 +477,7 @@ const actions = computed(() => [
         message: `${scopeText} Do you want to unpin it?`,
         icon: 'lucide-arrow-down-left',
         confirmLabel: 'Unpin',
-        onConfirm: () => discussion.unpinDiscussion.submit(),
+        onConfirm: () => discussion.unpinDiscussion.call(),
       })
     },
   },
@@ -492,7 +492,7 @@ const actions = computed(() => [
           'When a discussion is closed, commenting is disabled. Anyone can re-open the discussion later. Do you want to close this discussion?',
         icon: 'lucide-lock',
         confirmLabel: 'Close',
-        onConfirm: () => discussion.closeDiscussion.submit(),
+        onConfirm: () => discussion.closeDiscussion.call(),
       })
     },
   },
@@ -506,14 +506,14 @@ const actions = computed(() => [
         message: 'Do you want to re-open this discussion? Anyone can comment on it again.',
         icon: 'lucide-unlock',
         confirmLabel: 'Re-open',
-        onConfirm: () => discussion.reopenDiscussion.submit(),
+        onConfirm: () => discussion.reopenDiscussion.call(),
       })
     },
   },
   {
     label: 'Remove Bookmark',
     icon: 'bookmark',
-    onClick: () => discussion.removeBookmark.submit(),
+    onClick: () => discussion.removeBookmark.call(),
     condition: () => discussion.doc?.is_bookmarked,
   },
   {
@@ -532,7 +532,7 @@ const actions = computed(() => [
         title: 'Delete',
         message: 'Are you sure you want to delete this post? This is irreversible!',
         onConfirm: async () => {
-          await discussion.delete.submit()
+          await discussion.delete.call()
           router.replace({ name: 'Space' })
         },
       })

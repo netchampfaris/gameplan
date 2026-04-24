@@ -225,7 +225,7 @@ export const GPTeam = defineDoctype<GPTeamInterface>()({
 // @doctype: GP Team end
 
 // @doctype: GP Comment
-// @migration_hash: 92f100145e3b1868d43636ab4471ed4c
+// @migration_hash: 6ca935493a72daf3850121628b9755da
 export interface GPReactionInterface extends ChildDocType {
   /** Emoji: Data */
   emoji: string
@@ -247,6 +247,8 @@ export interface GPCommentInterface extends DocType {
   reference_doctype?: string
   /** Reference Name: Dynamic Link */
   reference_name?: string
+  /** Edited At: Datetime */
+  edited_at?: string
   /** Reactions: Table (GP Reaction) */
   reactions?: GPReactionInterface[]
   /** Tags: Table (GP Tag Link) */

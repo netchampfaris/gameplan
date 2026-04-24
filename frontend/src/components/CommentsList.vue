@@ -94,7 +94,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useList } from 'frappe-ui'
 import CommentEditor from '@/components/CommentEditor.vue'
 import Comment from './Comment.vue'
 import Activity from './Activity.vue'
@@ -102,7 +101,8 @@ import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { dialog } from 'frappe-ui'
 import { socket } from '@/client'
-import { GPActivity, GPComment } from '@/types/doctypes'
+import { GPActivity, GPComment } from '@/doctypes'
+import type { GPActivityInterface, GPCommentInterface } from '@/doctypes'
 
 interface Props {
   doctype: string
@@ -126,21 +126,7 @@ const newMessagesFrom = ref(props.newCommentsFrom)
 const highlightedItem = ref(null)
 const newCommentEditor = ref(null)
 
-const comments = useList<
-  Pick<
-    GPComment,
-    | 'name'
-    | 'content'
-    | 'owner'
-    | 'creation'
-    | 'modified'
-    | 'edited_at'
-    | 'deleted_at'
-    | 'reactions'
-  >
->({
-  doctype: 'GP Comment',
-  cacheKey: ['Comments', props.doctype, props.name],
+const comments = GPComment.getList({
   fields: [
     'name',
     'content',
@@ -151,9 +137,6 @@ const comments = useList<
     'deleted_at',
     { reactions: ['name', 'user', 'emoji'] },
   ],
-  transform(data) {
-    return data.map((d) => ({ ...d, name: d.name.toString(), doctype: 'GP Comment' }))
-  },
   filters: {
     reference_doctype: props.doctype,
     reference_name: props.name,
@@ -170,7 +153,7 @@ const comments = useList<
   },
 })
 
-interface Activity extends Pick<GPActivity, 'name' | 'user' | 'action' | 'creation'> {
+interface Activity extends Pick<GPActivityInterface, 'name' | 'user' | 'action' | 'creation'> {
   data: {
     field?: string
     field_label?: string
@@ -179,8 +162,7 @@ interface Activity extends Pick<GPActivity, 'name' | 'user' | 'action' | 'creati
   }
 }
 
-const activities = useList<Activity>({
-  doctype: 'GP Activity',
+const activities = GPActivity.getList<Activity>({
   fields: ['name', 'user', 'action', 'data', 'creation'],
   filters: {
     reference_doctype: props.doctype,
@@ -188,13 +170,10 @@ const activities = useList<Activity>({
   },
   orderBy: 'creation asc',
   limit: 99999,
-  transform(activities) {
-    return activities.map((activity) => ({
-      ...activity,
-      doctype: 'GP Activity',
-      data: activity.data ? JSON.parse(activity.data as string) : null,
-    }))
-  },
+  transform: (activity) => ({
+    ...activity,
+    data: activity.data ? JSON.parse(activity.data as string) : null,
+  }),
 })
 
 // Computed
@@ -268,7 +247,7 @@ const groupedActivities = computed(() => {
 })
 
 const timelineItems = computed(() => {
-  let items: Array<GPComment | GroupedActivity> = []
+  let items: Array<GPCommentInterface | GroupedActivity> = []
   if (comments.data?.length) {
     items = items.concat(comments.data)
   }
@@ -344,7 +323,7 @@ function submitComment() {
   }
 
   comments.insert
-    .submit({
+    .call({
       reference_doctype: props.doctype,
       reference_name: props.name,
       content: newComment.value,

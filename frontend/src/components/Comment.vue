@@ -103,23 +103,23 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Dropdown, Tooltip, dayjsLocal } from 'frappe-ui'
-import { useList } from 'frappe-ui'
 import { copyToClipboard } from '@/utils'
 import UserProfileLink from './UserProfileLink.vue'
 import CommentEditor from './CommentEditor.vue'
 import Reactions from './Reactions.vue'
 import RevisionsDialog from './RevisionsDialog.vue'
 import UserAvatarWithHover from './UserAvatarWithHover.vue'
-import { GPComment } from '@/types/doctypes'
+import { GPComment } from '@/doctypes'
+import type { GPCommentInterface } from '@/doctypes'
 import { isSessionUser } from '@/data/session'
 import { dialog } from 'frappe-ui'
 import { tags } from '@/data/tags'
 
 interface Props {
-  comment: GPComment
+  comment: GPCommentInterface
   readOnlyMode?: boolean
   highlight?: boolean
-  comments: ReturnType<typeof useList<GPComment>>
+  comments: ReturnType<typeof GPComment.getList>
 }
 
 const props = defineProps<Props>()
@@ -147,7 +147,7 @@ const updateComment = () => {
   updateError.value = null
 
   props.comments.setValue
-    .submit({
+    .call({
       name: props.comment.name,
       content: draftContent.value,
     })
@@ -163,7 +163,7 @@ const updateComment = () => {
     })
 }
 
-const copyLink = (comment: GPComment) => {
+const copyLink = (comment: GPCommentInterface) => {
   const location = window.location
   const url = `${location.origin}${location.pathname}?comment=${comment.name}`
   copyToClipboard(url)
@@ -194,7 +194,7 @@ const dropdownOptions = computed(() => [
       dialog.danger({
         title: 'Delete comment',
         message: 'Are you sure you want to delete this comment?',
-        onConfirm: () => props.comments.delete.submit({ name: props.comment.name }),
+        onConfirm: () => props.comments.delete.call(props.comment.name),
       })
     },
     condition: () =>

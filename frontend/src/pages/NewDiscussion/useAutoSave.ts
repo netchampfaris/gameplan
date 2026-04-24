@@ -1,9 +1,8 @@
 import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
 import { debounce } from 'frappe-ui'
-import { useNewDoc, useDoc } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import type { GPDraft } from '@/types/doctypes'
-import type { DraftData, DraftDocument, DraftMethods } from './types'
+import { GPDraft } from '@/doctypes'
+import type { DraftData, DraftDocument } from './types'
 
 export interface AutoSaveStatus {
   isSaving: boolean
@@ -33,27 +32,21 @@ export function useAutoSave(
   async function createDraft() {
     if (!canAutoSave.value) return
 
-    const draft = useNewDoc<GPDraft>('GP Draft', {
+    const draft = GPDraft.newDoc({
       title: draftData.value.title,
       content: draftData.value.content,
       project: draftData.value.project || undefined,
       type: 'Discussion',
     })
 
-    const doc = await draft.submit()
+    const doc = await draft.insert.call()
 
     // Update URL to include draft ID without navigation
     const newQuery = { ...router.currentRoute.value.query, draft: doc.name }
     router.replace({ query: newQuery })
 
     // Set up the draft document for future updates
-    draftDoc.value = useDoc<GPDraft, DraftMethods>({
-      doctype: 'GP Draft',
-      name: doc.name,
-      methods: {
-        publish: 'publish',
-      },
-    })
+    draftDoc.value = GPDraft.getDoc(doc.name)
 
     return doc
   }
@@ -61,7 +54,7 @@ export function useAutoSave(
   async function updateDraft() {
     if (!draftDoc.value?.doc || !canAutoSave.value) return
 
-    await draftDoc.value.setValue.submit({
+    await draftDoc.value.setValue.call({
       title: draftData.value.title,
       content: draftData.value.content,
       project: draftData.value.project || undefined,

@@ -1,19 +1,17 @@
 import { ref, computed, onMounted, provide, inject, watch, type InjectionKey } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
-import { useDoc, useNewDoc, useDoctype, dialog } from 'frappe-ui'
-import { debounce } from 'frappe-ui'
+import { debounce, dialog } from 'frappe-ui'
+import { GPDiscussion, GPDraft } from '@/doctypes'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useSessionUser, useUser } from '@/data/users'
 import { tags } from '@/data/tags'
-import type { TextEditorRef, DraftDocumentCallback, DraftDocument, DraftMethods } from './types'
-import type { GPDraft, GPDiscussion } from '@/types/doctypes'
+import type { TextEditorRef, DraftDocument } from './types'
 
 export function useNewDiscussion(textEditorRef?: TextEditorRef) {
   const currentRoute = useRoute()
   const router = useRouter()
   const sessionUser = useSessionUser()
-  const discussions = useDoctype<GPDiscussion>('GP Discussion')
   const draftId = currentRoute.query.draft as string
 
   // Core reactive state
@@ -63,7 +61,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
 
   async function _updateDraft() {
     if (!draftDoc.value?.doc) return
-    await draftDoc.value.setValue.submit({
+    await draftDoc.value.setValue.call({
       title: draftData.value.title,
       content: draftData.value.content,
       project: draftData.value.project || undefined,
@@ -71,14 +69,14 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
   }
 
   async function _createDraft() {
-    const draft = useNewDoc<GPDraft>('GP Draft', {
+    const draft = GPDraft.newDoc({
       title: draftData.value.title,
       content: draftData.value.content,
       project: draftData.value.project || undefined,
       type: 'Discussion',
     })
 
-    const doc = await draft.submit()
+    const doc = await draft.insert.call()
     router.replace({ name: 'NewDiscussion', query: { draft: doc.name } })
     fetchDraftDoc(doc.name)
   }
@@ -139,14 +137,10 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
 
   // Core functions
   function fetchDraftDoc(draftId: string) {
-    draftDoc.value = useDoc<GPDraft, DraftMethods>({
-      doctype: 'GP Draft',
-      name: draftId,
-      methods: {
-        publish: 'publish',
-      },
+    draftDoc.value = GPDraft.getDoc(draftId, {
+      onSuccess: () => updateLocalDraft(),
     })
-    return draftDoc.value.onSuccess(() => updateLocalDraft())
+    return draftDoc.value
   }
 
   function updateLocalDraft() {
@@ -217,14 +211,14 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
 
     if (draftDoc.value?.doc) {
       return draftDoc.value.setValue
-        .submit({
+        .call({
           title: draftData.value.title,
           content: draftData.value.content,
           project: projectValue,
         })
         .then(() => {
           isPublishingSuccessfully.value = true
-          return draftDoc.value?.publish.submit()
+          return draftDoc.value?.publish.call()
         })
         .then((discussionId: any) => {
           if (discussionId) {
@@ -249,12 +243,13 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
         })
     }
 
-    return discussions.insert
-      .submit({
-        title: draftData.value.title,
-        content: draftData.value.content,
-        project: projectValue,
-      })
+    const newDiscussion = GPDiscussion.newDoc({
+      title: draftData.value.title,
+      content: draftData.value.content,
+      project: projectValue,
+    })
+    return newDiscussion.insert
+      .call()
       .then((doc) => {
         if (doc) {
           isPublishingSuccessfully.value = true
@@ -283,7 +278,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
       message: 'Are you sure you want to delete this draft?',
       confirmLabel: 'Delete draft',
       onConfirm: async () => {
-        await draftDoc.value?.delete.submit()
+        await draftDoc.value?.delete.call()
         resetValues()
         isDeletingDraft.value = true
         router.back()
@@ -330,14 +325,6 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     }
 
     onMounted(() => {
-      if (draftDoc.value) {
-        draftDoc.value.onSuccess((doc: DraftDocumentCallback) => {
-          if (draftDoc.value?.doc?.name === doc.name) {
-            updateLocalDraft()
-          }
-        })
-      }
-
       if (textEditorRef) {
         setupEditorListeners(textEditorRef)
       }

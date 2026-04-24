@@ -1,6 +1,6 @@
 import type { Ref, ComputedRef } from 'vue'
 import type { Editor } from '@tiptap/core'
-import type { GPDraft } from '@/types/doctypes'
+import { GPDraft } from '@/doctypes'
 
 // Core data interfaces
 export interface DraftData {
@@ -9,14 +9,7 @@ export interface DraftData {
   project: string | null
 }
 
-// Document-related types
-export interface DraftMethods {
-  publish: () => string
-}
-
-export type DraftDocument = ReturnType<
-  typeof import('frappe-ui').useDoc<GPDraft, DraftMethods>
-> | null
+export type DraftDocument = ReturnType<typeof GPDraft.getDoc> | null
 
 // Callback parameter types
 export interface DraftDocumentCallback {

@@ -148,7 +148,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted, watch, useTemplateRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useList } from 'frappe-ui'
 import { TabButtons, ErrorMessage } from 'frappe-ui'
 import CommentEditor from '@/components/CommentEditor.vue'
 import Comment from './Comment.vue'
@@ -159,7 +158,8 @@ import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { dialog } from 'frappe-ui'
 import { socket } from '@/client'
-import { GPActivity, GPComment, GPPoll } from '@/types/doctypes'
+import { GPActivity, GPComment, GPPoll } from '@/doctypes'
+import type { GPActivityInterface, GPCommentInterface, GPPollInterface } from '@/doctypes'
 import type { Editor } from '@tiptap/vue-3'
 import { tags } from '@/data/tags'
 import { isNewCommentOpen } from '@/data/newComment'
@@ -214,9 +214,7 @@ const addComment = ref(null)
 let mutationObserver: MutationObserver | undefined
 const commentEditorKey = ref(0)
 
-const comments = useList<GPComment>({
-  doctype: 'GP Comment',
-  cacheKey: ['Comments', props.doctype, props.name],
+const comments = GPComment.getList({
   fields: [
     'name',
     'content',
@@ -227,9 +225,6 @@ const comments = useList<GPComment>({
     'deleted_at',
     { reactions: ['name', 'user', 'emoji'] },
   ],
-  transform(data) {
-    return data.map((d) => ({ ...d, doctype: 'GP Comment' }))
-  },
   filters: {
     reference_doctype: props.doctype,
     reference_name: props.name,
@@ -250,8 +245,7 @@ const comments = useList<GPComment>({
   },
 })
 
-const activities = useList<GPActivity>({
-  doctype: 'GP Activity',
+const activities = GPActivity.getList({
   fields: ['name', 'user', 'action', 'data', 'creation'],
   filters: {
     reference_doctype: props.doctype,
@@ -259,17 +253,13 @@ const activities = useList<GPActivity>({
   },
   orderBy: 'creation asc',
   limit: 99999,
-  transform(activities) {
-    return activities.map((activity) => ({
-      ...activity,
-      doctype: 'GP Activity',
-      data: activity.data ? JSON.parse(activity.data as string) : null,
-    }))
-  },
+  transform: (activity) => ({
+    ...activity,
+    data: activity.data ? JSON.parse(activity.data as string) : null,
+  }),
 })
 
-const polls = useList<GPPoll>({
-  doctype: 'GP Poll',
+const polls = GPPoll.getList({
   fields: [
     'name',
     'title',
@@ -287,9 +277,6 @@ const polls = useList<GPPoll>({
   },
   orderBy: 'creation asc',
   limit: 99999,
-  transform(data) {
-    return data.map((d) => ({ ...d, doctype: 'GP Poll' }))
-  },
   onSuccess() {
     if (route.query.poll) {
       const poll = polls.data?.find((p) => p.name === route.query.poll)
@@ -300,7 +287,7 @@ const polls = useList<GPPoll>({
 
 // Computed
 const timelineItems = computed(() => {
-  let items: Array<GPComment | GPActivity | GPPoll> = []
+  let items: Array<GPCommentInterface | GPActivityInterface | GPPollInterface> = []
   if (comments.data?.length) {
     items = items.concat(comments.data)
   }
@@ -381,7 +368,7 @@ async function submitComment() {
   if (commentEmpty.value) return
 
   comments.insert
-    .submit({
+    .call({
       reference_doctype: props.doctype,
       reference_name: props.name,
       content: newComment.value,
@@ -457,7 +444,7 @@ function wait(ms: number) {
 function submitPoll() {
   if (props.doctype !== 'GP Discussion') return
   return polls.insert
-    .submit({
+    .call({
       discussion: props.name,
       title: newPoll.value.title,
       anonymous: newPoll.value.anonymous ? 1 : 0,

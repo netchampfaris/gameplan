@@ -142,8 +142,8 @@ import {
   useCall,
   toast,
 } from 'frappe-ui'
-import { GPDraft } from '@/types/doctypes'
-import { useList } from 'frappe-ui'
+import { GPDraft } from '@/doctypes'
+import type { GPDraftInterface } from '@/doctypes'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { useSpace } from '@/data/spaces'
 import { relativeTimestamp } from '@/utils'
@@ -152,10 +152,13 @@ import { ref } from 'vue'
 import { motion, AnimatePresence } from 'motion-v'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
-interface Draft extends GPDraft {
+interface Draft extends GPDraftInterface {
   project_title: string
 }
 
+// Custom bulk-delete endpoint returns per-item success/failure metadata so we
+// can show partial-failure toasts. Standard v3 bulkDelete returns `void`, so
+// we keep this on useCall for the richer response shape.
 interface DeleteDraftsResponse {
   deleted: string[]
   failed: { name: string; error: string }[]
@@ -235,8 +238,7 @@ function deleteDrafts() {
     })
 }
 
-let drafts = useList<Draft>({
-  doctype: 'GP Draft',
+const drafts = GPDraft.getList<Draft>({
   filters: {
     type: 'Discussion',
   },
@@ -251,7 +253,6 @@ let drafts = useList<Draft>({
     'owner',
   ],
   orderBy: 'creation desc',
-  cacheKey: 'drafts',
 })
 
 function contentPreview(content?: string) {
