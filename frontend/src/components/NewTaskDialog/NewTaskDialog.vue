@@ -36,14 +36,19 @@
             :options="spaceOptions"
             v-model="newTask.doc.project"
           />
-          <Dropdown class="w-full" :options="statusOptions()">
-            <Button>
-              <template #prefix v-if="newTask.doc.status">
-                <TaskStatusIcon :status="newTask.doc.status" />
-              </template>
-              {{ newTask.doc.status }}
-            </Button>
-          </Dropdown>
+          <Select
+            v-model="newTask.doc.status"
+            :options="statusOptions"
+            placeholder="Set status"
+            class="w-full"
+          >
+            <template #prefix v-if="newTask.doc.status">
+              <TaskStatusIcon :status="newTask.doc.status" />
+            </template>
+            <template #item-prefix="{ option }">
+              <TaskStatusIcon :status="(option as { status: GPTask['status'] }).status" />
+            </template>
+          </Select>
         </div>
         <ErrorMessage class="mt-2" :message="newTask.error" />
       </div>
@@ -59,8 +64,8 @@
   </Dialog>
 </template>
 <script setup lang="ts">
-import { computed, h, useTemplateRef, watch } from 'vue'
-import { Dialog, FormControl, Dropdown, Combobox, DatePicker } from 'frappe-ui'
+import { computed, useTemplateRef, watch } from 'vue'
+import { Combobox, DatePicker, Dialog, FormControl, Select } from 'frappe-ui'
 import TaskStatusIcon from './TaskStatusIcon.vue'
 import { activeUsers } from '@/data/users'
 import { GPTask } from '@/types/doctypes'
@@ -71,21 +76,13 @@ import KeyboardShortcut from '../KeyboardShortcut.vue'
 const titleInput = useTemplateRef('titleInput')
 let spaceOptions = useGroupedSpaceOptions({ filterFn: (space) => !space.archived_at })
 
-function statusOptions() {
-  return (['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'] as GPTask['status'][]).map(
-    (status) => {
-      return {
-        icon: () => h(TaskStatusIcon, { status }),
-        label: status,
-        onClick: () => {
-          if (newTask.value) {
-            newTask.value.doc.status = status
-          }
-        },
-      }
-    },
-  )
-}
+const statusOptions = (
+  ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'] as GPTask['status'][]
+).map((status) => ({
+  status,
+  label: status,
+  value: status,
+}))
 
 const assignableUsers = computed(() => {
   return activeUsers.value.map((user) => ({

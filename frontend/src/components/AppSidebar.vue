@@ -66,32 +66,30 @@
             variant="ghost"
             @click="toggleAllGroups"
             :tooltip="allGroupsExpanded ? 'Collapse all' : 'Expand all'"
-          >
-            <LucideFoldVertical v-if="allGroupsExpanded" class="size-4 text-ink-gray-6" />
-            <LucideUnfoldVertical v-else class="size-4 text-ink-gray-6" />
-          </Button>
+            :icon="allGroupsExpanded ? 'lucide-fold-vertical' : 'lucide-unfold-vertical'"
+          />
           <Dropdown
             placement="right"
             :options="[
               {
                 label: 'Show all spaces',
                 onClick: () => setSpaceFilter('all'),
-                icon: spaceFilter === 'all' ? LucideCheck : undefined,
+                icon: spaceFilter === 'all' ? 'lucide-check' : undefined,
               },
               {
                 label: 'Show joined spaces',
                 onClick: () => setSpaceFilter('joined'),
-                icon: spaceFilter === 'joined' ? LucideCheck : undefined,
+                icon: spaceFilter === 'joined' ? 'lucide-check' : undefined,
               },
             ]"
             v-slot="{ open }"
           >
             <Button
+              icon="lucide-more-horizontal"
               :variant="open ? 'subtle' : 'ghost'"
               class="transition-opacity focus:opacity-100"
               :class="{ 'opacity-100': showButtons || open, 'opacity-0': !showButtons && !open }"
             >
-              <LucideMoreHorizontal class="size-4 text-ink-gray-6" />
             </Button>
           </Dropdown>
         </div>
@@ -187,10 +185,6 @@ import LucideSettings2 from '~icons/lucide/settings-2'
 import LucideSearch from '~icons/lucide/search'
 import LucideLayoutGrid from '~icons/lucide/layout-grid'
 import LucideLock from '~icons/lucide/lock'
-import LucideCheck from '~icons/lucide/check'
-import LucideUnfoldVertical from '~icons/lucide/unfold-vertical'
-import LucideFoldVertical from '~icons/lucide/fold-vertical'
-import LucideMoreHorizontal from '~icons/lucide/more-horizontal'
 import LucidePencilLine from '~icons/lucide/pencil-line'
 
 const showAddTeamDialog = ref(false)

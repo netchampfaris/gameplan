@@ -80,22 +80,39 @@
               })
             "
           />
-          <Dropdown :options="statusOptions">
-            <Button>
-              <template #prefix>
-                <TaskStatusIcon :status="task.doc.status" />
-              </template>
-              {{ task.doc.status || 'Set status' }}
-            </Button>
-          </Dropdown>
-          <Dropdown :options="priorityOptions">
-            <Button>
-              <template v-if="task.doc.priority" #prefix>
-                <TaskPriorityIcon :priority="task.doc.priority" />
-              </template>
-              {{ task.doc.priority || 'Set priority' }}
-            </Button>
-          </Dropdown>
+          <Select
+            :model-value="task.doc.status"
+            :options="statusOptions"
+            placeholder="Set status"
+            @update:model-value="
+              (status) => task.setValue.submit({ status: status as GPTask['status'] })
+            "
+          >
+            <template #prefix v-if="task.doc.status">
+              <TaskStatusIcon :status="task.doc.status" />
+            </template>
+            <template #item-prefix="{ option }">
+              <TaskStatusIcon :status="(option as { status: GPTask['status'] }).status" />
+            </template>
+          </Select>
+          <Select
+            :model-value="task.doc.priority"
+            :options="priorityOptions"
+            placeholder="Set priority"
+            @update:model-value="
+              (priority) =>
+                task.setValue.submit({ priority: priority as GPTask['priority'] })
+            "
+          >
+            <template #prefix v-if="task.doc.priority">
+              <TaskPriorityIcon :priority="task.doc.priority" />
+            </template>
+            <template #item-prefix="{ option }">
+              <TaskPriorityIcon
+                :priority="(option as { priority: GPTask['priority'] }).priority"
+              />
+            </template>
+          </Select>
           <Combobox
             placeholder="Select space"
             :options="spaceOptions"
@@ -143,25 +160,42 @@
         </div>
         <div>Status</div>
         <div>
-          <Dropdown :options="statusOptions">
-            <Button>
-              <template #prefix>
-                <TaskStatusIcon :status="task.doc.status" />
-              </template>
-              {{ task.doc.status || 'Set status' }}
-            </Button>
-          </Dropdown>
+          <Select
+            :model-value="task.doc.status"
+            :options="statusOptions"
+            placeholder="Set status"
+            @update:model-value="
+              (status) => task.setValue.submit({ status: status as GPTask['status'] })
+            "
+          >
+            <template #prefix v-if="task.doc.status">
+              <TaskStatusIcon :status="task.doc.status" />
+            </template>
+            <template #item-prefix="{ option }">
+              <TaskStatusIcon :status="(option as { status: GPTask['status'] }).status" />
+            </template>
+          </Select>
         </div>
         <div>Priority</div>
         <div>
-          <Dropdown :options="priorityOptions">
-            <Button>
-              <template v-if="task.doc.priority" #prefix>
-                <TaskPriorityIcon :priority="task.doc.priority" />
-              </template>
-              {{ task.doc.priority || 'Set priority' }}
-            </Button>
-          </Dropdown>
+          <Select
+            :model-value="task.doc.priority"
+            :options="priorityOptions"
+            placeholder="Set priority"
+            @update:model-value="
+              (priority) =>
+                task.setValue.submit({ priority: priority as GPTask['priority'] })
+            "
+          >
+            <template #prefix v-if="task.doc.priority">
+              <TaskPriorityIcon :priority="task.doc.priority" />
+            </template>
+            <template #item-prefix="{ option }">
+              <TaskPriorityIcon
+                :priority="(option as { priority: GPTask['priority'] }).priority"
+              />
+            </template>
+          </Select>
         </div>
       </div>
     </div>
@@ -169,14 +203,14 @@
 </template>
 
 <script setup lang="ts">
-import { h, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import TextEditor from '@/components/TextEditor.vue'
 import CommentsList from '@/components/CommentsList.vue'
 import TaskStatusIcon from '@/components/NewTaskDialog/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/icons/TaskPriorityIcon.vue'
 import DropdownMoreOptions from './DropdownMoreOptions.vue'
-import { Dropdown, LoadingText, DatePicker, Button, Combobox } from 'frappe-ui'
+import { Combobox, DatePicker, LoadingText, Select } from 'frappe-ui'
 import { vFocus } from '@/directives'
 import { activeUsers } from '@/data/users'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
@@ -212,22 +246,20 @@ const assignableUsers = computed<{ label: string; value: string }[]>(() => {
   )
 })
 
-const statusOptions = computed(() =>
-  (['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'] as Array<GPTask['status']>).map(
-    (status) => ({
-      icon: () => h(TaskStatusIcon, { status }),
-      label: status,
-      onClick: () => task.setValue.submit({ status }),
-    }),
-  ),
-)
+const statusOptions = (
+  ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'] as Array<GPTask['status']>
+).map((status) => ({
+  status,
+  label: status,
+  value: status,
+}))
 
-const priorityOptions = computed(() =>
-  (['Low', 'Medium', 'High'] as Array<GPTask['priority']>).map((priority) => ({
-    icon: () => h(TaskPriorityIcon, { priority }),
+const priorityOptions = (['Low', 'Medium', 'High'] as Array<GPTask['priority']>).map(
+  (priority) => ({
+    priority,
     label: priority,
-    onClick: () => task.setValue.submit({ priority }),
-  })),
+    value: priority,
+  }),
 )
 
 const spaceOptions = useGroupedSpaceOptions({ filterFn: (space) => !space.archived_at })

@@ -33,23 +33,30 @@
                   v-if="tasks.delete.loading && tasks.delete.params.name === d.name"
                 />
                 <Tooltip text="Change status" v-else>
-                  <Dropdown
-                    :options="
-                      statusOptions({
-                        onClick: (status) =>
-                          tasks.setValue.submit({
-                            status,
-                            name: d.name,
-                          }),
-                      })
+                  <Combobox
+                    :model-value="d.status"
+                    :options="statusOptions"
+                    trigger="button"
+                    @update:model-value="
+                      (status) =>
+                        tasks.setValue.submit({
+                          status: (status ?? '') as GPTask['status'],
+                          name: d.name,
+                        })
                     "
                   >
-                    <button
-                      class="flex rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
-                    >
-                      <TaskStatusIcon :status="d.status" />
-                    </button>
-                  </Dropdown>
+                    <template #trigger>
+                      <button
+                        @click.prevent
+                        class="flex rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+                      >
+                        <TaskStatusIcon :status="d.status" />
+                      </button>
+                    </template>
+                    <template #item-prefix="{ item }">
+                      <TaskStatusIcon :status="(item as { status: GPTask['status'] }).status" />
+                    </template>
+                  </Combobox>
                 </Tooltip>
                 <div
                   class="ml-2.5 overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium leading-4 text-ink-gray-8"
@@ -123,8 +130,8 @@
   </EmptyStateBox>
 </template>
 <script setup lang="ts">
-import { h, ref, computed } from 'vue'
-import { Dropdown, LoadingIndicator, Tooltip, dayjsLocal } from 'frappe-ui'
+import { ref, computed } from 'vue'
+import { Combobox, LoadingIndicator, Tooltip, dayjsLocal } from 'frappe-ui'
 import EmptyStateBox from './EmptyStateBox.vue'
 import TaskStatusIcon from './NewTaskDialog/TaskStatusIcon.vue'
 import { useList } from 'frappe-ui'
@@ -233,13 +240,13 @@ function dropdownOptions(name: string) {
   ]
 }
 
-function statusOptions({ onClick }: { onClick: (status: GPTask['status']) => void }) {
-  return ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'].map((status) => ({
-    icon: () => h(TaskStatusIcon, { status }),
-    label: status,
-    onClick: () => onClick(status as GPTask['status']),
-  }))
-}
+const statusOptions = (
+  ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'] as GPTask['status'][]
+).map((status) => ({
+  status,
+  label: status,
+  value: status,
+}))
 
 defineExpose({ tasks })
 </script>

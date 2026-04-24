@@ -17,9 +17,12 @@
         selected space. This change is irreversible!
       </p>
       <Combobox
+        trigger="button"
+        class="w-full"
         :options="groupedSpaceOptions"
         v-model="selectedSpace"
         placeholder="Select a space"
+        open-on-focus
       />
       <ErrorMessage class="mt-2" :message="spaces.runDocMethod.error" />
     </template>
