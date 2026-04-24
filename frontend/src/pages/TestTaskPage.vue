@@ -114,8 +114,7 @@ const task = Task.getDoc(() => props.taskId)
 
 // task.doc?.title
 
-// task.trackVisit.call()
-// task.trackVisit()
+task.trackVisit.call()
 // task.trackVisit.loading
 // task.trackVisit.error
 // task.trackVisit.data
