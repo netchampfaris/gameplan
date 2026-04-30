@@ -1,13 +1,13 @@
 <template>
   <ScrollAreaViewport
-    class="inline-flex h-full w-60 flex-1 flex-col overflow-y-auto border-r bg-surface-sidebar pb-40"
+    class="inline-flex h-full w-56 flex-1 flex-col overflow-y-auto rounded-tl-md border-r bg-surface-sidebar pb-40"
   >
     <div class="px-2 py-2">
-      <UserDropdown />
+      <CategoryDropdown />
     </div>
 
     <div class="flex-1 px-2 pb-4">
-      <nav class="space-y-0.5">
+      <nav class="space-y-0.5" v-if="false">
         <AppSidebarLink
           v-for="link in globalNavigation"
           :key="link.name"
@@ -30,10 +30,10 @@
         </AppSidebarLink>
       </nav>
 
-      <div v-if="activeCategory.team" class="mt-6">
-        <div class="px-2 pb-1 text-xs text-ink-gray-5">Category</div>
+      <div v-if="activeCategory.team" class="mt-">
+        <div class="px-2 flex items-center text-xs h-7 text-ink-gray-5">Channels</div>
 
-        <CategorySwitcher v-if="activeTeams.length > 1" :is-active="isCategoryActive" />
+        <!-- <CategorySwitcher v-if="activeTeams.length > 1" :is-active="isCategoryActive" />
 
         <AppSidebarLink v-else :to="categoryRoute" :isActive="isCategoryActive">
           <template #prefix>
@@ -42,9 +42,9 @@
             </span>
           </template>
           {{ activeCategory.team.title }}
-        </AppSidebarLink>
+        </AppSidebarLink> -->
 
-        <nav class="mt-2 space-y-0.5 pl-6">
+        <nav class="mt-0.5 space-y-0.5">
           <AppLink
             v-for="space in visibleSpaces"
             :key="space.name"
@@ -54,7 +54,7 @@
             inactiveClass="hover:bg-surface-gray-2"
           >
             <span class="inline-flex min-w-0 w-full items-center">
-              <span class="flex h-5 w-6 flex-shrink-0 items-center justify-center text-3xl">
+              <span class="flex size-4 flex-shrink-0 items-center justify-center text-xl">
                 {{ space.icon }}
               </span>
               <span class="ml-2 w-full flex-grow truncate text-sm">
@@ -96,6 +96,7 @@ import CategorySwitcher from './CategorySwitcher.vue'
 import AppSidebarLink from './AppSidebarLink.vue'
 import AppLink from './AppLink.vue'
 import UserDropdown from './UserDropdown.vue'
+import CategoryDropdown from './CategoryDropdown.vue'
 import { ScrollAreaViewport } from 'reka-ui'
 import ScrollBar from './ScrollBar.vue'
 
@@ -123,63 +124,63 @@ const visibleSpaces = computed(() => {
 
 const globalNavigation = computed(() => {
   return [
-    {
-      name: 'Bookmarks',
-      icon: 'lucide-bookmark',
-      route: { name: 'Bookmarks' },
-      isActive: isCurrentRoute('Bookmarks'),
-    },
-    {
-      name: 'Inbox',
-      icon: 'lucide-inbox',
-      route: { name: 'Notifications' },
-      count: unreadNotifications.data || 0,
-      isActive: isCurrentRoute('Notifications'),
-    },
-    {
-      name: 'Drafts',
-      icon: 'lucide-pencil-line',
-      route: { name: 'Drafts' },
-      isActive: isCurrentRoute('Drafts'),
-    },
-    {
-      name: 'Tasks',
-      icon: 'lucide-list-todo',
-      route: { name: 'MyTasks' },
-      isActive: isCurrentRoute('MyTasks', 'Task'),
-    },
-    {
-      name: 'Pages',
-      icon: 'lucide-files',
-      route: { name: 'MyPages' },
-      isActive: isCurrentRoute('MyPages', 'Page'),
-    },
-    {
-      name: 'People',
-      icon: 'lucide-users-2',
-      route: { name: 'People' },
-      isActive: isCurrentRoute(
-        'People',
-        'PersonProfile',
-        'PersonProfileAboutMe',
-        'PersonProfilePosts',
-        'PersonProfileReplies',
-        'PersonProfileBookmarks',
-      ),
-      condition: () => sessionUser.isNotGuest,
-    },
-    {
-      name: 'Search',
-      icon: 'lucide-search',
-      route: { name: 'Search' },
-      isActive: isCurrentRoute('Search'),
-    },
-    {
-      name: 'Spaces',
-      icon: 'lucide-layout-grid',
-      route: { name: 'Spaces' },
-      isActive: isCurrentRoute('Spaces'),
-    },
+    // {
+    //   name: 'Bookmarks',
+    //   icon: 'lucide-bookmark',
+    //   route: { name: 'Bookmarks' },
+    //   isActive: isCurrentRoute('Bookmarks'),
+    // },
+    // {
+    //   name: 'Inbox',
+    //   icon: 'lucide-inbox',
+    //   route: { name: 'Notifications' },
+    //   count: unreadNotifications.data || 0,
+    //   isActive: isCurrentRoute('Notifications'),
+    // },
+    // {
+    //   name: 'Drafts',
+    //   icon: 'lucide-pencil-line',
+    //   route: { name: 'Drafts' },
+    //   isActive: isCurrentRoute('Drafts'),
+    // },
+    // {
+    //   name: 'Tasks',
+    //   icon: 'lucide-list-todo',
+    //   route: { name: 'MyTasks' },
+    //   isActive: isCurrentRoute('MyTasks', 'Task'),
+    // },
+    // {
+    //   name: 'Pages',
+    //   icon: 'lucide-files',
+    //   route: { name: 'MyPages' },
+    //   isActive: isCurrentRoute('MyPages', 'Page'),
+    // },
+    // {
+    //   name: 'People',
+    //   icon: 'lucide-users-2',
+    //   route: { name: 'People' },
+    //   isActive: isCurrentRoute(
+    //     'People',
+    //     'PersonProfile',
+    //     'PersonProfileAboutMe',
+    //     'PersonProfilePosts',
+    //     'PersonProfileReplies',
+    //     'PersonProfileBookmarks',
+    //   ),
+    //   condition: () => sessionUser.isNotGuest,
+    // },
+    // {
+    //   name: 'Search',
+    //   icon: 'lucide-search',
+    //   route: { name: 'Search' },
+    //   isActive: isCurrentRoute('Search'),
+    // },
+    // {
+    //   name: 'Spaces',
+    //   icon: 'lucide-layout-grid',
+    //   route: { name: 'Spaces' },
+    //   isActive: isCurrentRoute('Spaces'),
+    // },
   ].filter((link) => (link.condition ? link.condition() : true))
 })
 

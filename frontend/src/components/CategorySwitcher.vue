@@ -20,7 +20,7 @@
     </template>
 
     <template #item="{ item }">
-      <DropdownItem :has-icon="true">
+      <ItemListRow>
         <template #prefix>
           {{ item.categoryIcon }}
         </template>
@@ -28,14 +28,14 @@
         <template #suffix>
           <LucideCheck v-if="item.selected" class="size-4 text-ink-gray-5" />
         </template>
-      </DropdownItem>
+      </ItemListRow>
     </template>
   </Dropdown>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Dropdown, DropdownItem } from 'frappe-ui'
+import { Dropdown, ItemListRow } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { activeCategory } from '@/data/activeCategory'
 import { activeTeams } from '@/data/teams'

@@ -7,7 +7,7 @@
     inactiveClass="hover:bg-surface-gray-2"
   >
     <div class="flex w-full items-center space-x-2">
-      <span class="grid h-5 w-6 place-items-center">
+      <span class="grid h-4 w-4 place-items-center">
         <slot name="prefix" />
       </span>
       <span class="text-sm"><slot /></span>

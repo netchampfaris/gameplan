@@ -1,9 +1,9 @@
 <template>
   <div class="relative flex h-full flex-col" v-if="users.isFinished">
     <div class="h-full flex-1 standalone:border-t">
-      <div class="flex h-full">
+      <div class="flex h-full bg-surface-base pt-3">
+        <CategorySidebar />
         <ScrollAreaRoot class="relative block min-h-0 flex-shrink-0 print:hidden">
-          <slot name="sidebar" />
           <AppSidebar />
         </ScrollAreaRoot>
         <ScrollContainer>
@@ -30,4 +30,5 @@ import AppSidebar from './AppSidebar.vue'
 import CommandPalette from './CommandPalette/CommandPalette.vue'
 import SettingsDialog from './Settings/SettingsDialog.vue'
 import { users } from '@/data/users'
+import CategorySidebar from './CategorySidebar.vue'
 </script>

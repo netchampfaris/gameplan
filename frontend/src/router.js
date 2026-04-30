@@ -42,6 +42,11 @@ let router = createRouter({
       },
     },
     {
+      path: '/personal',
+      name: 'PersonalHome',
+      component: () => import('@/pages/PersonalHome.vue'),
+    },
+    {
       path: '/c/:teamId',
       redirect: (to) => ({
         name: 'Discussions',
@@ -724,7 +729,9 @@ function getHomeRoute() {
     return { name: 'Onboarding' }
   }
 
-  return isAdmin() ? { name: 'Spaces' } : { name: 'NoCategories' }
+  return { name: 'PersonalHome' }
+
+  // return isAdmin() ? { name: 'Spaces' } : { name: 'NoCategories' }
 }
 
 function hasAnyData() {
