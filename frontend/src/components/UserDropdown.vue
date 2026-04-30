@@ -1,19 +1,21 @@
 <template>
   <Dropdown :options="dropdownItems">
     <template v-slot="{ open }">
-      <button
-        class="flex w-[14rem] items-center rounded-md px-2 py-2 text-left"
-        :class="open ? 'bg-surface-elevation-2 shadow-sm' : 'hover:bg-surface-gray-2'"
-      >
-        <GameplanLogo class="w-8 h-8 rounded" />
-        <div class="ml-2 flex flex-col">
-          <div class="text-base-medium text-ink-gray-8 leading-none">Gameplan</div>
-          <div class="mt-1 hidden text-sm text-ink-gray-6 sm:inline leading-none">
-            {{ user.full_name }}
+      <slot name="trigger" :open="open">
+        <button
+          class="flex w-[14rem] items-center rounded-md px-2 py-2 text-left"
+          :class="open ? 'bg-surface-elevation-2 shadow-sm' : 'hover:bg-surface-gray-2'"
+        >
+          <GameplanLogo class="w-8 h-8 rounded" />
+          <div class="ml-2 flex flex-col">
+            <div class="text-base-medium text-ink-gray-8 leading-none">Gameplan</div>
+            <div class="mt-1 hidden text-sm text-ink-gray-6 sm:inline leading-none">
+              {{ user.full_name }}
+            </div>
           </div>
-        </div>
-        <span class="lucide-chevron-down ml-auto hidden h-4 w-4 sm:inline text-ink-gray-7" />
-      </button>
+          <span class="lucide-chevron-down ml-auto hidden h-4 w-4 sm:inline text-ink-gray-7" />
+        </button>
+      </slot>
     </template>
   </Dropdown>
   <AboutDialog v-model="showAboutDialog" />
@@ -29,6 +31,7 @@ import { useUser } from '@/data/users'
 import { session } from '@/data/session'
 import { clear as clearIndexDb } from 'idb-keyval'
 import { useTheme } from '@/utils/useTheme'
+import { shellIconStyle, toggleShellIconStyle } from '@/data/shellPreferences'
 
 const user = useUser()
 const showAboutDialog = ref(false)
@@ -78,6 +81,12 @@ const dropdownItems = computed(() => [
         onClick: () => setTheme('system'),
       },
     ],
+  },
+  {
+    icon: 'lucide-layout-panel-left',
+    label:
+      shellIconStyle.value === 'logo' ? 'Use category icon at top' : 'Use Gameplan logo at top',
+    onClick: toggleShellIconStyle,
   },
   {
     icon: 'lucide-list-restart',

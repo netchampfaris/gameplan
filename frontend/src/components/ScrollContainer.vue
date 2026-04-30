@@ -1,10 +1,12 @@
 <template>
-  <ScrollAreaViewport class="w-full isolate overflow-auto bg-surface-base" id="scrollContainer">
-    <slot />
-  </ScrollAreaViewport>
-  <ScrollBar />
+  <ScrollAreaRoot class="relative block min-h-0 flex-1">
+    <ScrollAreaViewport class="h-full w-full isolate overflow-auto bg-surface-base" id="scrollContainer">
+      <slot />
+    </ScrollAreaViewport>
+    <ScrollBar />
+  </ScrollAreaRoot>
 </template>
 <script setup lang="ts">
-import { ScrollAreaViewport } from 'reka-ui'
+import { ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui'
 import ScrollBar from './ScrollBar.vue'
 </script>

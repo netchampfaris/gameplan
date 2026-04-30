@@ -302,6 +302,11 @@ let router = createRouter({
       name: 'Notifications',
       component: () => import('@/pages/Notifications.vue'),
     },
+    {
+      path: '/more',
+      name: 'More',
+      component: () => import('@/pages/MoreMenu.vue'),
+    },
     // Keep old shared space links working while moving canonical URLs under `/c/:teamId/...`.
     {
       path: '/space/:spaceId',

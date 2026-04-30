@@ -1,22 +1,24 @@
 <template>
   <div class="relative flex h-full flex-col" v-if="users.isFinished">
     <div class="h-full flex-1 standalone:border-t">
-      <div class="flex h-full bg-surface-base pt-3">
-        <CategorySidebar />
-        <ScrollAreaRoot class="relative block min-h-0 flex-shrink-0 print:hidden">
-          <AppSidebar />
-        </ScrollAreaRoot>
-        <ScrollContainer>
-          <div
-            v-if="$readOnlyMode"
-            class="right-0 top-0 mb-3 bg-surface-gray-2 py-3 text-sm text-ink-gray-5"
-          >
-            <div class="mx-auto px-10">
-              This site is running in read-only mode. Full functionality will be restored soon.
-            </div>
+      <div class="flex h-full">
+        <AppRail />
+        <div class="flex min-w-0 flex-1 py-1 pr-1">
+          <div class="flex min-w-0 flex-1 overflow-hidden rounded bg-surface-base shadow-sm">
+            <AppSidebar v-if="onCategoryRoute" />
+            <ScrollContainer>
+              <div
+                v-if="$readOnlyMode"
+                class="right-0 top-0 mb-3 bg-surface-gray-2 py-3 text-sm text-ink-gray-5"
+              >
+                <div class="mx-auto px-10">
+                  This site is running in read-only mode. Full functionality will be restored soon.
+                </div>
+              </div>
+              <slot />
+            </ScrollContainer>
           </div>
-          <slot />
-        </ScrollContainer>
+        </div>
       </div>
     </div>
     <CommandPalette />
@@ -24,11 +26,18 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ScrollAreaRoot } from 'reka-ui'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import ScrollContainer from './ScrollContainer.vue'
+import AppRail from './AppRail.vue'
 import AppSidebar from './AppSidebar.vue'
 import CommandPalette from './CommandPalette/CommandPalette.vue'
 import SettingsDialog from './Settings/SettingsDialog.vue'
 import { users } from '@/data/users'
-import CategorySidebar from './CategorySidebar.vue'
+
+const route = useRoute()
+
+const onCategoryRoute = computed(() => {
+  return route.matched.some((record) => record.meta?.categoryScope)
+})
 </script>

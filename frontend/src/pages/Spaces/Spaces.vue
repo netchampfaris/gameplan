@@ -22,7 +22,6 @@
         :debounce="150"
         :placeholder="$platform == 'mac' ? 'Search (⌘+F)' : 'Search (Ctrl+F)'"
         class="w-full"
-        v-focus="!!!$route.query.teamId"
       >
         <template #prefix>
           <span class="lucide-search size-4 text-ink-gray-5" />
@@ -83,7 +82,6 @@ import EmptyStateBox from '@/components/EmptyStateBox.vue'
 import SpaceCardGroup from './SpaceCardGroup.vue'
 import PinnedSpaceCard from './PinnedSpaceCard.vue'
 import { useGroupedSpaces } from '@/data/groupedSpaces'
-import { vFocus } from '@/directives'
 import { pinnedSpaces } from '@/data/pinnedSpaces'
 import { useSpace } from '@/data/spaces'
 
@@ -165,11 +163,11 @@ function setGroupRefs(el: any, name: string) {
   }
 }
 
+const { width: windowWidth } = useWindowSize()
 const columns = computed(() => {
-  const { width } = useWindowSize()
-  if (width.value < 768) return 1
-  if (width.value < 1024) return 2
-  if (width.value < 1280) return 3
+  if (windowWidth.value < 768) return 1
+  if (windowWidth.value < 1024) return 2
+  if (windowWidth.value < 1280) return 3
   return 4
 })
 
@@ -185,6 +183,10 @@ function handleKeyDown(e: KeyboardEvent) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
+
+  if (!route.query.teamId) {
+    nextTick(() => searchInputRef.value?.el?.focus())
+  }
 })
 
 onUnmounted(() => {

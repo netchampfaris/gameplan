@@ -1,13 +1,12 @@
 <template>
-  <router-link
+  <component
+    :is="space.team ? 'router-link' : 'div'"
     class="relative rounded-md flex flex-col focus:outline-none focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 sm:hover:bg-surface-gray-2 group transition-colors duration-150 active:bg-surface-gray-2"
-    :to="{
-      name: 'Space',
-      params: {
-        teamId: space.team,
-        spaceId: space.name,
-      },
-    }"
+    :to="
+      space.team
+        ? { name: 'Space', params: { teamId: space.team, spaceId: space.name } }
+        : undefined
+    "
   >
     <div class="flex items-start w-full">
       <div class="inline-flex min-w-0 flex-1 mr-1">
@@ -76,7 +75,7 @@
         </template>
       </div>
     </div>
-  </router-link>
+  </component>
 </template>
 
 <script setup lang="ts">
