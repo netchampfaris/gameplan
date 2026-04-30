@@ -23,6 +23,8 @@ This phase should remove obsolete active references, verify regressions, and pre
 - `frontend/src/composables/usePreferredHomePage.ts`
 - `frontend/src/components/HomePageSettingsDialog.vue`
 - `frontend/src/pages/Home.vue`
+- `frontend/src/pages/PersonalHome.vue` — superseded by rail Home → category discussions (see `./DECISIONS.md` "Shell information architecture")
+- `frontend/src/components/CategorySwitcher.vue` — role moved to `CategorySwitcherCombobox` triggered by the rail-top icon. Delete once no call sites remain.
 - old Team / Project pages if they are truly unused after redirect migration
 - any stale imports created during previous phases
 - PRD files in this directory to mark statuses and commit checkpoints
@@ -35,19 +37,23 @@ This phase should remove obsolete active references, verify regressions, and pre
 Delete or fully orphan after verifying no imports remain:
 - `usePreferredHomePage.ts`
 - `HomePageSettingsDialog.vue`
+- `PersonalHome.vue`
 - old sidebar preference logic
 
-### 2. Remove dead active route dependencies
-If old Team / Project pages are only legacy redirects now:
-- verify router no longer depends on their components
-- delete dead files only if safe
-- otherwise leave them but note them as deprecated in PR description
+### 1a. Decommission superseded shell components
+- Verify `CategorySwitcher.vue` has zero call sites (its role moved to `CategorySwitcherCombobox` invoked from the rail). Delete if so.
+- Verify any old single-column-sidebar variants are unreferenced. Delete if so.
+
+### 2. Old Team / Project pages — leave in place
+Per the agreed plan, **do not delete** old Team / Project page files in this branch even if they are unreferenced. They stay as redirect compatibility for the first release window. A follow-up PR removes them once route stability is confirmed in production.
 
 ### 3. Regression pass on primary flows
 Verify:
 - app entry routes
-- category switcher
-- current-category sidebar
+- category switcher (combobox) opens from rail-top icon; static badge when single category
+- composite header (rail icon + sidebar category name) reads as one row
+- category sidebar slides out smoothly on global routes and back in on category routes
+- rail destination active states only highlight the exact current destination
 - category discussions
 - global bookmarks
 - scoped composer
@@ -55,6 +61,9 @@ Verify:
 - global pages linking into scoped routes
 - `/spaces` admin and non-admin behavior
 - onboarding
+- mobile bottom tabs (Home, Inbox, Search, More) with persistent tab bar on drill-down
+- mobile Home tab shows category context; other tabs do not
+- empty-spaces state renders only in the rare case (`General` auto-create should make this unreachable in normal flows)
 
 ### 4. Update PRD status markers
 In each phase file and `PLAN.md`:
@@ -65,12 +74,18 @@ In each phase file and `PLAN.md`:
 ### 5. Prepare the single PR description
 The PR description should summarize:
 - routing changes
-- shell/sidebar changes
+- shell/sidebar changes (including feed-type rows in sidebar, no tab strip)
 - global vs scoped surface split
 - draft compatibility behavior
-- `/spaces` behavior
+- `/spaces` behavior (admin-only)
 - migrations
 - testing performed
+
+**Explicitly call out follow-ups deferred from this branch:**
+- Command palette "Add discussion" entry point
+- Automated tests (router resolution, migration idempotency)
+- Rollback / reverse-migration patches
+- Deletion of legacy Team / Project page files
 
 ---
 
@@ -87,7 +102,8 @@ The PR description should summarize:
 ### Core behavior
 - no global discussions feed remains
 - `/` and `/home` resolve correctly
-- category switcher always visible
+- category switcher (combobox) accessible from rail-top icon when multiple categories exist
+- category sidebar visible only on `/c/:teamId/*` routes; hidden on global routes with width transition
 - sidebar only shows current-category spaces
 
 ### Global surfaces

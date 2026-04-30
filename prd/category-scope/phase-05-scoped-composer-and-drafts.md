@@ -57,16 +57,14 @@ Implement:
 
 ### 3. Update Drafts page routing logic
 In `frontend/src/pages/Drafts.vue`:
-- Add new button should route to scoped composer using current selected category
+- **Remove the "Add new" button** from this page. Drafts is now a pure list view; new-discussion creation lives only inside category discussions list (per `./DECISIONS.md`).
 - draft rows should route:
   - to scoped composer when draft has project/team
   - to legacy `/new-discussion?draft=...` when project is missing
 - keep Drafts page global
 
-### 4. Update command palette add-discussion shortcut
-In `frontend/src/components/CommandPalette/CommandPalette.vue`:
-- Add Discussion should route to scoped composer using current selected category
-- if current route already has a `spaceId`, preserve that as preselected query/default where practical
+### 4. Command palette — deferred
+The command palette "Add Discussion" entry point is **out of scope** for this branch. Leave existing palette code as-is (or stub it to navigate to category discussions if it actively breaks). Track for a follow-up.
 
 ---
 

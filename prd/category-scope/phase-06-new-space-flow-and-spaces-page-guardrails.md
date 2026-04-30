@@ -51,8 +51,13 @@ If needed, create:
 - `frontend/src/pages/NewSpace.vue`
 
 ### 3. Use locked mode from scoped shell
-From current-category shell entry points such as sidebar add-space:
-- open the locked-category new-space flow
+From current-category shell entry points (per the design in `./DECISIONS.md` "Shell information architecture"):
+- the `+` revealed on hover/focus next to the "Spaces" header in the category sidebar (admin only)
+- the "Create a space" CTA in the category sidebar's empty state (admin only)
+- the mobile Home tab's "+ New space" affordance (admin only)
+
+In all three cases:
+- open the locked-category new-space flow with `lockedCategoryId: activeCategory.id`
 - do not offer category selection there
 
 ### 4. Keep `/spaces` page global and intact
@@ -61,17 +66,13 @@ In `frontend/src/pages/Spaces/Spaces.vue`:
 - keep current management interactions
 - only update any route links as needed for scoped navigation
 
-### 5. Add read-only behavior for non-admins on `/spaces`
-In `frontend/src/pages/Spaces/Spaces.vue`:
-- detect admin vs non-admin using the `Gameplan Admin` role from the session user’s data (available via `useSessionUser()` from `frontend/src/data/users.ts` — check `user.role === 'Gameplan Admin'`)
-- admin users keep current management actions (create, move, merge, archive, etc.)
-- non-admin users (`Gameplan Member`, `Gameplan Guest`) should see a read-only view:
-  - can browse spaces grouped by category
-  - can click into a space to navigate
-  - cannot see create/move/merge/archive controls
+### 5. Restrict `/spaces` to admins only
+In `frontend/src/router.js` (route guard) and `frontend/src/pages/Spaces/Spaces.vue`:
+- detect admin via `user.roles.includes('Gameplan Admin')` from `useSessionUser()` in `frontend/src/data/users.ts`
+- non-admins navigating to `/spaces` should be redirected away (e.g. to current category discussions). The `/spaces` rail icon is also hidden for non-admins (handled in Phase 02).
+- admin users keep current management actions (create, move, merge, archive, etc.) unchanged
 
-Do not redesign the page.
-Only gate behavior and preserve current capabilities.
+No read-only mode is required because non-admins never reach the page.
 
 ---
 

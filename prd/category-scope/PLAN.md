@@ -62,10 +62,11 @@ The branch is ready for review when:
 - There is no global discussions feed.
 - `/` and `/home` resolve to category-scoped discussions or onboarding.
 - Category switcher is visible in the shell (hidden when only one category).
-- Sidebar shows only current-category spaces.
+- Sidebar shows current-category spaces and feed-type rows (All discussions / Unread / Participating). No tab strip on the discussions page.
 - Global bookmarks route exists at `/bookmarks`.
-- Scoped composer works.
+- Scoped composer works; "+ New discussion" is reachable only from inside the category discussions list.
 - Legacy unscoped drafts still work.
-- `/spaces` remains global and read-only for non-admins (`Gameplan Admin` role gates admin actions).
-- Uncategorized spaces are migrated to `Default`.
+- `/spaces` is admin-only — non-admins are redirected away and the rail icon is hidden for them.
+- Existing sites with uncategorized spaces are migrated to a `Default` category. Fresh sites do not get `Default` — onboarding requires a user-named category.
 - Discussion pin scope is migrated from `Global` to `Category`.
+- Deferred to follow-ups: command palette "Add discussion", automated tests, rollback patches.

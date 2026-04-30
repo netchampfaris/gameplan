@@ -1,11 +1,10 @@
 # Phase 02 — Shell, sidebar, and mobile category UI
 
-Status: completed
+Status: revising (initial pass landed; design supersedes — see below)
 Commit checkpoint: pending
 Notes:
-- Added a reusable `CategorySwitcher` and `categorySpaces` state for current-category shell UI.
-- Rewrote desktop and mobile shell navigation around current-category discussions and spaces.
-- Removed active preferred-home usage from the sidebar flow without deleting the old dialog files.
+- Initial pass added `CategorySwitcher`, `categorySpaces`, and a basic two-column shell.
+- The design has since been redefined (see `./DECISIONS.md` → "Shell information architecture"). This phase now rebuilds the shell against the updated design. Components from the initial pass are repurposed or retired in place.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 
@@ -13,106 +12,139 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 
 ## Goal
 
-Make category context visible everywhere in the app shell.
+Build the Slack-style three-column desktop shell (rail + category sidebar + content) and the drill-down mobile equivalent.
 
-This phase should deliver:
-- persistent category switcher
-- desktop sidebar scoped to current-category spaces
-- mobile category affordance
-- removal of active preferred-home UI from the shell
+Authoritative design lives in `./DECISIONS.md` under "Shell information architecture". This file describes how to build it.
 
 ---
 
 ## Files
 
 ### Create
-- `frontend/src/components/CategorySwitcher.vue`
-- `frontend/src/data/categorySpaces.ts`
-- `frontend/src/components/MobileCategoryBar.vue` (recommended)
-- `frontend/src/components/MobileCategorySpacesSheet.vue` (recommended)
+- `frontend/src/data/categorySpaces.ts` *(already created in initial pass)*
+- `frontend/src/components/AppRail.vue` — narrow rail (rename of current `CategorySidebar.vue`, or new file)
+- `frontend/src/components/CategorySwitcherCombobox.vue` — combobox-with-custom-trigger for switching categories
+- `frontend/src/components/MobileCategoryBar.vue` *(recommended)*
+- `frontend/src/components/MobileCategorySpacesSheet.vue` *(recommended)*
+- `frontend/src/components/MobileMoreMenu.vue` *(recommended)*
 
 ### Edit
-- `frontend/src/components/AppSidebar.vue`
-- `frontend/src/components/MobileLayout.vue`
-- `frontend/src/components/DesktopLayout.vue` if minor integration changes are needed
-- `frontend/src/components/HomePageSettingsDialog.vue` only to stop active usage, not necessarily delete
-- `frontend/src/composables/usePreferredHomePage.ts` only if imports must be removed now
+- `frontend/src/components/AppSidebar.vue` — becomes the category sidebar
+- `frontend/src/components/CategoryDropdown.vue` — keeps role as category-actions menu (Settings, Members, Invite, Leave); drop the icon, keep name + carat
+- `frontend/src/components/DesktopLayout.vue` — sidebar visibility + width transition
+- `frontend/src/components/MobileLayout.vue` — 4-tab bottom nav + drill-down per tab
+- `frontend/src/components/UserDropdown.vue` — wired into the rail bottom on desktop and into the More tab on mobile
+
+### Delete (in this phase or queued for Phase 08)
+- `frontend/src/components/CategorySwitcher.vue` — role moved to the rail-icon combobox; remove once no call sites remain
+- `frontend/src/pages/PersonalHome.vue` — supersedes Home semantics; rail Home goes to current category discussions
 
 ---
 
 ## Tasks
 
-### 1. Add reusable CategorySwitcher
-Implement a category switcher that:
-- lists accessible active categories
-- shows current selected category
-- routes to `/c/:teamId/discussions` on switch
-- persists the new category before navigation
-- **hide the switcher entirely when there is only one active category** — the user has no meaningful choice to make, so don’t show the control
+### 1. Build the narrow rail (`AppRail.vue`)
+Width: 28px icon buttons inside `px-3` (≈52px total). Gray background (`bg-surface-menu-bar` or equivalent).
 
-### 2. Add scoped space helpers
-In `frontend/src/data/categorySpaces.ts` implement:
-- current-category space list helpers
-- current-category space option helpers
-- use `spaces.data` as the backing source
+Vertical structure (top → bottom):
+1. **Category icon** (28px). Renders `team.icon` emoji or first-letter fallback. Container is a rounded square sized to allow swapping in an `<img>` later without layout change.
+   - Multi-category: clicking opens `CategorySwitcherCombobox`.
+   - Single-category: static badge — no click handler, no chevron, no hover affordance. Active highlight only on `/c/:teamId/*` routes.
+2. **Group 1** (divider above and below): Home, Inbox, Search.
+3. **Group 2**: Drafts, Bookmarks, Tasks, Pages.
+4. **Group 3**: People, **Spaces** *(rendered only when `user.roles.includes('Gameplan Admin')`)*.
+5. **Spacer** (`flex-1`) pushing avatar to the bottom.
+6. **User avatar** at bottom — opens `UserDropdown` (profile, settings, log out, theme).
 
-Do not change global grouped-space helpers in this phase.
+Per-icon requirements:
+- Every icon has a tooltip (right-side, via `TooltipRoot`/`TooltipBubble` — pattern already in current `CategorySidebar.vue`).
+- Active state when on the destination's route only. Search icon = active on `Search` route. Home = active on `Discussions` / `DiscussionsTab` routes.
+- Search click navigates to `/search` page (the `Search` route). `Cmd+K` separately opens `CommandPalette`.
 
-### 3. Rewrite desktop sidebar
-In `frontend/src/components/AppSidebar.vue`:
-- replace preferred-home row with `CategorySwitcher`
-- remove active preferred-home settings affordance from the sidebar
-- add global `Bookmarks` nav item
-- make Discussions nav item route to current-category discussions
-- keep global nav items global
-- show only spaces from current category
-- remove all-team grouping behavior from the sidebar
-- for the joined/all space filter: keep it if practical, scoped to current category. The current `joinedSpaces` API returns a flat list of space IDs — filter this against `categorySpaces` to get the intersection. If this is too complex, remove the filter for now and add it back later.
+### 2. Build the category sidebar (rewrite `AppSidebar.vue`)
+Width: `w-56` (224px). White background.
 
-Keep `/spaces` in top navigation as the global housekeeping page.
+Top-row composite header (must align horizontally with the rail's category icon):
+- Category name (text label) acting as the trigger for `CategoryDropdown` — opens menu of category-level actions. Keep `▾` carat to signal interactivity.
+- Drop the icon from `CategoryDropdown` (it's covered by the rail icon to the left).
 
-### 4. Add mobile category affordance
-In `frontend/src/components/MobileLayout.vue`:
-- keep global bottom tabs global (Search, Notifications, etc.)
-- update the "Home" or "Discussions" bottom tab to route to current-category discussions (`/c/:teamId/discussions`)
-- add a visible category switcher affordance
-- add a way to browse current-category spaces without using `/spaces`
+Below the header:
+- Row: "All discussions" → `{ name: 'Discussions', params: { teamId: activeCategory.id } }`. Active only on the canonical `Discussions` route (recent feed).
+- Row: "Unread" → `{ name: 'DiscussionsUnread', params: { teamId } }` (or equivalent named route for `/c/:teamId/discussions/unread`). Optional trailing unread count badge.
+- Row: "Participating" → `{ name: 'DiscussionsParticipating', params: { teamId } }`.
+- These three rows replace the old tab strip on the discussions page. The discussions page reads the active feed type from the route name and renders accordingly.
+- Section header: "Spaces" with a `+` revealed on hover and on focus-within (admin only). Click `+` opens the new-space flow with category locked (Phase 06 — `lockedCategoryId: activeCategory.id`).
+- Spaces list: `categorySpaces.list`. Each row:
+  - Leading: `<LucideGlobe />` if public, `<LucideLock />` if private. (Removes the existing emoji on the left and the trailing lock on the right.)
+  - Title.
+  - Trailing unread count if `> 0`.
+  - Active state when on the exact `Space` (or nested `Space*`) route for this `spaceId`.
+- No persistent footer.
 
-Before implementing, inspect `MobileLayout.vue` to identify the current bottom tab structure and which tab corresponds to discussions/home.
+Empty state (if `categorySpaces.list.length === 0`):
+- "No spaces in this category yet."
+- Admin (`Gameplan Admin`) only: "Create a space" button → opens the locked-category new-space flow.
+- This case should be rare — Phase 07 auto-creates a `General` space on category creation.
 
-Recommended:
-- a top bar with category switcher
-- a sheet/menu listing current-category spaces
+### 3. Build the category-switcher combobox (`CategorySwitcherCombobox.vue`)
+- Use frappe-ui's `Combobox` (or `Autocomplete`) with a custom trigger slot. The trigger is rendered by the rail icon.
+- Popover: search input at top, scrollable list of `activeTeams`, current category marked with a check.
+- Selecting a category: persist via `activeCategory.change(teamId)`, then `router.push({ name: 'Discussions', params: { teamId } })`.
+- Hide / no-op when only one active category exists (rail-top icon becomes a static badge in that case).
 
-### 5. Stop using preferred-home logic in active shell code
-Remove active dependency on:
-- `usePreferredHomePage()` in sidebar logic
-- `HomePageSettingsDialog` from current shell flow
+### 4. Sidebar visibility + width transition in `DesktopLayout.vue`
+- Render the category sidebar only when the current route matches `/c/:teamId/*`.
+- Use a width-animated wrapper around the sidebar (e.g. `<div class="transition-all duration-150 overflow-hidden" :class="onCategoryRoute ? 'w-56' : 'w-0'">`) so navigation between category and global routes slides instead of snaps.
+- The rail itself is always visible.
 
-Do not delete dead files yet if that increases risk.
+### 5. Mobile shell rewrite (`MobileLayout.vue`)
+- Bottom tab bar: **Home, Inbox, Search, More** (4 tabs).
+- Each tab maintains its own navigation stack (drill-down). Tab bar persists when drilled in.
+
+**Home tab:**
+- Top bar: category name + switcher trigger (reuse `CategorySwitcherCombobox` or a mobile-friendly variant).
+- Body: "All discussions" row + spaces list (same data as desktop sidebar, rendered as full-width tappable rows). Each space row uses the same globe/lock leading icon.
+- Tap a space → drill into that space's discussions.
+
+**Inbox / Search tabs:**
+- No category context at top. Direct destination content.
+
+**More tab:**
+- Full-page menu listing: Bookmarks, People, Pages, Tasks, Drafts. Add **Spaces** only when `user.roles.includes('Gameplan Admin')`.
+- Bottom of menu: user avatar / settings / log out (`UserDropdown` content).
+
+### 6. Retire preferred-home and `PersonalHome` from active code
+- Remove `usePreferredHomePage()` references from shell code.
+- Remove `HomePageSettingsDialog` from current shell flow.
+- Mark `PersonalHome.vue` for deletion (Phase 08). Rail Home now targets `Discussions` directly.
 
 ---
 
 ## Guardrails
 
-- `/spaces` must remain a global page.
+- `/spaces` remains a global page.
 - Search/Tasks/Pages/People/Notifications remain global in content.
-- Mobile must still offer quick access to current-category spaces even though `/spaces` stays global.
+- Mobile must still offer quick access to current-category spaces — provided by the Home tab.
+- Do not introduce per-route sidebar variants (e.g. People-specific sidebar). All global pages get full-width content with the sidebar hidden.
 
 ---
 
 ## Verify before commit
 
-- category switcher visible in desktop shell when multiple categories exist
-- category switcher **hidden** when only one category exists
-- category switcher visible in mobile shell when multiple categories exist
-- switching category always lands on category discussions
-- desktop sidebar shows only current-category spaces
-- global nav links still work
-- `/spaces` still opens as global page
+- Rail visible on every route.
+- Category icon at top of rail acts as switcher when multiple categories exist; static badge when only one.
+- Category sidebar visible only on `/c/:teamId/*` routes; transitions out smoothly on global routes.
+- Composite header reads as one continuous element across rail + sidebar.
+- Spaces list shows globe/lock leading icons; no emoji on space rows.
+- `+` next to "Spaces" header is visible on hover and on keyboard focus (admin only).
+- Empty-spaces state renders with admin CTA when applicable.
+- Search rail icon → `/search` page. `Cmd+K` → palette. Both work.
+- Mobile bottom tabs: Home, Inbox, Search, More. Home tab shows category context; other tabs do not.
+- Tab bar persists when drilled into a space on mobile.
+- Active states: only the exact current destination is highlighted (rail Home is *not* highlighted on a space-detail page).
 
 ---
 
 ## Suggested commit checkpoint
 
-`feat(category-scope): add category switcher and scoped shell navigation`
+`feat(category-scope): rebuild shell with rail + category sidebar`

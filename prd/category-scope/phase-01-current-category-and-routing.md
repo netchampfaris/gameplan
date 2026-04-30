@@ -65,7 +65,8 @@ In `frontend/src/router.js`:
 - keep existing route names where possible
 - move canonical category-scoped paths under `/c/:teamId/...`
 - make `/c/:teamId` redirect to `/c/:teamId/discussions`
-- add `/c/:teamId/discussions/:feedType?`
+- add `/c/:teamId/discussions` (recent), `/c/:teamId/discussions/unread`, `/c/:teamId/discussions/participating` as distinct routes (no tab strip — the sidebar drives the active feed)
+- any other `/discussions/:feedType` value 404s
 - add scoped space paths
 - add scoped `NewDiscussion`
 - add scoped `new-space` route
@@ -106,15 +107,17 @@ In `activeCategory.ts` or as a router guard:
 - if `teamId` in the URL is invalid, archived, or inaccessible -> redirect to first accessible category
 - if no accessible categories exist at all (all archived or none created):
   - admin (`Gameplan Admin` role) -> redirect to `/spaces` so they can manage/unarchive
-  - non-admin -> show a helpful empty state (e.g., "No categories available. Ask an admin to set things up.")
+  - non-admin -> render an inline empty state inside the shell on `/` ("No categories available. Ask an admin to set things up."). Not a dedicated route or page component.
   - do **not** redirect to onboarding in this case — onboarding is only for brand-new sites with no data
 - persist the corrected category after redirect
 
-### 5c. Auto-switch category on deep links
-When navigating to a route with a different `teamId` than the current persisted category:
-- update the persisted category to match the route
-- this ensures shared links and notification clicks set the correct category context
-- implement this in a `router.afterEach` guard or within `activeCategory.ts` as a route watcher
+### 5c. Persistence rule (deliberate switches only)
+**Do not** auto-update persisted category from `router.afterEach`. Persistence updates only when the user takes a deliberate switch action:
+- clicking a category in the rail switcher combobox
+- clicking the category-name dropdown trigger that switches category
+- explicit calls to `activeCategory.change(teamId)`
+
+Following a deep link to another category navigates the route but leaves the persisted "home" category unchanged. This avoids notification-click side-effects rewriting the user's default landing.
 
 ### 6. Update onboarding redirect behavior in router
 If the app exits onboarding due to existing data, do not send users to old global discussions.

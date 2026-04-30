@@ -15,6 +15,7 @@ Finalize backend and data-layer changes required by the new information architec
 
 This phase should deliver:
 - onboarding creates category + first space
+- every newly created category auto-creates a `General` space (server-side hook, not just onboarding)
 - uncategorized spaces migrate into `Default`
 - pin scope migrates from `Global` to `Category`
 - backend defaults match the new model
@@ -40,6 +41,7 @@ The `team` backfill migration (task 3 below) is **critical for category discussi
 - `gameplan/www/g.py`
 - `gameplan/gameplan/doctype/gp_discussion/gp_discussion.py`
 - `gameplan/gameplan/doctype/gp_discussion/gp_discussion.json`
+- `gameplan/gameplan/doctype/gp_team/gp_team.py` — `after_insert` hook to auto-create `General` space
 - `gameplan/patches.txt`
 - `frontend/src/pages/Onboarding.vue`
 - `frontend/src/types/doctypes.ts` or generated type pipeline output
@@ -51,9 +53,18 @@ The `team` backfill migration (task 3 below) is **critical for category discussi
 ### 1. Update onboarding backend API
 In `gameplan/api.py`:
 - update `onboarding()` to create:
-  1. `GP Team`
-  2. `GP Project` linked to that team
-- return both ids to the frontend
+  1. `GP Team` (the `after_insert` hook in §1a will auto-create `General` inside it)
+  2. `GP Project` (user-named first space) linked to that team — created in addition to `General`
+- return team id and the user-named space id to the frontend
+- a freshly onboarded site therefore lands with a category containing **two** spaces: `General` (public, hook-created) and the user-named space (whatever privacy the user chose)
+
+### 1a. Auto-create `General` space on `GP Team` insert
+In `gameplan/gameplan/doctype/gp_team/gp_team.py`:
+- add an `after_insert` hook that creates a `GP Project` titled `General` linked to the new team
+- `General` must be **public** (`is_private = 0`) so all category members have access by default; do not insert per-member ACL rows for `General`
+- **idempotency rule**: skip auto-create if **any** `GP Project` already exists in this team (broader than checking by title — protects the migration path where `Default` may inherit pre-existing orphaned spaces)
+- this guarantees every category has at least one valid landing destination — eliminates the empty-category edge case from the routing layer
+- this rule is documented in `./DECISIONS.md` under "Auto-create `General` space"
 
 ### 2. Update onboarding frontend page
 In `frontend/src/pages/Onboarding.vue`:
@@ -63,28 +74,30 @@ In `frontend/src/pages/Onboarding.vue`:
 - persist selected category
 - route to category discussions
 
-### 3. Add migration for uncategorized spaces
+### 3. Add migration for uncategorized spaces (existing-site only)
 Create patch:
 - `gameplan/gameplan/doctype/gp_project/patches/assign_default_team_to_uncategorized_spaces.py`
 
 Implement:
-- detect spaces without category
-- create `Default` category if needed
-- assign all uncategorized spaces to `Default`
-- backfill denormalized `team` fields on project-linked doctypes
+- detect `GP Project` rows with empty/null `team`
+- if any such rows exist: create `Default` `GP Team` (idempotently — `frappe.db.exists` first), then assign those orphans to `Default`
+- if there are no orphaned spaces: do nothing (do **not** create `Default` on otherwise-categorized sites)
+- backfill denormalized `team` fields on all project-linked doctypes
 
-Doctypes to backfill (verified to have `team` field):
-- `GP Discussion` — has `team` field
-- `GP Task` — verify field exists before backfilling
-- `GP Page` — verify field exists before backfilling
-- `GP Draft` — has `team` field (fetch_from: project.team)
-- `GP Notification` — verify field exists before backfilling
-- `GP Project Visit` — verify field exists before backfilling
-- `GP Pinned Project` — verify field exists before backfilling
-- `GP Guest Access` — verify field exists before backfilling
-- `GP Followed Project` — verify field exists before backfilling
+**Doctypes to backfill — all confirmed to have a `team` field via grep on their `.json`:**
+- `GP Discussion`
+- `GP Task`
+- `GP Page`
+- `GP Draft` (fetch_from: project.team)
+- `GP Notification`
+- `GP Project Visit`
+- `GP Pinned Project`
+- `GP Guest Access`
+- `GP Followed Project`
 
-Note: for each doctype, the patch should first check if the `team` field exists in the schema before attempting to update. Some doctypes may not have a `team` field.
+The patch can issue a single `UPDATE ... SET team = (SELECT team FROM tabGP Project WHERE name = <doc>.project)` per table — no need for runtime schema introspection. Each `UPDATE` should also have a `WHERE team IS NULL OR team = ''` clause to keep it idempotent.
+
+Suppress the `after_insert` hook when creating `Default` (e.g. `default_team.flags.ignore_after_insert = True` or the equivalent project-creation suppression), so the migration doesn't create a `General` inside `Default` before the orphaned spaces are reassigned. After reassignment, `Default` already contains projects, so the idempotency rule in §1a would skip `General` anyway — but suppressing during creation is the safer belt-and-suspenders.
 
 ### 4. Add migration for pin scope rename
 Create patch:
@@ -104,12 +117,11 @@ In `gameplan/patches.txt`:
 
 ### 7. Sanity-check boot route logic
 In `gameplan/www/g.py`:
-- if no `GP Project` exists -> return `/onboarding` (keep current behavior)
-- if `GP Project` exists but no `GP Team` exists -> also return `/onboarding` (new category+space creation needed)
+- if **0 `GP Project` AND 0 `GP Team`** -> return `/onboarding` (brand-new site)
 - otherwise return `/home`
+- a site with projects-but-no-teams is handled by the migration in §3 (creates `Default`), not by onboarding
+- a site with teams-but-no-projects is handled by the `after_insert` hook (auto-creates `General`), not by onboarding
 - do not move last-selected-category logic to the server
-
-Note: the check should be: if no projects OR no teams → onboarding. A site with categories but no spaces, or spaces but no categories, both need the onboarding flow.
 
 ### 8. Update generated frontend types
 Ensure frontend type definitions reflect:
@@ -129,6 +141,8 @@ Ensure frontend type definitions reflect:
 
 - onboarding creates category + space successfully
 - onboarding lands in category discussions
+- creating a new `GP Team` outside of onboarding (e.g. via admin flow) automatically creates a `General` space inside it
+- the `after_insert` hook is idempotent (does not duplicate `General` for the migration `Default` team)
 - uncategorized spaces are assigned to `Default`
 - denormalized `team` fields are backfilled
 - discussion pin scope now uses `Category`

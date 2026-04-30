@@ -40,19 +40,16 @@ This phase should deliver:
 
 ### 1. Repurpose Discussions page as category discussions
 In `frontend/src/pages/Discussions.vue`:
-- read `teamId`
-- pass `team: teamId` into filters
-- keep only tabs:
-  - recent
-  - unread
-  - participating
-- remove `following` and `bookmarks` tabs
-  - note: `following` (shows discussions in spaces user is a member of) is removed because category scoping already limits to relevant spaces; `participating` (discussions the user authored or commented on) is the preferred engagement filter
-- update Add new to route to scoped `NewDiscussion` with `teamId`
-- update cache keys to include `teamId`
+- read `teamId` and the active feed type from the route **name** (`Discussions` → recent, `DiscussionsUnread` → unread, `DiscussionsParticipating` → participating)
+- pass `team: teamId` and `feed_type` into filters
+- **remove the tab strip entirely** — the sidebar (Phase 02) drives feed selection now
+- update the in-page "+ New discussion" button (this is the only entry point for new-discussion creation) to route to scoped `NewDiscussion` with `teamId`
+- update cache keys to include `teamId` and feed type
 - change `routeName` from `ProjectDiscussion` to `Discussion` with `teamId` + `spaceId` params
 
 Backend note: the `following` feed_type handler in `gameplan/gameplan/doctype/gp_discussion/api.py` **must be kept** for backward compatibility and potential future use — only the frontend tab is removed.
+
+**Migration prerequisite**: this phase's category feed depends on `GP Discussion.team` being populated. Pull the `team` backfill patch from Phase 07 forward and run `bench --site <site> migrate` before testing this phase locally. Without it, every category feed will appear empty.
 
 ### 2. Add Bookmarks page
 Create `frontend/src/pages/Bookmarks.vue`:
