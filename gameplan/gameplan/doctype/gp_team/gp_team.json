@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "Prompt",
  "creation": "2022-01-17 14:37:46.237403",
@@ -11,6 +12,7 @@
   "column_break_zutb",
   "icon",
   "is_private",
+  "image",
   "section_break_tczw",
   "members",
   "section_break_jewo",
@@ -92,12 +94,18 @@
   {
    "fieldname": "section_break_gvbw",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-13 21:00:23.191195",
- "modified_by": "Administrator",
+ "modified": "2026-05-01 22:51:01.454329",
+ "modified_by": "faris@erpnext.com",
  "module": "Gameplan",
  "name": "GP Team",
  "naming_rule": "Set by user",
@@ -149,6 +157,7 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
