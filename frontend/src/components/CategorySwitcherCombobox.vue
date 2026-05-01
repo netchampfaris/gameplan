@@ -10,18 +10,24 @@
       <slot :open="open" />
     </template>
 
-    <!-- Each row's leading slot: render the team's emoji/icon if present, else first letter as a tile fallback. -->
+    <!-- Each row's leading slot: image if uploaded, else emoji icon, else first letter as a tile fallback. -->
     <template #item-prefix="{ item }">
+      <img
+        v-if="item.image"
+        :src="item.image"
+        :alt="item.label"
+        class="size-6 shrink-0 rounded-sm object-cover"
+      />
       <span
-        v-if="item.icon"
-        class="inline-flex size-5 shrink-0 items-center justify-center text-base leading-none"
+        v-else-if="item.icon"
+        class="inline-flex size-6 shrink-0 items-center justify-center text-base leading-none bg-surface-gray-1"
         aria-hidden="true"
       >
         {{ item.icon }}
       </span>
       <span
         v-else
-        class="inline-flex size-5 shrink-0 items-center justify-center rounded bg-surface-gray-2 text-xs font-medium uppercase text-ink-gray-7"
+        class="inline-flex size-6 shrink-0 items-center justify-center rounded text-xs font-medium uppercase text-ink-gray-7 bg-surface-gray-1"
         aria-hidden="true"
       >
         {{ item.label?.[0] }}
@@ -45,6 +51,7 @@ const categoryOptions = computed(() => {
     label: team.title,
     value: team.name,
     icon: team.icon,
+    image: team.image,
   }))
 })
 

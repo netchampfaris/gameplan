@@ -20,25 +20,50 @@
 
         <!-- Category style: rail-icon switcher (existing behavior). -->
         <template v-else-if="activeCategory.team">
-          <CategorySwitcherCombobox v-if="hasMultipleCategories">
-            <template #default="{ open }">
-              <button
-                type="button"
-                class="flex size-8 items-center justify-center rounded text-base transition"
-                :class="categoryIconClass(open)"
-              >
-                <span v-if="activeCategory.team.icon">{{ activeCategory.team.icon }}</span>
-                <span v-else>{{ activeCategory.team.title?.[0] }}</span>
-              </button>
-            </template>
-          </CategorySwitcherCombobox>
+          <TooltipRoot v-if="hasMultipleCategories">
+            <TooltipTrigger as-child>
+              <div class="flex">
+                <CategorySwitcherCombobox>
+                  <template #default="{ open }">
+                    <button
+                      type="button"
+                      class="flex size-8 items-center justify-center overflow-hidden rounded text-base transition"
+                      :class="categoryIconClass(open)"
+                    >
+                      <img
+                        v-if="activeCategory.team.image"
+                        :src="activeCategory.team.image"
+                        :alt="activeCategory.team.title"
+                        class="size-full object-cover"
+                      />
+                      <span v-else-if="activeCategory.team.icon">{{
+                        activeCategory.team.icon
+                      }}</span>
+                      <span v-else>{{ activeCategory.team.title?.[0] }}</span>
+                    </button>
+                  </template>
+                </CategorySwitcherCombobox>
+              </div>
+            </TooltipTrigger>
+            <TooltipBubble side="right">
+              <template #content>
+                <div class="leading-relaxed">Switch category</div>
+              </template>
+            </TooltipBubble>
+          </TooltipRoot>
 
           <div
             v-else
-            class="flex size-7 items-center justify-center rounded-md text-base transition"
+            class="flex size-7 items-center justify-center overflow-hidden rounded-md text-base transition"
             :class="categoryIconClass(false)"
           >
-            <span v-if="activeCategory.team.icon">{{ activeCategory.team.icon }}</span>
+            <img
+              v-if="activeCategory.team.image"
+              :src="activeCategory.team.image"
+              :alt="activeCategory.team.title"
+              class="size-full object-cover"
+            />
+            <span v-else-if="activeCategory.team.icon">{{ activeCategory.team.icon }}</span>
             <span v-else>{{ activeCategory.team.title?.[0] }}</span>
           </div>
         </template>
@@ -104,7 +129,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { TooltipProvider } from 'reka-ui'
+import { TooltipProvider, TooltipRoot, TooltipTrigger } from 'reka-ui'
+import { TooltipBubble } from 'frappe-ui'
 import type { RouteLocationRaw } from 'vue-router'
 import { activeCategory } from '@/data/activeCategory'
 import { activeTeams } from '@/data/teams'

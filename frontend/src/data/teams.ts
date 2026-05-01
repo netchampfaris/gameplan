@@ -2,15 +2,14 @@ import { computed, MaybeRefOrGetter, toValue } from 'vue'
 import { useList } from 'frappe-ui'
 import { GPTeam } from '@/types/doctypes'
 
-export interface Team
-  extends Pick<
-    GPTeam,
-    'name' | 'title' | 'icon' | 'modified' | 'creation' | 'archived_at' | 'is_private'
-  > {}
+export interface Team extends Pick<
+  GPTeam,
+  'name' | 'title' | 'icon' | 'image' | 'modified' | 'creation' | 'archived_at' | 'is_private'
+> {}
 
 export let teams = useList<Team>({
   doctype: 'GP Team',
-  fields: ['name', 'title', 'icon', 'modified', 'creation', 'archived_at', 'is_private'],
+  fields: ['name', 'title', 'icon', 'image', 'modified', 'creation', 'archived_at', 'is_private'],
   orderBy: 'title asc',
   initialData: [],
   cacheKey: 'Teams',
