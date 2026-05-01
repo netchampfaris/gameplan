@@ -80,14 +80,7 @@
       <div class="mb-4 mt-6">
         <TabButtons
           class="inline-block"
-          :buttons="
-            [
-              { label: 'About' },
-              { label: 'Posts' },
-              { label: 'Replies' },
-              $isSessionUser(profile.user) ? { label: 'Bookmarks' } : null,
-            ].filter(Boolean)
-          "
+          :buttons="[{ label: 'About' }, { label: 'Posts' }, { label: 'Replies' }]"
           v-model="activeTab"
         />
       </div>
@@ -200,7 +193,6 @@ export default {
           PersonProfileAboutMe: 'About',
           PersonProfilePosts: 'Posts',
           PersonProfileReplies: 'Replies',
-          PersonProfileBookmarks: 'Bookmarks',
         }[this.$route.name]
       },
       set(value) {
@@ -208,7 +200,6 @@ export default {
           About: { name: 'PersonProfileAboutMe' },
           Posts: { name: 'PersonProfilePosts' },
           Replies: { name: 'PersonProfileReplies' },
-          Bookmarks: { name: 'PersonProfileBookmarks' },
         }[value]
         if (route) {
           this.$router.push(route)

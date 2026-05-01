@@ -2,12 +2,7 @@
   <span>
     <router-link
       class="hover:text-ink-blue-8 text-ink-gray-7"
-      :to="{
-        name: 'Team',
-        params: {
-          teamId: discussion.team,
-        },
-      }"
+      :to="{ name: 'Discussions', params: { teamId: discussion.team } }"
     >
       {{ teamTitle }}
     </router-link>
@@ -15,11 +10,8 @@
     <router-link
       class="hover:text-ink-blue-8 text-ink-gray-7"
       :to="{
-        name: 'Project',
-        params: {
-          teamId: discussion.team,
-          projectId: discussion.project,
-        },
+        name: 'Space',
+        params: { teamId: discussion.team, spaceId: discussion.project },
       }"
     >
       {{ projectTitle }}

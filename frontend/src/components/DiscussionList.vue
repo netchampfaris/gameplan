@@ -83,21 +83,19 @@ const pinnedDiscussions = useDiscussions({
   filters: () => {
     const baseFilters = toValue(props.filters)
 
-    // If viewing a specific space (project filter exists)
     if (baseFilters?.project) {
-      // Show only space-scoped pins for this specific project
       return {
         ...baseFilters,
         pinned_at: ['is', 'set'],
         pin_scope: 'Space',
       }
-    } else {
-      // When viewing all discussions/global view, show only global pins
-      return {
-        ...baseFilters,
-        pinned_at: ['is', 'set'],
-        pin_scope: 'Global',
-      }
+    }
+
+    // Category lists read both new `Category` pins and legacy `Global` pins until Phase 07 backfills them.
+    return {
+      ...baseFilters,
+      pinned_at: ['is', 'set'],
+      pin_scope: ['in', ['Category', 'Global']],
     }
   },
   orderBy: 'pinned_at desc' as OrderBy,

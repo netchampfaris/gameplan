@@ -118,7 +118,6 @@ function isMoreRoute() {
     'PersonProfileAboutMe',
     'PersonProfilePosts',
     'PersonProfileReplies',
-    'PersonProfileBookmarks',
     'MyPages',
     'Page',
     'MyTasks',

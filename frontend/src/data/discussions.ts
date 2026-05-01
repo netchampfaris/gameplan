@@ -65,7 +65,7 @@ export function useDiscussion(discussionId: MaybeRefOrGetter<string>) {
     markAsUnread: () => void
     closeDiscussion: () => void
     reopenDiscussion: () => void
-    pinDiscussion: (data: { pin_scope: 'Global' | 'Space' }) => void
+    pinDiscussion: (data: { pin_scope: 'Global' | 'Category' | 'Space' }) => void
     unpinDiscussion: () => void
     addBookmark: () => void
     removeBookmark: () => void

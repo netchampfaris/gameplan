@@ -222,7 +222,6 @@ const group3 = computed<RailItem[]>(() => {
         'PersonProfileAboutMe',
         'PersonProfilePosts',
         'PersonProfileReplies',
-        'PersonProfileBookmarks',
       ),
       route: { name: 'People' },
     },

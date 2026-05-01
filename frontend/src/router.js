@@ -7,7 +7,7 @@ import { spaces, getSpace } from './data/spaces'
 import { activeCategory } from './data/activeCategory'
 import { getScrollContainer, scrollTo } from './utils/scrollContainer'
 
-const discussionFeeds = ['recent', 'unread', 'participating', 'following']
+const discussionFeeds = ['recent', 'unread', 'participating']
 
 // Redirect-style guards still need a component record so Vue Router matches them consistently.
 const RouteGuard = { render: () => null }
@@ -128,7 +128,7 @@ let router = createRouter({
     {
       name: 'Bookmarks',
       path: '/bookmarks',
-      component: () => import('@/pages/ComingSoon.vue'),
+      component: () => import('@/pages/Bookmarks.vue'),
     },
     {
       name: 'Drafts',
@@ -293,7 +293,7 @@ let router = createRouter({
         {
           name: 'PersonProfileBookmarks',
           path: 'bookmarks',
-          component: () => import('@/pages/PersonProfileBookmarks.vue'),
+          redirect: { name: 'Bookmarks' },
         },
       ],
     },

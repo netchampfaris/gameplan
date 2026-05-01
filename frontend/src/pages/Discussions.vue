@@ -13,38 +13,31 @@
     </button>
     <Breadcrumbs
       class="hidden h-7 sm:flex"
-      :items="[{ label: 'Discussions', route: { name: 'Discussions', params: { teamId } } }]"
+      :items="[
+        { label: feedTitle, route: { name: 'DiscussionsTab', params: { teamId, feedType } } },
+      ]"
     />
-    <Button
-      variant="solid"
-      icon-left="lucide-plus"
-      :route="{ name: 'NewDiscussion', params: { teamId } }"
-    >
-      Add new
-    </Button>
+    <div class="flex items-center gap-2">
+      <Select class="shrink-0 !w-fit" :options="orderOptions" v-model="orderBy" />
+      <Button
+        variant="solid"
+        icon-left="lucide-plus"
+        :route="{ name: 'NewDiscussion', params: { teamId } }"
+      >
+        Add new
+      </Button>
+    </div>
   </PageHeader>
   <div class="body-container pt-5 pb-40">
     <LastPostReminder class="mb-3" />
 
-    <div class="overflow-x-auto flex gap-2 py-1 mb-3 items-center -mx-3 px-3">
-      <TabButtons :options="feedOptions" v-model="currentFeedType" />
-      <div class="ml-auto flex space-x-2" v-if="currentFeedType !== 'drafts'">
-        <Button
-          v-if="discussionListRef?.discussions?.loading"
-          :loading="discussionListRef?.discussions?.loading"
-        >
-          Loading...
-        </Button>
-        <Select class="shrink-0 !w-fit" :options="orderOptions" v-model="orderBy" />
-      </div>
-    </div>
     <KeepAlive>
       <DiscussionList
         class="-mx-3"
         ref="discussionListRef"
         :filters="filters"
         :orderBy="() => orderBy"
-        :cacheKey="`HomeDiscussions-${currentFeedType}`"
+        :cacheKey="`Discussions-${teamId}-${feedType}`"
         :key="JSON.stringify(filters)"
       />
     </KeepAlive>
@@ -53,17 +46,16 @@
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { Breadcrumbs, Select, TabButtons, usePageMeta } from 'frappe-ui'
+import { Breadcrumbs, Select, usePageMeta } from 'frappe-ui'
 import type { OrderBy } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import LastPostReminder from '@/components/LastPostReminder.vue'
-import { useRouter } from 'vue-router'
 import { activeCategory } from '@/data/activeCategory'
 import { showCategorySpacesSheet } from '@/data/categorySpacesSheet'
 import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'
 
-type FeedType = 'following' | 'participating' | 'recent' | 'bookmarks' | 'unread'
+type FeedType = 'recent' | 'unread' | 'participating'
 
 interface Props {
   teamId: string
@@ -74,43 +66,21 @@ const props = withDefaults(defineProps<Props>(), {
   feedType: 'recent',
 })
 
-const router = useRouter()
 const orderBy = ref<OrderBy>('last_post_at desc')
 const discussionListRef = useTemplateRef('discussionListRef')
 
-const currentFeedType = computed({
-  get: () => props.feedType,
-  set: (value: FeedType) => {
-    router.push({ name: 'DiscussionsTab', params: { teamId: props.teamId, feedType: value } })
-  },
-})
+const filters = computed(() => ({
+  team: props.teamId,
+  feed_type: props.feedType,
+}))
 
-const filters = computed(() => {
-  return currentFeedType.value ? { feed_type: currentFeedType.value } : undefined
-})
+const feedTitles: Record<FeedType, string> = {
+  recent: 'All Discussions',
+  unread: 'Unread',
+  participating: 'Participating',
+}
 
-const feedOptions = [
-  {
-    label: 'All',
-    value: 'recent',
-  },
-  {
-    label: 'Unread',
-    value: 'unread',
-  },
-  {
-    label: 'Following',
-    value: 'following',
-  },
-  {
-    label: 'Participating',
-    value: 'participating',
-  },
-  {
-    label: 'Bookmarks',
-    value: 'bookmarks',
-  },
-]
+const feedTitle = computed(() => feedTitles[props.feedType])
 
 const orderOptions = [
   {
@@ -132,9 +102,5 @@ const orderOptions = [
   },
 ]
 
-usePageMeta(() => {
-  return {
-    title: 'Discussions',
-  }
-})
+usePageMeta(() => ({ title: feedTitle.value }))
 </script>

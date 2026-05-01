@@ -3,10 +3,6 @@
     class="space-breadcrumbs"
     :items="[
       {
-        label: category?.title || 'Spaces',
-        route: { name: 'Spaces' },
-      },
-      {
         label: space?.title,
         prefix: h('span', { class: 'grid place-items-center font-[emoji] text-xl' }, space?.icon),
         suffix: space?.is_private ? 'lucide-lock' : null,

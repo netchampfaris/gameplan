@@ -185,7 +185,7 @@
           @close="
             () => {
               pinDialog.show = false
-              pinDialog.pinGlobally = false
+              pinDialog.pinToCategory = false
             }
           "
           v-model:open="pinDialog.show"
@@ -194,18 +194,19 @@
             When a discussion is pinned, it shows up on top of the discussion list.
           </p>
 
-          <div class="space-y-2">
-            <label class="flex items-center justify-between">
-              <div>
-                <div class="text-base-medium text-ink-gray-9 mb-1">Pin Globally</div>
-                <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinGlobally">
-                  Show in all discussions
+            <div class="space-y-2">
+              <label class="flex items-center justify-between">
+                <div>
+                  <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Category</div>
+                  <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinToCategory">
+                    Show in all {{ categoryTitle }} discussions
+                  </div>
+                  <div class="text-sm text-ink-gray-5" v-else>Show in {{ space?.title }} only</div>
                 </div>
-                <div class="text-sm text-ink-gray-5" v-else>Show in {{ space?.title }} only</div>
-              </div>
-              <Switch size="sm" v-model="pinDialog.pinGlobally" />
-            </label>
-          </div>
+                <Switch size="sm" v-model="pinDialog.pinToCategory" />
+              </label>
+            </div>
+          </template>
           <template #actions>
             <div class="flex">
               <Button
@@ -215,10 +216,10 @@
                 @click="
                   () => {
                     discussion.pinDiscussion
-                      .submit({ pin_scope: pinDialog.pinGlobally ? 'Global' : 'Space' })
+                      .submit({ pin_scope: pinDialog.pinToCategory ? 'Category' : 'Space' })
                       .then(() => {
                         pinDialog.show = false
-                        pinDialog.pinGlobally = false
+                        pinDialog.pinToCategory = false
                       })
                   }
                 "
@@ -274,6 +275,7 @@ import RevisionsDialog from './RevisionsDialog.vue'
 import { vFocus } from '@/directives'
 import { copyToClipboard } from '@/utils'
 import { getSpace, useSpace } from '@/data/spaces'
+import { useTeam } from '@/data/teams'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDiscussion } from '@/data/discussions'
 import { tags } from '@/data/tags'
@@ -318,10 +320,10 @@ const discussionMoveDialog = reactive<{
 })
 const pinDialog = reactive<{
   show: boolean
-  pinGlobally: boolean
+  pinToCategory: boolean
 }>({
   show: false,
-  pinGlobally: false,
+  pinToCategory: false,
 })
 const showRevisionsDialog = ref(false)
 
@@ -430,6 +432,8 @@ function updateUrlSlug() {
 }
 
 const space = useSpace(() => discussion.doc?.project)
+const category = useTeam(() => discussion.doc?.team)
+const categoryTitle = computed(() => category.value?.title ?? '')
 
 const spaceOptions = useGroupedSpaceOptions({
   filterFn: (space) => !space.archived_at && space.name !== discussion.doc?.project,
@@ -483,10 +487,13 @@ const actions = computed(() => [
     icon: 'lucide-arrow-down-left',
     condition: () => !!discussion.doc?.pinned_at,
     onClick: () => {
+      const pinScope = discussion.doc?.pin_scope
       const scopeText =
-        discussion.doc?.pin_scope === 'Global'
+        pinScope === 'Global'
           ? 'This discussion is pinned globally across all spaces.'
-          : `This discussion is pinned in ${space.value?.title} only.`
+          : pinScope === 'Category'
+            ? `This discussion is pinned across all ${categoryTitle.value} discussions.`
+            : `This discussion is pinned in ${space.value?.title} only.`
 
       dialog.confirm({
         title: 'Unpin discussion',
