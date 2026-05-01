@@ -21,6 +21,8 @@
       </div>
     </div>
 
+    <div id="pageHeaderTarget" />
+
     <div
       id="scrollContainer"
       class="flex-1 overflow-y-auto overscroll-auto bg-surface-base [-webkit-overflow-scrolling:touch]"
