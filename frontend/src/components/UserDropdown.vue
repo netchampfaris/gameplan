@@ -1,21 +1,7 @@
 <template>
   <Dropdown :options="dropdownItems">
     <template v-slot="{ open }">
-      <slot name="trigger" :open="open">
-        <button
-          class="flex w-[14rem] items-center rounded-md px-2 py-2 text-left"
-          :class="open ? 'bg-surface-elevation-2 shadow-sm' : 'hover:bg-surface-gray-2'"
-        >
-          <GameplanLogo class="w-8 h-8 rounded" />
-          <div class="ml-2 flex flex-col">
-            <div class="text-base-medium text-ink-gray-8 leading-none">Gameplan</div>
-            <div class="mt-1 hidden text-sm text-ink-gray-6 sm:inline leading-none">
-              {{ user.full_name }}
-            </div>
-          </div>
-          <span class="lucide-chevron-down ml-auto hidden h-4 w-4 sm:inline text-ink-gray-7" />
-        </button>
-      </slot>
+      <slot name="trigger" :open="open"></slot>
     </template>
   </Dropdown>
   <AboutDialog v-model="showAboutDialog" />
@@ -24,7 +10,6 @@
 import { h, computed, ref, markRaw } from 'vue'
 import { Dropdown } from 'frappe-ui'
 import { showSettingsDialog } from '@/components/Settings'
-import GameplanLogo from './GameplanLogo.vue'
 import AboutDialog from './AboutDialog.vue'
 import AppSelector from './AppSelector.vue'
 import { useUser } from '@/data/users'
