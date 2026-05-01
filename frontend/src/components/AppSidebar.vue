@@ -15,20 +15,7 @@
               <template #prefix>
                 <LucideMessageSquareText class="size-4 text-ink-gray-6" />
               </template>
-              All discussions
-            </AppSidebarLink>
-
-            <AppSidebarLink
-              :to="{
-                name: 'DiscussionsTab',
-                params: { teamId: activeCategory.id, feedType: 'unread' },
-              }"
-              :isActive="isUnreadFeed"
-            >
-              <template #prefix>
-                <LucideMailOpen class="size-4 text-ink-gray-6" />
-              </template>
-              Unread
+              All Discussions
             </AppSidebarLink>
 
             <AppSidebarLink
@@ -42,6 +29,19 @@
                 <LucideAtSign class="size-4 text-ink-gray-6" />
               </template>
               Participating
+            </AppSidebarLink>
+
+            <AppSidebarLink
+              :to="{
+                name: 'DiscussionsTab',
+                params: { teamId: activeCategory.id, feedType: 'unread' },
+              }"
+              :isActive="isUnreadFeed"
+            >
+              <template #prefix>
+                <LucideMailOpen class="size-4 text-ink-gray-6" />
+              </template>
+              Unread
             </AppSidebarLink>
           </nav>
 
