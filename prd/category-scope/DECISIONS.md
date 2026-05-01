@@ -33,10 +33,10 @@ For active implementation, use the phase files listed in `./PLAN.md`.
 - `/discussions` redirects to the current selected category, or first accessible category.
 
 ### Feed types
-- Keep only: `recent`, `unread`, `participating`
+- Keep only: `recent`, `unread`, `participating`.
 - These are surfaced as **rows in the category sidebar** ("All discussions", "Unread", "Participating"), not as a tab strip on the discussions page. The discussions page renders the list for whichever feed type the route specifies.
-- Routes: `/c/:teamId/discussions` (recent), `/c/:teamId/discussions/unread`, `/c/:teamId/discussions/participating`.
-- `following` removed from frontend only; backend handler kept intact.
+- Routes: a single `DiscussionsTab` named route at `/c/:teamId/discussions/:feedType` plus the canonical `Discussions` route at `/c/:teamId/discussions` (treated as `feedType: 'recent'`). `feedType` is a filter param, not a separate route name.
+- `following` removed from the frontend (URL allow-list and `FeedType` union); backend handler kept intact for backward compatibility. Any incoming `:feedType` outside the allow-list redirects to `recent`.
 
 ### Bookmarks
 - Global at `/bookmarks`. Top-level destination in the narrow rail. Removed from category feed tabs.
@@ -60,7 +60,9 @@ For active implementation, use the phase files listed in `./PLAN.md`.
 - Migration is a no-op on sites that already have all spaces categorized.
 
 ### Pin scope
-- Rename `Global` → `Category`. Category discussions show `Category` pins. Space discussions show `Space` pins.
+- Frontend `pin_scope` union widens to `'Global' | 'Category' | 'Space'`. New writes use `'Category'` for category-level pins; `'Space'` is unchanged.
+- Read path keeps the `=== 'Global'` branch so legacy pinned rows still render until Phase 07's migration flips `'Global'` → `'Category'` in the database. After Phase 07, the `'Global'` branch can be dropped (Phase 08 cleanup).
+- Category discussions show `Category` pins (and any remaining legacy `Global` pins). Space discussions show `Space` pins.
 
 ### Category switcher
 - Triggered by clicking the category icon at the top of the narrow rail.

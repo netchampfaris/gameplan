@@ -1,10 +1,11 @@
 # Phase 02 — Shell, sidebar, and mobile category UI
 
-Status: revising (initial pass landed; design supersedes — see below)
-Commit checkpoint: pending
+Status: done
+Commit checkpoint: `8881be6a feat(category-scope): rebuild shell with app rail and More menu`
 Notes:
 - Initial pass added `CategorySwitcher`, `categorySpaces`, and a basic two-column shell.
-- The design has since been redefined (see `./DECISIONS.md` → "Shell information architecture"). This phase now rebuilds the shell against the updated design. Components from the initial pass are repurposed or retired in place.
+- Rebuild landed against the updated design in `./DECISIONS.md` → "Shell information architecture": `AppRail`, `CategorySwitcherCombobox`, rewritten `AppSidebar`, mobile 4-tab bottom bar (Home/Inbox/Search/More), `MoreMenu`/`MobileMoreMenu`, and `shellPreferences` for the rail-top icon toggle.
+- `CategorySidebar.vue`, `CategorySwitcher.vue`, and `MobileCategoryBar.vue` removed. `PersonalHome.vue` deletion deferred to Phase 08.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 
