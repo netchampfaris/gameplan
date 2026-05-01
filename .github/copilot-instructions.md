@@ -183,16 +183,17 @@ item.customMethod.submit({ param: 'value' }) // call custom method
 
 - Always use lucide icons for consistency
 - Never use FeatherIcon component (it is deprecated)
-- To use a lucide icon, directly add the component in the template, no need to import it in the script section:
+- To use a lucide icon, directly add the class name on a span in the template, no need to import it in the script section:
   ```vue
   <template>
-    <LucideIconName class="size-4" />
+    <span class="lucide-plus size-4" />
   </template>
   ```
 - To use a lucide icon in the script section, import it like this, ignore any typescript errors related to lucide icons:
   ```ts
-  import LucideIconName from '~icons/lucide/icon-name'
+  import LucidePlus from '~icons/lucide/plus'
   ```
+- Avoid complicating code, by using class based icon wherever possible
 
 ## Utilities and Composables
 

@@ -3,7 +3,6 @@
     :options="categoryOptions"
     :model-value="activeCategory.id"
     placeholder="Search categories"
-    side="right"
     align="start"
     @update:selectedOption="onSelect"
   >
@@ -27,10 +26,6 @@
       >
         {{ item.label?.[0] }}
       </span>
-    </template>
-
-    <template #item-suffix="{ selected }">
-      <LucideCheck v-if="selected" class="size-4 text-ink-gray-5" />
     </template>
   </Combobox>
 </template>

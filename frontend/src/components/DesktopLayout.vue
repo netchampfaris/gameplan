@@ -4,7 +4,7 @@
       <div class="flex h-full">
         <AppRail />
         <div class="flex min-w-0 flex-1 py-1 pr-1">
-          <div class="flex min-w-0 flex-1 overflow-hidden rounded bg-surface-base shadow-sm">
+          <div class="flex min-w-0 flex-1 overflow-hidden rounded-lg bg-surface-base shadow-sm">
             <AppSidebar v-if="onCategoryRoute" />
             <ScrollContainer>
               <div

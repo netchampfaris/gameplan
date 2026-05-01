@@ -47,7 +47,7 @@
 
           <div class="group/spaces mt-4">
             <div class="flex h-7 items-center justify-between pl-2 text-base text-ink-gray-5">
-              <span>Spaces</span>
+              <span>Channels</span>
               <Button
                 v-if="isAdmin"
                 variant="ghost"
@@ -70,7 +70,7 @@
                 <span class="flex w-full min-w-0 items-center">
                   <component
                     :is="space.is_private ? LucideLock : LucideGlobe"
-                    class="size-4 shrink-0 text-ink-gray-6"
+                    class="size-4 shrink-0 text-ink-gray-5"
                   />
                   <span class="ml-2 flex-1 truncate text-sm">{{ space.title }}</span>
                   <span
@@ -124,6 +124,7 @@ import NewSpaceDialog from './NewSpaceDialog.vue'
 import ScrollBar from './ScrollBar.vue'
 import LucideAtSign from '~icons/lucide/at-sign'
 import LucideGlobe from '~icons/lucide/globe'
+import LucideHash from '~icons/lucide/hash'
 import LucideLock from '~icons/lucide/lock'
 import LucideMailOpen from '~icons/lucide/mail-open'
 import LucideMessageSquareText from '~icons/lucide/message-square-text'

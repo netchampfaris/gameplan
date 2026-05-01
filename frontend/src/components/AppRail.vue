@@ -24,7 +24,7 @@
             <template #default="{ open }">
               <button
                 type="button"
-                class="flex size-8 items-center justify-center rounded-md text-base transition"
+                class="flex size-8 items-center justify-center rounded text-base transition"
                 :class="categoryIconClass(open)"
               >
                 <span v-if="activeCategory.team.icon">{{ activeCategory.team.icon }}</span>
@@ -157,7 +157,7 @@ const homeRoute = computed<RouteLocationRaw>(() => {
 })
 
 function categoryIconClass(open: boolean): string {
-  if (open) return 'bg-surface-gray-5 text-ink-white shadow-sm'
+  if (open) return 'ring ring-gray-400'
   if (onCategoryRoute.value) return 'bg-surface-gray-4 text-ink-white'
   if (hasMultipleCategories.value) return 'text-ink-gray-1 hover:bg-surface-gray-3'
   return 'text-ink-gray-1'
