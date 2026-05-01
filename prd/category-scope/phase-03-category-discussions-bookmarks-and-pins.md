@@ -1,8 +1,12 @@
 # Phase 03 — Category discussions, bookmarks, and pins
 
-Status: ready
-Commit checkpoint:
+Status: done
+Commit checkpoint: `b188f357 feat(category-scope): scope discussions by category and split out bookmarks`
 Notes:
+- `Bookmarks` was promoted to a top-level destination rather than a re-imported tab — the `PersonProfile` Bookmarks tab was removed entirely (only the session user could see it), and `/people/:id/bookmarks` now redirects to `/bookmarks`.
+- Profile-side cleanup also removed `'PersonProfileBookmarks'` from `AppRail` and `MobileLayout` active-route checks.
+- `Discussions.vue` was further simplified after the initial scope: feed-specific navbar title (`All Discussions` / `Unread` / `Participating`) driven by `feedType`, and the sort selector moved into the page header.
+- `SpaceBreadcrumbs` dropped the leading category crumb — the `AppSidebar` already conveys category context.
 - Decisions locked before implementation:
   1. Route shape: keep the single `DiscussionsTab` route at `/c/:teamId/discussions/:feedType`. `feedType` is a filter param, not a separate route name.
   2. `following` feed is removed from the UI and from the URL allow-list. `discussionFeeds` drops `'following'`; any incoming `:feedType` not in the allow-list redirects to `recent`. The backend `following` handler stays for backward compatibility.
