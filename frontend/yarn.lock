@@ -2049,7 +2049,7 @@ framer-motion@^12.25.0:
 
 frappe-ui@frappe/frappe-ui#main:
   version "0.1.278"
-  resolved "https://codeload.github.com/frappe/frappe-ui/tar.gz/9167ae61a9cc839bf14df58bf778b737af53e2cc"
+  resolved "https://codeload.github.com/frappe/frappe-ui/tar.gz/f8bfcc6bd42077f6af557e67fd70eaeddf47cd14"
   dependencies:
     "@floating-ui/dom" "^1.7.4"
     "@floating-ui/vue" "^1.1.6"
@@ -2092,7 +2092,7 @@ frappe-ui@frappe/frappe-ui#main:
     highlight.js "^11.11.1"
     idb-keyval "^6.2.0"
     lowlight "^3.3.0"
-    lucide-static "^0.545.0"
+    lucide-static "^1.16.0"
     marked "^15.0.12"
     ora "5.4.1"
     prettier "^3.3.2"
@@ -2653,10 +2653,10 @@ lucide-static@^0.469.0:
   resolved "https://registry.yarnpkg.com/lucide-static/-/lucide-static-0.469.0.tgz#edf4eb55476fa1b2ae1e1c1922152365dec66854"
   integrity sha512-ravTgZodIVLO53rJyjIq0iuCRHs+kjd3dAfOcTbA41KCDfdy0Pt6Me8akkhda3jRpbIxjKe1PpYZOg2eQnI/lA==
 
-lucide-static@^0.545.0:
-  version "0.545.0"
-  resolved "https://registry.yarnpkg.com/lucide-static/-/lucide-static-0.545.0.tgz#69dad91d1bbd53b70df6c21f0877c16a1e69cea0"
-  integrity sha512-2i81WNw3y+sN17gG75DKZbd43pGJREyoAQRK5IG8djCWhISoK6Ri1ovbKwOjFR+St2LHTQhu+EJygmUIWMotew==
+lucide-static@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/lucide-static/-/lucide-static-1.16.0.tgz#64109c8d8b7dbed159a808546b4d752f0d9ebf8a"
+  integrity sha512-/EH96rDLRLNKaxuhqHHbmUPx3+qHS/kQRzI1ZGZqnxmh6ljX9yX0xC2UZlQSfBE/n84eNIaxKsv9P8sMiOdCww==
 
 magic-string@^0.30.17, magic-string@^0.30.21:
   version "0.30.21"
