@@ -32,6 +32,8 @@ export class CommonRoomScene extends Phaser.Scene {
     this.load.image(GameAssetKeys.tilesets.roomBuilder, GameAssetPaths.tilesets.roomBuilder)
     this.load.image(GameAssetKeys.tilesets.livingRoom, GameAssetPaths.tilesets.livingRoom)
     this.load.image(GameAssetKeys.tilesets.generic, GameAssetPaths.tilesets.generic)
+    this.load.image(GameAssetKeys.tilesets.kitchen, GameAssetPaths.tilesets.kitchen)
+    this.load.image(GameAssetKeys.tilesets.basement, GameAssetPaths.tilesets.basement)
   }
 
   create() {

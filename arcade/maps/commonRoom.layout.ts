@@ -7,17 +7,23 @@ import {
   createSpawnLayer,
   createTileLayer,
   createTiledMap,
-  MAP_WIDTH,
+  type MapDimensions,
   type Placement,
 } from './tiled.ts'
+import { paintRoomWalls, type Room } from './rooms.ts'
 import { objectPalettePrefabs, prefabs, roomTiles } from './prefabs.ts'
 
-// Top wall spans the full width; painted into the floor layer so furniture
-// (fireplace, bookshelves) can overlap it on the objects layer.
-const wallPlacements: Placement[] = Array.from(
-  { length: MAP_WIDTH / prefabs.wallSegment.tiles[0].length },
-  (_, index) => ({ prefab: prefabs.wallSegment, x: index * 4, y: 0 }),
-)
+const dimensions: MapDimensions = { width: 20, height: 15 }
+
+// The common room is a single room filling the whole map. Only the top edge is
+// walled (matching the original layout); furniture overlaps it on the objects
+// layer. No doorways yet.
+const commonRoom: Room = {
+  rect: { x: 0, y: 0, width: dimensions.width, height: dimensions.height },
+  floorPattern: roomTiles.floorPattern,
+  wallStyle: { horizontal: prefabs.wallSegment },
+  walls: ['top'],
+}
 
 const backPlacements: Placement[] = [
   // identity wall: plants flanking bookshelves with a fireplace centerpiece
@@ -56,26 +62,31 @@ const spawnPoints = [
 ]
 
 export function buildCommonRoomMap() {
-  const floorLayer = createPatternFilledLayer(roomTiles.floorPattern)
-  const decorLayer = createEmptyLayer()
-  const objectsBackLayer = createEmptyLayer()
-  const objectsFrontLayer = createEmptyLayer()
+  const floorLayer = createPatternFilledLayer(commonRoom.floorPattern, dimensions)
+  const decorLayer = createEmptyLayer(dimensions)
+  const objectsBackLayer = createEmptyLayer(dimensions)
+  const objectsFrontLayer = createEmptyLayer(dimensions)
 
-  applyPlacements(floorLayer, wallPlacements)
-  applyPlacements(decorLayer, decorPlacements)
-  applyPlacements(objectsBackLayer, backPlacements)
-  applyPlacements(objectsFrontLayer, frontPlacements)
+  const walls = paintRoomWalls(commonRoom)
 
-  const collisionLayer = createCollisionLayer([...wallPlacements, ...backPlacements])
+  applyPlacements(floorLayer, walls.floorPlacements, dimensions)
+  applyPlacements(decorLayer, decorPlacements, dimensions)
+  applyPlacements(objectsBackLayer, backPlacements, dimensions)
+  applyPlacements(objectsFrontLayer, frontPlacements, dimensions)
+
+  const collisionLayer = createCollisionLayer(backPlacements, dimensions)
+  walls.applyCollision(collisionLayer, dimensions)
+
   const layers = [
-    createTileLayer({ id: 1, name: 'Floor', data: floorLayer }),
-    createTileLayer({ id: 2, name: 'Decor', data: decorLayer }),
-    createTileLayer({ id: 3, name: 'Objects Back', data: objectsBackLayer }),
-    createTileLayer({ id: 4, name: 'Objects Front', data: objectsFrontLayer }),
+    createTileLayer({ id: 1, name: 'Floor', data: floorLayer, dimensions }),
+    createTileLayer({ id: 2, name: 'Decor', data: decorLayer, dimensions }),
+    createTileLayer({ id: 3, name: 'Objects Back', data: objectsBackLayer, dimensions }),
+    createTileLayer({ id: 4, name: 'Objects Front', data: objectsFrontLayer, dimensions }),
     createTileLayer({
       id: 5,
       name: 'Collision',
       data: collisionLayer,
+      dimensions,
       visible: false,
       opacity: 0.45,
       collision: true,
@@ -84,5 +95,5 @@ export function buildCommonRoomMap() {
     createObjectPaletteLayer(7, objectPalettePrefabs),
   ]
 
-  return createTiledMap(layers, objectPalettePrefabs.length + spawnPoints.length + 1)
+  return createTiledMap(layers, objectPalettePrefabs.length + spawnPoints.length + 1, dimensions)
 }
