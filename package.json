@@ -5,6 +5,7 @@
         "postinstall": "cd frontend && yarn install",
         "dev": "cd frontend && yarn dev",
         "build": "cd frontend && yarn build",
+        "build:arcade-map": "node arcade/scripts/buildCommonRoomMap.ts",
         "upgrade-frappeui": "cd frontend && yarn add frappe-ui@latest"
     }
 }
