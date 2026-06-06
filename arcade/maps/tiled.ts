@@ -1,6 +1,9 @@
+export const TILE_SIZE = 48
+
+// Default map size kept for backwards-compatible helpers; the builder passes
+// explicit width/height so future maps are not bound to these constants.
 export const MAP_WIDTH = 20
 export const MAP_HEIGHT = 15
-export const TILE_SIZE = 48
 
 export type TileMatrix = number[][]
 
@@ -23,88 +26,159 @@ export interface SpawnPoint {
   y: number
 }
 
+export interface MapDimensions {
+  width: number
+  height: number
+}
+
 interface TileLayerOptions {
   id: number
   name: string
   data: number[]
+  dimensions: MapDimensions
   visible?: boolean
   opacity?: number
   collision?: boolean
 }
 
-// Dimensions must match the real spritesheets: Phaser computes tile positions
-// from the actual texture size, so a mismatch silently shifts every gid.
-export const tilesets = [
+// Sheet metadata for every tileset the world may use. firstgid/tilecount are
+// computed by accumulation so adding or reordering a sheet shifts gids in one
+// place. Dimensions must match the real spritesheets: Phaser computes tile
+// positions from the actual texture size, so a mismatch silently shifts gids.
+interface SheetDefinition {
+  name: string
+  image: string
+  columns: number
+  imagewidth: number
+  imageheight: number
+}
+
+// Order is load-bearing: it determines firstgid accumulation. Keep
+// room_builder / living_room / generic first so existing gids stay stable.
+const sheetDefinitions: SheetDefinition[] = [
   {
-    columns: 76,
-    firstgid: 1,
-    image: '../1_Interiors/48x48/Room_Builder_48x48.png',
-    imageheight: 5424,
-    imagewidth: 3648,
-    margin: 0,
     name: 'room_builder',
-    spacing: 0,
-    tilecount: 8588,
-    tileheight: TILE_SIZE,
-    tilewidth: TILE_SIZE,
+    image: '../1_Interiors/48x48/Room_Builder_48x48.png',
+    columns: 76,
+    imagewidth: 3648,
+    imageheight: 5424,
   },
   {
-    columns: 16,
-    firstgid: 8589,
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png',
-    imageheight: 2160,
-    imagewidth: 768,
-    margin: 0,
     name: 'living_room',
-    spacing: 0,
-    tilecount: 720,
-    tileheight: TILE_SIZE,
-    tilewidth: TILE_SIZE,
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png',
+    columns: 16,
+    imagewidth: 768,
+    imageheight: 2160,
   },
   {
-    columns: 16,
-    firstgid: 9309,
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png',
-    imageheight: 3744,
-    imagewidth: 768,
-    margin: 0,
     name: 'generic',
-    spacing: 0,
-    tilecount: 1248,
-    tileheight: TILE_SIZE,
-    tilewidth: TILE_SIZE,
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png',
+    columns: 16,
+    imagewidth: 768,
+    imageheight: 3744,
+  },
+  {
+    name: 'kitchen',
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/12_Kitchen_48x48.png',
+    columns: 16,
+    imagewidth: 768,
+    imageheight: 2352,
+  },
+  {
+    name: 'basement',
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png',
+    columns: 16,
+    imagewidth: 768,
+    imageheight: 2400,
   },
 ]
 
-export function gid(firstgid: number, localTileId: number) {
-  return firstgid + localTileId
+export interface Tileset {
+  columns: number
+  firstgid: number
+  image: string
+  imageheight: number
+  imagewidth: number
+  margin: number
+  name: string
+  spacing: number
+  tilecount: number
+  tileheight: number
+  tilewidth: number
 }
 
-export function createFilledLayer(tileGid: number) {
-  return Array.from({ length: MAP_WIDTH * MAP_HEIGHT }, () => tileGid)
+function buildTilesets(definitions: SheetDefinition[]): Tileset[] {
+  let firstgid = 1
+  return definitions.map((sheet) => {
+    const rows = sheet.imageheight / TILE_SIZE
+    const tilecount = sheet.columns * rows
+    const tileset: Tileset = {
+      columns: sheet.columns,
+      firstgid,
+      image: sheet.image,
+      imageheight: sheet.imageheight,
+      imagewidth: sheet.imagewidth,
+      margin: 0,
+      name: sheet.name,
+      spacing: 0,
+      tilecount,
+      tileheight: TILE_SIZE,
+      tilewidth: TILE_SIZE,
+    }
+    firstgid += tilecount
+    return tileset
+  })
 }
 
-export function createEmptyLayer() {
-  return Array.from({ length: MAP_WIDTH * MAP_HEIGHT }, () => 0)
+export const tilesets = buildTilesets(sheetDefinitions)
+
+const tilesetsByName = new Map(tilesets.map((tileset) => [tileset.name, tileset]))
+
+export type SheetName = (typeof sheetDefinitions)[number]['name']
+
+export function getTileset(name: SheetName): Tileset {
+  const tileset = tilesetsByName.get(name)
+  if (!tileset) {
+    throw new Error(`Unknown tileset: ${name}`)
+  }
+  return tileset
 }
 
-export function createPatternFilledLayer(pattern: TileMatrix) {
-  return Array.from({ length: MAP_WIDTH * MAP_HEIGHT }, (_, index) => {
-    const x = index % MAP_WIDTH
-    const y = Math.floor(index / MAP_WIDTH)
+// Resolve a sheet-local tile id to a global gid. Referencing sheets by name
+// means firstgids can shift without touching prefab definitions.
+export function gid(sheetName: SheetName, localTileId: number) {
+  return getTileset(sheetName).firstgid + localTileId
+}
+
+export function createFilledLayer(tileGid: number, { width, height }: MapDimensions) {
+  return Array.from({ length: width * height }, () => tileGid)
+}
+
+export function createEmptyLayer({ width, height }: MapDimensions) {
+  return Array.from({ length: width * height }, () => 0)
+}
+
+export function createPatternFilledLayer(pattern: TileMatrix, { width, height }: MapDimensions) {
+  return Array.from({ length: width * height }, (_, index) => {
+    const x = index % width
+    const y = Math.floor(index / width)
     const row = pattern[y % pattern.length]
     return row[x % row.length]
   })
 }
 
-export function applyPlacements(layer: number[], placements: Placement[]) {
+export function applyPlacements(
+  layer: number[],
+  placements: Placement[],
+  dimensions: MapDimensions,
+) {
   for (const placement of placements) {
-    placePrefab(layer, placement)
+    placePrefab(layer, placement, dimensions)
   }
 }
 
-export function createCollisionLayer(placements: Placement[]) {
-  const layer = createEmptyLayer()
+export function createCollisionLayer(placements: Placement[], dimensions: MapDimensions) {
+  const layer = createEmptyLayer(dimensions)
 
   for (const placement of placements) {
     const { prefab } = placement
@@ -118,7 +192,7 @@ export function createCollisionLayer(placements: Placement[]) {
           : prefab.solid && hasTile
 
         if (!hasCollision) return
-        setTile(layer, placement.x + columnIndex, placement.y + rowIndex, 1)
+        setTile(layer, placement.x + columnIndex, placement.y + rowIndex, 1, dimensions)
       })
     })
   }
@@ -126,17 +200,23 @@ export function createCollisionLayer(placements: Placement[]) {
   return layer
 }
 
+// Mark a single tile as solid in a collision layer (used by the wall painter).
+export function setCollisionTile(layer: number[], x: number, y: number, dimensions: MapDimensions) {
+  setTile(layer, x, y, 1, dimensions)
+}
+
 export function createTileLayer({
   id,
   name,
   data,
+  dimensions,
   visible = true,
   opacity = 1,
   collision = false,
 }: TileLayerOptions) {
   return {
     data,
-    height: MAP_HEIGHT,
+    height: dimensions.height,
     id,
     name,
     opacity,
@@ -153,7 +233,7 @@ export function createTileLayer({
       : {}),
     type: 'tilelayer',
     visible,
-    width: MAP_WIDTH,
+    width: dimensions.width,
     x: 0,
     y: 0,
   }
@@ -210,10 +290,10 @@ export function createObjectPaletteLayer(id: number, prefabs: Prefab[]) {
   }
 }
 
-export function createTiledMap(layers: object[], nextObjectId: number) {
+export function createTiledMap(layers: object[], nextObjectId: number, dimensions: MapDimensions) {
   return {
     compressionlevel: -1,
-    height: MAP_HEIGHT,
+    height: dimensions.height,
     infinite: false,
     layers,
     nextlayerid: layers.length + 1,
@@ -226,23 +306,29 @@ export function createTiledMap(layers: object[], nextObjectId: number) {
     tilewidth: TILE_SIZE,
     type: 'map',
     version: '1.10',
-    width: MAP_WIDTH,
+    width: dimensions.width,
   }
 }
 
-function placePrefab(layer: number[], placement: Placement) {
+function placePrefab(layer: number[], placement: Placement, dimensions: MapDimensions) {
   placement.prefab.tiles.forEach((row, rowIndex) => {
     row.forEach((tileGid, columnIndex) => {
       if (tileGid === 0) return
-      setTile(layer, placement.x + columnIndex, placement.y + rowIndex, tileGid)
+      setTile(layer, placement.x + columnIndex, placement.y + rowIndex, tileGid, dimensions)
     })
   })
 }
 
-function setTile(layer: number[], x: number, y: number, tileGid: number) {
-  if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
+function setTile(
+  layer: number[],
+  x: number,
+  y: number,
+  tileGid: number,
+  { width, height }: MapDimensions,
+) {
+  if (x < 0 || x >= width || y < 0 || y >= height) {
     throw new Error(`Tile placement is outside the map: ${x},${y}`)
   }
 
-  layer[y * MAP_WIDTH + x] = tileGid
+  layer[y * width + x] = tileGid
 }

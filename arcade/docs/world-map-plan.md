@@ -133,6 +133,22 @@ anchor points (object layer), separate from the tile pipeline.
 `tiled.ts` currently hardcodes two tilesets. Replace with a generated registry —
 sheet list with real pixel dimensions, firstgids computed by accumulation:
 
+Currently registered sheets (Phase 2), firstgids computed by accumulation in the
+order below. firstgids will shift as the intermediate sheets (conference_hall,
+classroom_library, music_sport) get inserted in later phases; prefabs reference
+sheets by name so this costs nothing at the call sites.
+
+| # | Sheet | Tiles | firstgid |
+| - | --- | ---: | ---: |
+| 1 | room_builder | 8588 | 1 |
+| 2 | living_room | 720 | 8589 |
+| 3 | generic | 1248 | 9309 |
+| 4 | kitchen | 784 | 10557 |
+| 5 | basement | 800 | 11341 |
+
+Planned full registry once the remaining zones land (insert between generic and
+the existing sheets in this order, which re-flows firstgids):
+
 | # | Sheet | Tiles | firstgid |
 | - | --- | ---: | ---: |
 | 1 | room_builder | 8588 | 1 |
