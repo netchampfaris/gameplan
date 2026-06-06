@@ -26,6 +26,10 @@ export interface WallStyle {
   // must divide the room width minus doorway gaps cleanly for top/bottom edges
   // (the common room tiles a 4-wide segment across a 20-wide room).
   horizontal: Prefab
+  // Vertical wall segment, repeated along left/right edges. Falls back to the
+  // horizontal segment when omitted (only valid for the common room, which
+  // paints just its top edge). Its tile height must divide the room height.
+  vertical?: Prefab
 }
 
 export interface Room {
@@ -64,14 +68,18 @@ export function paintRoomWalls(room: Room): PaintedWalls {
   const doorways = room.doorways ?? []
   const floorPlacements: Placement[] = []
 
-  const segment = wallStyle.horizontal
-  const segmentWidth = segment.tiles[0]?.length ?? 1
-  const segmentHeight = segment.tiles.length
+  const horizontal = wallStyle.horizontal
+  const horizontalWidth = horizontal.tiles[0]?.length ?? 1
+  const horizontalHeight = horizontal.tiles.length
+
+  const vertical = wallStyle.vertical ?? wallStyle.horizontal
+  const verticalWidth = vertical.tiles[0]?.length ?? 1
+  const verticalHeight = vertical.tiles.length
 
   // Track which perimeter tiles are solid so collision matches painted walls.
   const solidTiles: Array<{ x: number; y: number }> = []
 
-  const markSegmentCollision = (originX: number, originY: number) => {
+  const markSegmentCollision = (segment: Prefab, originX: number, originY: number) => {
     segment.tiles.forEach((tileRow, rowIndex) => {
       tileRow.forEach((tileGid, columnIndex) => {
         if (tileGid === 0) return
@@ -81,42 +89,42 @@ export function paintRoomWalls(room: Room): PaintedWalls {
   }
 
   if (edges.includes('top')) {
-    for (let column = 0; column < rect.width; column += segmentWidth) {
+    for (let column = 0; column < rect.width; column += horizontalWidth) {
       if (isGap(column, doorways, 'top')) continue
       const originX = rect.x + column
       const originY = rect.y
-      floorPlacements.push({ prefab: segment, x: originX, y: originY })
-      markSegmentCollision(originX, originY)
+      floorPlacements.push({ prefab: horizontal, x: originX, y: originY })
+      markSegmentCollision(horizontal, originX, originY)
     }
   }
 
   if (edges.includes('bottom')) {
-    for (let column = 0; column < rect.width; column += segmentWidth) {
+    for (let column = 0; column < rect.width; column += horizontalWidth) {
       if (isGap(column, doorways, 'bottom')) continue
       const originX = rect.x + column
-      const originY = rect.y + rect.height - segmentHeight
-      floorPlacements.push({ prefab: segment, x: originX, y: originY })
-      markSegmentCollision(originX, originY)
+      const originY = rect.y + rect.height - horizontalHeight
+      floorPlacements.push({ prefab: horizontal, x: originX, y: originY })
+      markSegmentCollision(horizontal, originX, originY)
     }
   }
 
   if (edges.includes('left')) {
-    for (let row = 0; row < rect.height; row += segmentHeight) {
+    for (let row = 0; row < rect.height; row += verticalHeight) {
       if (isGap(row, doorways, 'left')) continue
       const originX = rect.x
       const originY = rect.y + row
-      floorPlacements.push({ prefab: segment, x: originX, y: originY })
-      markSegmentCollision(originX, originY)
+      floorPlacements.push({ prefab: vertical, x: originX, y: originY })
+      markSegmentCollision(vertical, originX, originY)
     }
   }
 
   if (edges.includes('right')) {
-    for (let row = 0; row < rect.height; row += segmentHeight) {
+    for (let row = 0; row < rect.height; row += verticalHeight) {
       if (isGap(row, doorways, 'right')) continue
-      const originX = rect.x + rect.width - segmentWidth
+      const originX = rect.x + rect.width - verticalWidth
       const originY = rect.y + row
-      floorPlacements.push({ prefab: segment, x: originX, y: originY })
-      markSegmentCollision(originX, originY)
+      floorPlacements.push({ prefab: vertical, x: originX, y: originY })
+      markSegmentCollision(vertical, originX, originY)
     }
   }
 
