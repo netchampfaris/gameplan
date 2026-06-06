@@ -103,6 +103,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      '@arcade': path.resolve(__dirname, '../arcade'),
     },
     // The symlinked frappe-ui checkout (yarn dev:frappe-ui) resolves @tiptap/pm
     // from its own node_modules, so every prosemirror package exists twice. Two
@@ -120,7 +121,11 @@ export default defineConfig({
     // worlds in production builds — reka-ui components throw missing-injection
     // errors and useFetch's hooks receive foreign-copy contexts. Dev masks all
     // of this because the dev server resolves through the import graph lazily.
+    // ../arcade sits outside frontend/, so its bare imports of frappe-ui and
+    // phaser would find no node_modules on the way up; dedupe resolves them here.
     dedupe: [
+      'frappe-ui',
+      'phaser',
       'vue',
       'vue-router',
       '@vueuse/core',

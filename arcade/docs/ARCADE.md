@@ -1,13 +1,13 @@
-# Gameplan RPG Game Mode
+# Gameplan Arcade
 
 ## Overview & Concept
 
-A 2D pixel art RPG-style social game mode integrated into Gameplan as a separate page. This casual, fun feature allows team members to interact with each other through customizable characters in a virtual world, providing a social break from work discussions.
+Arcade is a 2D pixel-art multiplayer hangout integrated into Gameplan as a separate page. This casual feature allows team members to interact through avatars in shared rooms, providing a social break from work discussions.
 
 **Core Concept:**
 - Separate page within the existing Gameplan Vue.js app
-- Canvas-based 2D rendering using HTML5 Canvas
-- Real-time multiplayer showing all online users as characters
+- Phaser-powered 2D rendering and game loop
+- Real-time multiplayer showing all online users as avatars
 - Pixel art retro visual style using LimeZu Modern Interiors assets
 - Social/casual focus - not work-related gamification
 

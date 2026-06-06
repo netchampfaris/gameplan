@@ -388,6 +388,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/ProfileCustomize.vue'),
   },
   {
+    name: 'Arcade',
+    path: '/arcade',
+    component: () => import('@arcade/Arcade.vue'),
+  },
+  {
+    name: 'AssetEditor',
+    path: '/arcade/assets',
+    component: () => import('@arcade/asset-editor/AssetEditor.vue'),
+  },
+  {
     path: '/notifications',
     name: 'Notifications',
     component: () => import('@/pages/Notifications.vue'),

@@ -1,0 +1,15 @@
+{
+  "extends": "../frontend/tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": [
+    "./*.ts",
+    "./config/**/*.ts",
+    "./input/**/*.ts",
+    "./objects/**/*.ts",
+    "./scenes/**/*.ts",
+    "./vite-env.d.ts"
+  ],
+  "exclude": ["./asset-editor/**/*"]
+}
