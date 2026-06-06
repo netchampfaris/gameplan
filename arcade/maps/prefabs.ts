@@ -10,6 +10,15 @@ export const roomTiles = {
     [gid(ROOM_BUILDER, 1630), gid(ROOM_BUILDER, 1631), gid(ROOM_BUILDER, 1632)],
     [gid(ROOM_BUILDER, 1706), gid(ROOM_BUILDER, 1707), gid(ROOM_BUILDER, 1708)],
   ],
+  // Dark gray stone, seamless 3x2 swatch — Game Room floor.
+  floorGameRoom: [
+    [gid(ROOM_BUILDER, 2098), gid(ROOM_BUILDER, 2099), gid(ROOM_BUILDER, 2100)],
+    [gid(ROOM_BUILDER, 2174), gid(ROOM_BUILDER, 2175), gid(ROOM_BUILDER, 2176)],
+  ],
+  // Light-blue checkerboard tile, seamless 1x3 swatch — Café floor.
+  floorCafe: [[gid(ROOM_BUILDER, 2150), gid(ROOM_BUILDER, 2151), gid(ROOM_BUILDER, 2152)]],
+  // Neutral gray weave — sealed left-hand rooms (no doorway yet).
+  floorSealed: [[gid(ROOM_BUILDER, 1718), gid(ROOM_BUILDER, 1719), gid(ROOM_BUILDER, 1720)]],
 }
 
 export const prefabs = {
@@ -21,6 +30,12 @@ export const prefabs = {
       [gid(ROOM_BUILDER, 847), gid(ROOM_BUILDER, 848), gid(ROOM_BUILDER, 849), gid(ROOM_BUILDER, 850)],
       [gid(ROOM_BUILDER, 923), gid(ROOM_BUILDER, 924), gid(ROOM_BUILDER, 925), gid(ROOM_BUILDER, 926)],
     ],
+  },
+  // Single-column wood wall body for vertical partitions; tiles down an edge.
+  wallVertical: {
+    name: 'wall-vertical',
+    solid: true,
+    tiles: [[gid(ROOM_BUILDER, 924)], [gid(ROOM_BUILDER, 924)]],
   },
   carpetPurple: {
     name: 'carpet-purple',

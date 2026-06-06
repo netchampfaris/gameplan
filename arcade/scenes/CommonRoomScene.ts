@@ -12,7 +12,7 @@ export class CommonRoomScene extends Phaser.Scene {
   private movement: KeyboardMovementController | null = null
   private map: Phaser.Tilemaps.Tilemap | null = null
   private collisionLayer: Phaser.Tilemaps.TilemapLayer | null = null
-  private commonRoomMapKey = GameAssetKeys.maps.commonRoom
+  private commonRoomMapKey = GameAssetKeys.maps.world
 
   constructor() {
     super(COMMON_ROOM_SCENE_KEY)
@@ -20,11 +20,11 @@ export class CommonRoomScene extends Phaser.Scene {
 
   preload() {
     this.commonRoomMapKey = import.meta.env.DEV
-      ? `${GameAssetKeys.maps.commonRoom}:${Date.now()}`
-      : GameAssetKeys.maps.commonRoom
+      ? `${GameAssetKeys.maps.world}:${Date.now()}`
+      : GameAssetKeys.maps.world
     const commonRoomMapPath = import.meta.env.DEV
-      ? `${GameAssetPaths.maps.commonRoom}?v=${Date.now()}`
-      : GameAssetPaths.maps.commonRoom
+      ? `${GameAssetPaths.maps.world}?v=${Date.now()}`
+      : GameAssetPaths.maps.world
 
     this.load.image(GameAssetKeys.characters.player, GameAssetPaths.characters.player)
     this.load.json(GameAssetKeys.spriteAtlases, GameAssetPaths.spriteAtlases)
@@ -179,7 +179,7 @@ export class CommonRoomScene extends Phaser.Scene {
     if (!import.meta.env.DEV) return
 
     this.add
-      .text(12, 12, 'Arcade: Common Room', {
+      .text(12, 12, 'Arcade: World', {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#ffffff',

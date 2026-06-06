@@ -167,6 +167,25 @@ export function createPatternFilledLayer(pattern: TileMatrix, { width, height }:
   })
 }
 
+// Fill a rectangular region of a layer with a repeating tile pattern. The
+// pattern is anchored to the rect origin so each room's floor reads as its own
+// continuous surface regardless of where it sits in map space.
+export function fillRectWithPattern(
+  layer: number[],
+  pattern: TileMatrix,
+  rect: { x: number; y: number; width: number; height: number },
+  dimensions: MapDimensions,
+) {
+  for (let row = 0; row < rect.height; row += 1) {
+    const patternRow = pattern[row % pattern.length]
+    for (let column = 0; column < rect.width; column += 1) {
+      const tileGid = patternRow[column % patternRow.length]
+      if (tileGid === 0) continue
+      setTile(layer, rect.x + column, rect.y + row, tileGid, dimensions)
+    }
+  }
+}
+
 export function applyPlacements(
   layer: number[],
   placements: Placement[],

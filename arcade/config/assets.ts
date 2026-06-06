@@ -6,6 +6,7 @@ export const GameAssetKeys = {
   spriteAtlases: 'sprite-atlases',
   maps: {
     commonRoom: 'map:common-room',
+    world: 'map:world',
   },
   tilesets: {
     roomBuilder: 'tileset:room-builder',
@@ -23,6 +24,7 @@ export const GameAssetPaths = {
   spriteAtlases: `${GAME_ASSET_BASE_PATH}/sprite_atlases.json`,
   maps: {
     commonRoom: `${GAME_ASSET_BASE_PATH}/maps/common_room.json`,
+    world: `${GAME_ASSET_BASE_PATH}/maps/world.json`,
   },
   tilesets: {
     roomBuilder: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Room_Builder_48x48.png`,
