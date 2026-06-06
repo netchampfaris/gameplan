@@ -166,6 +166,18 @@ const shortcuts = computed<RailShortcut[]>(() => [
     route: { name: 'Drafts' },
     description: countLabel(draftCount.value, 'draft'),
   },
+  {
+    label: 'Arcade',
+    icon: 'lucide-gamepad-2',
+    isActive: isRoute('Arcade'),
+    route: { name: 'Arcade' },
+  },
+  {
+    label: 'Asset Editor',
+    icon: 'lucide-image',
+    isActive: isRoute('AssetEditor'),
+    route: { name: 'AssetEditor' },
+  },
 ])
 
 /** "3 drafts", "1 draft", or nothing at all when there is no count worth showing. */
