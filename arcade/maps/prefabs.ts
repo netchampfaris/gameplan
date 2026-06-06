@@ -3,6 +3,9 @@ import { gid, type Prefab } from './tiled.ts'
 const ROOM_BUILDER = 'room_builder'
 const LIVING_ROOM = 'living_room'
 const GENERIC = 'generic'
+const BASEMENT = 'basement'
+
+const bm = (...ids: number[]) => ids.map((id) => gid(BASEMENT, id))
 
 export const roomTiles = {
   // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.
@@ -166,6 +169,78 @@ export const prefabs = {
       [gid(LIVING_ROOM, 249), gid(LIVING_ROOM, 250)],
     ],
   },
+
+  // ---- Game Room (14_Basement_48x48.png) ----------------------------------
+  // Centerpiece pool/billiards table, top-down, 4x3 with six pockets and legs.
+  poolTable: {
+    name: 'pool-table',
+    solid: true,
+    tiles: [bm(404, 405, 406, 407), bm(420, 421, 422, 423), bm(436, 437, 438, 439)],
+  },
+  // Top-down blue ping-pong table with net across the middle, 3x4.
+  pingPongTable: {
+    name: 'ping-pong-table',
+    solid: true,
+    tiles: [bm(192, 193, 194), bm(208, 209, 210), bm(224, 225, 226), bm(240, 241, 242)],
+  },
+  // Upright arcade cabinets with lit screens, 1 wide x 2 tall. Colour variants.
+  arcadeCabinetBlue: {
+    name: 'arcade-cabinet-blue',
+    solid: true,
+    tiles: [bm(660), bm(676)],
+  },
+  arcadeCabinetCyan: {
+    name: 'arcade-cabinet-cyan',
+    solid: true,
+    tiles: [bm(663), bm(679)],
+  },
+  arcadeCabinetRed: {
+    name: 'arcade-cabinet-red',
+    solid: true,
+    tiles: [bm(665), bm(681)],
+  },
+  // Big flatscreen TV on a media console with shelves, 5 wide x 3 tall. Only the
+  // console body blocks movement; the floating top-left/TV cells are empty.
+  tvMediaUnit: {
+    name: 'tv-media-unit',
+    tiles: [bm(758, 759, 760, 761, 762), bm(774, 775, 776, 777, 778), bm(790, 791, 792, 793, 794)],
+    collision: [
+      [false, false, false, false, false],
+      [false, true, true, true, true],
+      [false, true, true, true, true],
+    ],
+  },
+  // Round poufs / bean bags, 2x2. Spectator seating — non-solid so players can
+  // perch on them visually without getting stuck.
+  poufCream: {
+    name: 'pouf-cream',
+    tiles: [bm(684, 685), bm(700, 701)],
+  },
+  poufTan: {
+    name: 'pouf-tan',
+    tiles: [bm(686, 687), bm(702, 703)],
+  },
+  // Single-seat stools, 1 wide x 2 tall.
+  stoolYellow: {
+    name: 'stool-yellow',
+    solid: true,
+    tiles: [bm(410), bm(426)],
+  },
+  stoolRed: {
+    name: 'stool-red',
+    solid: true,
+    tiles: [bm(411), bm(427)],
+  },
+  // Cue rack (standing) and crossed cues wall decor, 1x1 front-layer flavour.
+  cueRack: {
+    name: 'cue-rack',
+    tiles: [bm(403), bm(419)],
+    collision: [[false], [true]],
+  },
+  ballRack: {
+    name: 'ball-rack',
+    tiles: [bm(417)],
+  },
 } satisfies Record<string, Prefab>
 
 export const objectPalettePrefabs = [
@@ -188,4 +263,16 @@ export const objectPalettePrefabs = [
   prefabs.sideTable,
   prefabs.tallPlant,
   prefabs.slimPlant,
+  prefabs.poolTable,
+  prefabs.pingPongTable,
+  prefabs.arcadeCabinetBlue,
+  prefabs.arcadeCabinetCyan,
+  prefabs.arcadeCabinetRed,
+  prefabs.tvMediaUnit,
+  prefabs.poufCream,
+  prefabs.poufTan,
+  prefabs.stoolYellow,
+  prefabs.stoolRed,
+  prefabs.cueRack,
+  prefabs.ballRack,
 ]
