@@ -186,15 +186,15 @@ let router = createRouter({
       ],
     },
     {
-      name: 'GameMode',
-      path: '/game-mode/home',
-      component: () => import('@/gamemode/GameMode.vue'),
+      name: 'Arcade',
+      path: '/arcade',
+      component: () => import('@arcade/Arcade.vue'),
       props: true,
     },
     {
-      name: 'SpritesheetBrowser',
-      path: '/gamemode/spritesheet-browser',
-      component: () => import('@/gamemode/SpritesheetBrowser.vue'),
+      name: 'AssetEditor',
+      path: '/arcade/assets',
+      component: () => import('@arcade/asset-editor/AssetEditor.vue'),
       props: true,
     },
     {

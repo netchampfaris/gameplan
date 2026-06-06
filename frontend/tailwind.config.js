@@ -6,6 +6,7 @@ export default {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
+    '../arcade/**/*.{vue,js,ts,jsx,tsx}',
     './node_modules/frappe-ui/src/components/**/*.{vue,js,ts,jsx,tsx}',
     '../node_modules/frappe-ui/src/components/**/*.{vue,js,ts,jsx,tsx}',
     '../frappe-ui/src/components/**/*.{vue,js,ts,jsx,tsx}',

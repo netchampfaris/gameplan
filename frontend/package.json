@@ -23,6 +23,7 @@
     "htmldiff-js": "^1.0.5",
     "idb-keyval": "^6.2.1",
     "motion-v": "^1.10.2",
+    "phaser": "^3.90.0",
     "reka-ui": "^2.0.2",
     "socket.io-client": "^4.7.2",
     "tippy.js": "^6.3.7",

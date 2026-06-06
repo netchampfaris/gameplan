@@ -422,92 +422,63 @@ def can_access_gameplan():
 	return False
 
 
+def _sprite_atlases_file():
+	import os
+
+	return os.path.join(
+		frappe.get_app_path("gameplan", "public", "limezu-modern-interiors"), "sprite_atlases.json"
+	)
+
+
 @frappe.whitelist()
-def load_sprite_labels():
-	"""Load sprite labels from JSON file organized by spritesheet"""
+def load_sprite_atlases():
+	"""Load Phaser texture atlas definitions for Arcade assets."""
 	import json
 	import os
 
-	labels_file = os.path.join(
-		frappe.get_app_path("gameplan", "public", "limezu-modern-interiors"), "sprite_labels.json"
-	)
-
-	if not os.path.exists(labels_file):
-		return {"spritesheets": []}
+	atlases_file = _sprite_atlases_file()
+	if not os.path.exists(atlases_file):
+		return {"atlases": []}
 
 	try:
-		with open(labels_file) as f:
+		with open(atlases_file) as f:
 			data = json.load(f)
-
-		# Handle both old and new format for backward compatibility
-		if "labels" in data:
-			# Old format - convert to new format
-			old_labels = data["labels"]
-			spritesheets = {}
-
-			for label in old_labels:
-				asset = label.get("asset")
-				if asset not in spritesheets:
-					spritesheets[asset] = {
-						"name": asset,
-						"spritesheet": (
-							f"/assets/gameplan/limezu-modern-interiors/1_Interiors/48x48/{asset}.png"
-						),
-						"tiles": [],
-					}
-
-				tile = {
-					"label": label["label"],
-					"row": label["row"],
-					"col": label["col"],
-					"width": label["width"],
-					"height": label["height"],
-				}
-				spritesheets[asset]["tiles"].append(tile)
-
-			return {"spritesheets": list(spritesheets.values())}
-		else:
-			# New format
-			return {"spritesheets": data.get("spritesheets", [])}
-
+		return {"atlases": data.get("atlases", [])}
 	except Exception as e:
-		frappe.log_error(f"Failed to load sprite labels: {str(e)}")
-		return {"spritesheets": []}
+		frappe.log_error(f"Failed to load sprite atlases: {str(e)}")
+		return {"atlases": []}
 
 
 @frappe.whitelist()
-def save_sprite_labels(spritesheets):
-	"""Save sprite labels to JSON file organized by spritesheet"""
+def save_sprite_atlases(atlases):
+	"""Save Phaser texture atlas definitions for Arcade assets."""
 	import json
 	import os
 
-	labels_file = os.path.join(
-		frappe.get_app_path("gameplan", "public", "limezu-modern-interiors"), "sprite_labels.json"
-	)
-
 	try:
-		# Ensure spritesheets is a list
-		if isinstance(spritesheets, str):
-			spritesheets = json.loads(spritesheets)
+		if isinstance(atlases, str):
+			atlases = json.loads(atlases)
+
+		if not isinstance(atlases, list):
+			frappe.throw("atlases must be a list")
 
 		data = {
-			"spritesheets": spritesheets,
+			"atlases": atlases,
 			"updated_at": frappe.utils.now(),
 			"updated_by": frappe.session.user,
 		}
 
-		# Create directory if it doesn't exist
-		os.makedirs(os.path.dirname(labels_file), exist_ok=True)
+		atlases_file = _sprite_atlases_file()
+		os.makedirs(os.path.dirname(atlases_file), exist_ok=True)
 
-		with open(labels_file, "w") as f:
+		with open(atlases_file, "w") as f:
 			json.dump(data, f, indent=2, default=str)
 
-		total_tiles = sum(len(sheet.get("tiles", [])) for sheet in spritesheets)
+		total_frames = sum(len(atlas.get("frames", {})) for atlas in atlases)
 		return {
 			"success": True,
-			"message": f"Saved {len(spritesheets)} spritesheets with {total_tiles} total tiles",
+			"message": f"Saved {len(atlases)} atlases with {total_frames} total frames",
 		}
-
 	except Exception as e:
-		frappe.log_error(f"Failed to save sprite labels: {str(e)}")
-		frappe.throw(f"Failed to save sprite labels: {str(e)}")
+		frappe.log_error(f"Failed to save sprite atlases: {str(e)}")
+		frappe.throw(f"Failed to save sprite atlases: {str(e)}")

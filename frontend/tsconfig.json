@@ -2,9 +2,17 @@
   "extends": "frappe-ui/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@arcade": ["../arcade/index.ts"],
+      "@arcade/*": ["../arcade/*"],
+      "vue": ["./node_modules/vue"],
+      "vue/*": ["./node_modules/vue/*"],
+      "frappe-ui": ["./node_modules/frappe-ui"],
+      "frappe-ui/*": ["./node_modules/frappe-ui/*"],
+      "phaser": ["./node_modules/phaser"],
+      "phaser/*": ["./node_modules/phaser/*"]
     }
   },
-  "include": ["./src/**/*", "vite/client", "./vite.config.ts", "./vite-helpers.ts"],
+  "include": ["./src/**/*", "../arcade/**/*", "vite/client", "./vite.config.ts", "./vite-helpers.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

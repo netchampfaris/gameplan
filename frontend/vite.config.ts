@@ -15,6 +15,10 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
 
   const baseAliases = {
     '@': path.resolve(__dirname, 'src'),
+    '@arcade': path.resolve(__dirname, '../arcade'),
+    'frappe-ui/style.css': path.resolve(__dirname, 'node_modules/frappe-ui/src/style.css'),
+    'frappe-ui': path.resolve(__dirname, 'node_modules/frappe-ui'),
+    phaser: path.resolve(__dirname, 'node_modules/phaser'),
   }
 
   return {
@@ -61,8 +65,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     },
     resolve: {
       alias: {
-        ...localFrappeUIAliases,
         ...baseAliases,
+        ...localFrappeUIAliases,
       },
     },
     optimizeDeps: {

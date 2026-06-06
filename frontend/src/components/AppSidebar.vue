@@ -243,12 +243,20 @@ const navigation = computed(() => {
       condition: () => preferredHomePage.value == 'Spaces',
     },
     {
-      name: 'Game mode',
+      name: 'Arcade',
       icon: 'lucide-gamepad-2',
       route: {
-        name: 'GameMode',
+        name: 'Arcade',
       },
-      isActive: testRoute(/GameMode/g),
+      isActive: testRoute(/Arcade/g),
+    },
+    {
+      name: 'Asset Editor',
+      icon: 'lucide-image',
+      route: {
+        name: 'AssetEditor',
+      },
+      isActive: testRoute(/AssetEditor/g),
     },
     {
       name: 'Inbox',
