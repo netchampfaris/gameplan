@@ -32,23 +32,25 @@ interface TileLayerOptions {
   collision?: boolean
 }
 
+// Dimensions must match the real spritesheets: Phaser computes tile positions
+// from the actual texture size, so a mismatch silently shifts every gid.
 export const tilesets = [
   {
-    columns: 30,
+    columns: 76,
     firstgid: 1,
     image: '../1_Interiors/48x48/Room_Builder_48x48.png',
-    imageheight: 2880,
-    imagewidth: 1440,
+    imageheight: 5424,
+    imagewidth: 3648,
     margin: 0,
     name: 'room_builder',
     spacing: 0,
-    tilecount: 1800,
+    tilecount: 8588,
     tileheight: TILE_SIZE,
     tilewidth: TILE_SIZE,
   },
   {
     columns: 16,
-    firstgid: 1801,
+    firstgid: 8589,
     image: '../1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png',
     imageheight: 2160,
     imagewidth: 768,
@@ -56,6 +58,19 @@ export const tilesets = [
     name: 'living_room',
     spacing: 0,
     tilecount: 720,
+    tileheight: TILE_SIZE,
+    tilewidth: TILE_SIZE,
+  },
+  {
+    columns: 16,
+    firstgid: 9309,
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png',
+    imageheight: 3744,
+    imagewidth: 768,
+    margin: 0,
+    name: 'generic',
+    spacing: 0,
+    tilecount: 1248,
     tileheight: TILE_SIZE,
     tilewidth: TILE_SIZE,
   },
@@ -71,6 +86,15 @@ export function createFilledLayer(tileGid: number) {
 
 export function createEmptyLayer() {
   return Array.from({ length: MAP_WIDTH * MAP_HEIGHT }, () => 0)
+}
+
+export function createPatternFilledLayer(pattern: TileMatrix) {
+  return Array.from({ length: MAP_WIDTH * MAP_HEIGHT }, (_, index) => {
+    const x = index % MAP_WIDTH
+    const y = Math.floor(index / MAP_WIDTH)
+    const row = pattern[y % pattern.length]
+    return row[x % row.length]
+  })
 }
 
 export function applyPlacements(layer: number[], placements: Placement[]) {

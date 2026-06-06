@@ -31,6 +31,7 @@ export class CommonRoomScene extends Phaser.Scene {
     this.load.tilemapTiledJSON(this.commonRoomMapKey, commonRoomMapPath)
     this.load.image(GameAssetKeys.tilesets.roomBuilder, GameAssetPaths.tilesets.roomBuilder)
     this.load.image(GameAssetKeys.tilesets.livingRoom, GameAssetPaths.tilesets.livingRoom)
+    this.load.image(GameAssetKeys.tilesets.generic, GameAssetPaths.tilesets.generic)
   }
 
   create() {
@@ -63,13 +64,18 @@ export class CommonRoomScene extends Phaser.Scene {
       TiledTilesetNames.livingRoom,
       GameAssetKeys.tilesets.livingRoom,
     )
+    const genericTileset = this.map.addTilesetImage(
+      TiledTilesetNames.generic,
+      GameAssetKeys.tilesets.generic,
+    )
 
-    if (!roomBuilderTileset || !livingRoomTileset) {
+    if (!roomBuilderTileset || !livingRoomTileset || !genericTileset) {
       throw new Error('Common Room tilesets could not be loaded')
     }
 
-    const tilesets = [roomBuilderTileset, livingRoomTileset]
+    const tilesets = [roomBuilderTileset, livingRoomTileset, genericTileset]
     this.createVisibleLayer(['Floor'], tilesets, -30)
+    this.createVisibleLayer(['Decor'], tilesets, -25, { optional: true })
     this.createVisibleLayer(['Objects Back', 'Objects'], tilesets, -10)
     this.createVisibleLayer(['Objects Front'], tilesets, 10, { optional: true })
     this.collisionLayer = this.createVisibleLayer(['Collision'], tilesets, -20)
@@ -101,7 +107,10 @@ export class CommonRoomScene extends Phaser.Scene {
 
     this.physics.world.setBounds(0, 0, width, height)
     this.cameras.main.setBounds(0, 0, width, height)
-    this.cameras.main.setZoom(1)
+
+    // Cover zoom: scale up until the map fills the viewport so no void shows.
+    const coverZoom = Math.max(1, this.scale.width / width, this.scale.height / height)
+    this.cameras.main.setZoom(coverZoom)
 
     if (this.player) {
       this.cameras.main.startFollow(this.player, true, 0.12, 0.12)
