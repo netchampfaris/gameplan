@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { GameAssetKeys, GameAssetPaths, TILE_SIZE } from '../config/assets'
+import { GameAssetKeys, GameAssetPaths, TiledTilesetNames } from '../config/assets'
 import { registerSpriteAtlasFrames } from '../config/spriteAtlas'
 import { KeyboardMovementController } from '../input/KeyboardMovementController'
 import { PlayerAvatar } from '../objects/PlayerAvatar'
@@ -10,23 +10,34 @@ const PLAYER_ATLAS_NAME = 'character_01'
 export class CommonRoomScene extends Phaser.Scene {
   private player: PlayerAvatar | null = null
   private movement: KeyboardMovementController | null = null
-  private background: Phaser.GameObjects.Rectangle | null = null
-  private grid: Phaser.GameObjects.Graphics | null = null
+  private map: Phaser.Tilemaps.Tilemap | null = null
+  private collisionLayer: Phaser.Tilemaps.TilemapLayer | null = null
+  private commonRoomMapKey = GameAssetKeys.maps.commonRoom
 
   constructor() {
     super(COMMON_ROOM_SCENE_KEY)
   }
 
   preload() {
+    this.commonRoomMapKey = import.meta.env.DEV
+      ? `${GameAssetKeys.maps.commonRoom}:${Date.now()}`
+      : GameAssetKeys.maps.commonRoom
+    const commonRoomMapPath = import.meta.env.DEV
+      ? `${GameAssetPaths.maps.commonRoom}?v=${Date.now()}`
+      : GameAssetPaths.maps.commonRoom
+
     this.load.image(GameAssetKeys.characters.player, GameAssetPaths.characters.player)
     this.load.json(GameAssetKeys.spriteAtlases, GameAssetPaths.spriteAtlases)
+    this.load.tilemapTiledJSON(this.commonRoomMapKey, commonRoomMapPath)
+    this.load.image(GameAssetKeys.tilesets.roomBuilder, GameAssetPaths.tilesets.roomBuilder)
+    this.load.image(GameAssetKeys.tilesets.livingRoom, GameAssetPaths.tilesets.livingRoom)
   }
 
   create() {
     registerSpriteAtlasFrames(this, PLAYER_ATLAS_NAME, GameAssetKeys.characters.player)
-    this.createRoom(this.scale.width, this.scale.height)
+    this.createRoomMap()
     this.createPlayer()
-    this.setupCamera(this.scale.width, this.scale.height)
+    this.setupCamera()
     this.addDebugLabel()
     this.scale.on(Phaser.Scale.Events.RESIZE, this.resizeRoom, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -41,21 +52,29 @@ export class CommonRoomScene extends Phaser.Scene {
     this.player.move(input.velocity, input.direction, input.isSitting)
   }
 
-  private createRoom(width: number, height: number) {
-    this.background?.destroy()
-    this.grid?.destroy()
+  private createRoomMap() {
+    this.map = this.make.tilemap({ key: this.commonRoomMapKey })
 
-    this.background = this.add.rectangle(0, 0, width, height, 0x1f1f1f).setOrigin(0).setDepth(-20)
-    this.grid = this.add.graphics().setDepth(-10)
-    this.grid.lineStyle(1, 0x3a3a3a, 0.55)
+    const roomBuilderTileset = this.map.addTilesetImage(
+      TiledTilesetNames.roomBuilder,
+      GameAssetKeys.tilesets.roomBuilder,
+    )
+    const livingRoomTileset = this.map.addTilesetImage(
+      TiledTilesetNames.livingRoom,
+      GameAssetKeys.tilesets.livingRoom,
+    )
 
-    for (let x = 0; x <= width; x += TILE_SIZE) {
-      this.grid.lineBetween(x, 0, x, height)
+    if (!roomBuilderTileset || !livingRoomTileset) {
+      throw new Error('Common Room tilesets could not be loaded')
     }
 
-    for (let y = 0; y <= height; y += TILE_SIZE) {
-      this.grid.lineBetween(0, y, width, y)
-    }
+    const tilesets = [roomBuilderTileset, livingRoomTileset]
+    this.createVisibleLayer(['Floor'], tilesets, -30)
+    this.createVisibleLayer(['Objects Back', 'Objects'], tilesets, -10)
+    this.createVisibleLayer(['Objects Front'], tilesets, 10, { optional: true })
+    this.collisionLayer = this.createVisibleLayer(['Collision'], tilesets, -20)
+    this.collisionLayer.setVisible(false)
+    this.collisionLayer.setCollisionByExclusion([-1])
   }
 
   private createPlayer() {
@@ -66,14 +85,20 @@ export class CommonRoomScene extends Phaser.Scene {
     this.player = new PlayerAvatar(
       this,
       GameAssetKeys.characters.player,
-      this.scale.width / 2,
-      this.scale.height / 2,
+      this.playerSpawnPoint.x,
+      this.playerSpawnPoint.y,
     )
     this.player.setCollideWorldBounds(true)
+    if (this.collisionLayer) {
+      this.physics.add.collider(this.player, this.collisionLayer)
+    }
     this.movement = new KeyboardMovementController(this.input.keyboard)
   }
 
-  private setupCamera(width: number, height: number) {
+  private setupCamera() {
+    const width = this.map?.widthInPixels ?? this.scale.width
+    const height = this.map?.heightInPixels ?? this.scale.height
+
     this.physics.world.setBounds(0, 0, width, height)
     this.cameras.main.setBounds(0, 0, width, height)
     this.cameras.main.setZoom(1)
@@ -83,9 +108,60 @@ export class CommonRoomScene extends Phaser.Scene {
     }
   }
 
-  private resizeRoom(gameSize: Phaser.Structs.Size) {
-    this.createRoom(gameSize.width, gameSize.height)
-    this.setupCamera(gameSize.width, gameSize.height)
+  private resizeRoom() {
+    this.setupCamera()
+  }
+
+  private createVisibleLayer(
+    layerNames: string[],
+    tilesets: Phaser.Tilemaps.Tileset[],
+    depth: number,
+    options: { optional?: boolean } = {},
+  ) {
+    if (!this.map) {
+      throw new Error('Common Room map has not been created')
+    }
+
+    const layerIndex = this.map.layers.findIndex((layer) => layerNames.includes(layer.name))
+
+    if (layerIndex === -1) {
+      if (options.optional) return null
+
+      const availableLayers = this.map.layers.map((layer) => layer.name).join(', ')
+      throw new Error(
+        `Common Room layer not found: ${layerNames.join(' or ')}. Available layers: ${availableLayers}`,
+      )
+    }
+
+    const layer = this.map.createLayer(layerIndex, tilesets, 0, 0)
+
+    if (!layer) {
+      if (options.optional) return null
+
+      throw new Error(`Common Room layer not found: ${layerNames.join(' or ')}`)
+    }
+
+    layer.setDepth(depth)
+    return layer
+  }
+
+  private get playerSpawnPoint() {
+    const fallback = {
+      x: this.map?.widthInPixels ? this.map.widthInPixels / 2 : this.scale.width / 2,
+      y: this.map?.heightInPixels ? this.map.heightInPixels / 2 : this.scale.height / 2,
+    }
+    const spawnObject = this.map
+      ?.getObjectLayer('Spawn Points')
+      ?.objects.find((object) => object.name === 'spawn-center')
+
+    if (!spawnObject?.x || !spawnObject.y) {
+      return fallback
+    }
+
+    return {
+      x: spawnObject.x,
+      y: spawnObject.y,
+    }
   }
 
   private addDebugLabel() {
