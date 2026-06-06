@@ -6,6 +6,7 @@
         "dev": "cd frontend && yarn dev",
         "dev:frappe-ui": "cd frontend && yarn dev:frappe-ui",
         "build": "cd frontend && yarn build",
+        "build:arcade-map": "node arcade/scripts/buildCommonRoomMap.ts",
         "upgrade-frappeui": "cd frontend && yarn add frappe-ui@beta"
     }
 }
