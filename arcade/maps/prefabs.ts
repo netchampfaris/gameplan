@@ -1,8 +1,8 @@
 import { gid, type Prefab } from './tiled.ts'
 
-const ROOM_BUILDER = 1
-const LIVING_ROOM = 8589
-const GENERIC = 9309
+const ROOM_BUILDER = 'room_builder'
+const LIVING_ROOM = 'living_room'
+const GENERIC = 'generic'
 
 export const roomTiles = {
   // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.

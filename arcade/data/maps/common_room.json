@@ -2077,6 +2077,32 @@
       "tilecount": 1248,
       "tileheight": 48,
       "tilewidth": 48
+    },
+    {
+      "columns": 16,
+      "firstgid": 10557,
+      "image": "../1_Interiors/48x48/Theme_Sorter_48x48/12_Kitchen_48x48.png",
+      "imageheight": 2352,
+      "imagewidth": 768,
+      "margin": 0,
+      "name": "kitchen",
+      "spacing": 0,
+      "tilecount": 784,
+      "tileheight": 48,
+      "tilewidth": 48
+    },
+    {
+      "columns": 16,
+      "firstgid": 11341,
+      "image": "../1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png",
+      "imageheight": 2400,
+      "imagewidth": 768,
+      "margin": 0,
+      "name": "basement",
+      "spacing": 0,
+      "tilecount": 800,
+      "tileheight": 48,
+      "tilewidth": 48
     }
   ],
   "tilewidth": 48,
