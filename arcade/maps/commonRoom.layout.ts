@@ -2,30 +2,52 @@ import {
   applyPlacements,
   createCollisionLayer,
   createEmptyLayer,
-  createFilledLayer,
   createObjectPaletteLayer,
+  createPatternFilledLayer,
   createSpawnLayer,
   createTileLayer,
   createTiledMap,
+  MAP_WIDTH,
   type Placement,
 } from './tiled.ts'
 import { objectPalettePrefabs, prefabs, roomTiles } from './prefabs.ts'
 
+// Top wall spans the full width; painted into the floor layer so furniture
+// (fireplace, bookshelves) can overlap it on the objects layer.
+const wallPlacements: Placement[] = Array.from(
+  { length: MAP_WIDTH / prefabs.wallSegment.tiles[0].length },
+  (_, index) => ({ prefab: prefabs.wallSegment, x: index * 4, y: 0 }),
+)
+
 const backPlacements: Placement[] = [
-  { prefab: prefabs.bookshelfWide, x: 2, y: 1 },
-  { prefab: prefabs.bookshelfWide, x: 10, y: 1 },
-  { prefab: prefabs.tallPlant, x: 17, y: 1 },
-  { prefab: prefabs.slimPlant, x: 1, y: 4 },
-  { prefab: prefabs.sideTable, x: 7, y: 5 },
-  { prefab: prefabs.sideTable, x: 14, y: 5 },
-  { prefab: prefabs.slimPlant, x: 17, y: 6 },
-  { prefab: prefabs.couchGray, x: 2, y: 8 },
-  { prefab: prefabs.sideTable, x: 7, y: 10 },
-  { prefab: prefabs.sideTable, x: 15, y: 10 },
-  { prefab: prefabs.slimPlant, x: 2, y: 12 },
+  // identity wall: plants flanking bookshelves with a fireplace centerpiece
+  { prefab: prefabs.tallPlant, x: 0, y: 1 },
+  { prefab: prefabs.bookshelfWide, x: 2, y: 0 },
+  { prefab: prefabs.paintingLandscape, x: 8, y: 1 },
+  { prefab: prefabs.fireplace, x: 9, y: 0 },
+  { prefab: prefabs.paintingOrange, x: 11, y: 1 },
+  { prefab: prefabs.bookshelfWide, x: 12, y: 0 },
+  { prefab: prefabs.tallPlant, x: 18, y: 1 },
+  // lounge: couch facing the room with armchair and coffee table
+  { prefab: prefabs.armchairOrange, x: 2, y: 5 },
+  { prefab: prefabs.couchGray, x: 4, y: 4 },
+  { prefab: prefabs.lampBlue, x: 7, y: 4 },
+  { prefab: prefabs.coffeeTable, x: 4, y: 7 },
+  // chat nook on the right, set lower for asymmetry
+  { prefab: prefabs.couchBrown, x: 14, y: 6 },
+  { prefab: prefabs.tableLamp, x: 17, y: 6 },
+  { prefab: prefabs.armchairOrange, x: 13, y: 6 },
+  // greenery in the lower corners
+  { prefab: prefabs.slimPlant, x: 0, y: 11 },
+  { prefab: prefabs.slimPlant, x: 19, y: 11 },
 ]
 
-const frontPlacements: Placement[] = [{ prefab: prefabs.couchPillows, x: 4, y: 8 }]
+const decorPlacements: Placement[] = [
+  { prefab: prefabs.carpetPurple, x: 8, y: 8 },
+  { prefab: prefabs.carpetBlue, x: 14, y: 8 },
+]
+
+const frontPlacements: Placement[] = [{ prefab: prefabs.couchPillows, x: 5, y: 4 }]
 
 const spawnPoints = [
   { name: 'spawn-center', x: 10, y: 9 },
@@ -34,28 +56,32 @@ const spawnPoints = [
 ]
 
 export function buildCommonRoomMap() {
-  const floorLayer = createFilledLayer(roomTiles.floor)
+  const floorLayer = createPatternFilledLayer(roomTiles.floorPattern)
+  const decorLayer = createEmptyLayer()
   const objectsBackLayer = createEmptyLayer()
   const objectsFrontLayer = createEmptyLayer()
 
+  applyPlacements(floorLayer, wallPlacements)
+  applyPlacements(decorLayer, decorPlacements)
   applyPlacements(objectsBackLayer, backPlacements)
   applyPlacements(objectsFrontLayer, frontPlacements)
 
-  const collisionLayer = createCollisionLayer(backPlacements)
+  const collisionLayer = createCollisionLayer([...wallPlacements, ...backPlacements])
   const layers = [
     createTileLayer({ id: 1, name: 'Floor', data: floorLayer }),
-    createTileLayer({ id: 2, name: 'Objects Back', data: objectsBackLayer }),
-    createTileLayer({ id: 3, name: 'Objects Front', data: objectsFrontLayer }),
+    createTileLayer({ id: 2, name: 'Decor', data: decorLayer }),
+    createTileLayer({ id: 3, name: 'Objects Back', data: objectsBackLayer }),
+    createTileLayer({ id: 4, name: 'Objects Front', data: objectsFrontLayer }),
     createTileLayer({
-      id: 4,
+      id: 5,
       name: 'Collision',
       data: collisionLayer,
       visible: false,
       opacity: 0.45,
       collision: true,
     }),
-    createSpawnLayer(5, spawnPoints),
-    createObjectPaletteLayer(6, objectPalettePrefabs),
+    createSpawnLayer(6, spawnPoints),
+    createObjectPaletteLayer(7, objectPalettePrefabs),
   ]
 
   return createTiledMap(layers, objectPalettePrefabs.length + spawnPoints.length + 1)

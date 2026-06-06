@@ -10,6 +10,7 @@ export const GameAssetKeys = {
   tilesets: {
     roomBuilder: 'tileset:room-builder',
     livingRoom: 'tileset:living-room',
+    generic: 'tileset:generic',
   },
   characters: {
     player: 'character:player',
@@ -24,6 +25,7 @@ export const GameAssetPaths = {
   tilesets: {
     roomBuilder: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Room_Builder_48x48.png`,
     livingRoom: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png`,
+    generic: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png`,
   },
   characters: {
     player: `${GAME_ASSET_BASE_PATH}/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_01.png`,
@@ -33,4 +35,5 @@ export const GameAssetPaths = {
 export const TiledTilesetNames = {
   roomBuilder: 'room_builder',
   livingRoom: 'living_room',
+  generic: 'generic',
 } as const
