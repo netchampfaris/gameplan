@@ -131,6 +131,36 @@ const backPlacements: Placement[] = [
   { prefab: prefabs.slimPlant, x: cx + 18, y: 35 },
 ]
 
+// Game Room furniture in map coordinates. The room is GAME = {40,20,20,20};
+// the doorway from the common room lands at x=40, y=28..30, kept clear. Pool
+// table is the centerpiece with walk-around clearance, ping-pong in its own
+// corner, arcade cabinets along the top wall, and a TV + bean-bag spectator
+// corner along the bottom.
+const gx = GAME.x // 40
+const gy = GAME.y // 20
+
+const gameRoomBack: Placement[] = [
+  // arcade row along the top wall, facing down into the room
+  { prefab: prefabs.arcadeCabinetBlue, x: gx + 13, y: gy + 1 },
+  { prefab: prefabs.arcadeCabinetCyan, x: gx + 15, y: gy + 1 },
+  { prefab: prefabs.arcadeCabinetRed, x: gx + 17, y: gy + 1 },
+
+  // ping-pong table in the upper-left corner with its own clearance
+  { prefab: prefabs.pingPongTable, x: gx + 2, y: gy + 3 },
+
+  // pool table centerpiece, clear on every play side
+  { prefab: prefabs.poolTable, x: gx + 7, y: gy + 8 },
+  // stools flanking the pool table for players waiting their turn
+  { prefab: prefabs.stoolYellow, x: gx + 6, y: gy + 12 },
+  { prefab: prefabs.stoolRed, x: gx + 11, y: gy + 12 },
+
+  // spectator corner: TV + media unit against the bottom wall
+  { prefab: prefabs.tvMediaUnit, x: gx + 2, y: gy + 15 },
+  // bean-bag poufs facing the TV
+  { prefab: prefabs.poufCream, x: gx + 8, y: gy + 15 },
+  { prefab: prefabs.poufTan, x: gx + 11, y: gy + 15 },
+]
+
 // Rugs anchor the seating clusters and mark the spawn carpet.
 const decorPlacements: Placement[] = [
   { prefab: prefabs.carpetPurple, x: cx + 8, y: 9 },
@@ -139,11 +169,18 @@ const decorPlacements: Placement[] = [
   { prefab: prefabs.carpetPurple, x: cx + 8, y: 21 },
   { prefab: prefabs.carpetRed, x: cx + 13, y: 30 },
   { prefab: prefabs.carpetBlue, x: cx + 4, y: 30 },
+  // game room: rug under the pool table and matching rugs under each pouf
+  { prefab: prefabs.carpetRed, x: gx + 8, y: gy + 9 },
+  { prefab: prefabs.carpetBlue, x: gx + 8, y: gy + 16 },
+  { prefab: prefabs.carpetBlue, x: gx + 11, y: gy + 16 },
 ]
 
 const frontPlacements: Placement[] = [
   { prefab: prefabs.couchPillows, x: cx + 5, y: 5 },
   { prefab: prefabs.couchPillows, x: cx + 13, y: 27 },
+  // game room flavour: a standing cue rack beside the pool table
+  { prefab: prefabs.cueRack, x: gx + 12, y: gy + 9 },
+  { prefab: prefabs.ballRack, x: gx + 6, y: gy + 10 },
 ]
 
 // Spawn on the centre purple carpet of the common room.
@@ -153,12 +190,16 @@ const spawnPoints = [
   { name: 'spawn-right', x: cx + 10, y: 23 },
 ]
 
+// All furniture that renders on the Objects Back layer and contributes solid
+// collision, across every furnished room.
+const allBackPlacements = [...backPlacements, ...gameRoomBack]
+
 export function buildWorldMap() {
   const floorLayer = createEmptyLayer(dimensions)
   const decorLayer = createEmptyLayer(dimensions)
   const objectsBackLayer = createEmptyLayer(dimensions)
   const objectsFrontLayer = createEmptyLayer(dimensions)
-  const collisionLayer = createCollisionLayer(backPlacements, dimensions)
+  const collisionLayer = createCollisionLayer(allBackPlacements, dimensions)
 
   for (const room of rooms) {
     fillRectWithPattern(floorLayer, room.floorPattern, room.rect, dimensions)
@@ -171,7 +212,7 @@ export function buildWorldMap() {
   }
 
   applyPlacements(decorLayer, decorPlacements, dimensions)
-  applyPlacements(objectsBackLayer, backPlacements, dimensions)
+  applyPlacements(objectsBackLayer, allBackPlacements, dimensions)
   applyPlacements(objectsFrontLayer, frontPlacements, dimensions)
 
   const layers = [
