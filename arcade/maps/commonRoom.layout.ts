@@ -3,15 +3,14 @@ import {
   createCollisionLayer,
   createEmptyLayer,
   createObjectPaletteLayer,
-  createPatternFilledLayer,
   createSpawnLayer,
   createTileLayer,
   createTiledMap,
   type MapDimensions,
   type Placement,
 } from './tiled.ts'
-import { paintRoomWalls, type Room } from './rooms.ts'
-import { objectPalettePrefabs, prefabs, roomTiles } from './prefabs.ts'
+import { WallPlan, type Room } from './rooms.ts'
+import { floorKits, grayWallKit, objectPalettePrefabs, prefabs } from './prefabs.ts'
 
 const dimensions: MapDimensions = { width: 20, height: 15 }
 
@@ -20,8 +19,7 @@ const dimensions: MapDimensions = { width: 20, height: 15 }
 // layer. No doorways yet.
 const commonRoom: Room = {
   rect: { x: 0, y: 0, width: dimensions.width, height: dimensions.height },
-  floorPattern: roomTiles.floorPattern,
-  wallStyle: { horizontal: prefabs.wallSegment },
+  floorKit: floorKits.diagonalWood,
   walls: ['top'],
 }
 
@@ -62,20 +60,21 @@ const spawnPoints = [
 ]
 
 export function buildCommonRoomMap() {
-  const floorLayer = createPatternFilledLayer(commonRoom.floorPattern, dimensions)
+  const floorLayer = createEmptyLayer(dimensions)
   const decorLayer = createEmptyLayer(dimensions)
   const objectsBackLayer = createEmptyLayer(dimensions)
   const objectsFrontLayer = createEmptyLayer(dimensions)
 
-  const walls = paintRoomWalls(commonRoom)
+  const wallPlan = new WallPlan([commonRoom], dimensions)
+  wallPlan.paintFloor(floorLayer, commonRoom)
+  wallPlan.paintWalls(floorLayer, grayWallKit)
 
-  applyPlacements(floorLayer, walls.floorPlacements, dimensions)
   applyPlacements(decorLayer, decorPlacements, dimensions)
   applyPlacements(objectsBackLayer, backPlacements, dimensions)
   applyPlacements(objectsFrontLayer, frontPlacements, dimensions)
 
   const collisionLayer = createCollisionLayer(backPlacements, dimensions)
-  walls.applyCollision(collisionLayer, dimensions)
+  wallPlan.applyCollision(collisionLayer)
 
   const layers = [
     createTileLayer({ id: 1, name: 'Floor', data: floorLayer, dimensions }),
