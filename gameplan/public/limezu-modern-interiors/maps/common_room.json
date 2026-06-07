@@ -2611,6 +2611,132 @@
           "width": 48,
           "x": 144,
           "y": 1728
+        },
+        {
+          "height": 144,
+          "id": 48,
+          "name": "bookcase-tall",
+          "properties": [
+            {
+              "name": "size",
+              "value": "3x3"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 144,
+          "x": 288,
+          "y": 1728
+        },
+        {
+          "height": 96,
+          "id": 49,
+          "name": "reading-desk",
+          "properties": [
+            {
+              "name": "size",
+              "value": "3x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 144,
+          "x": 432,
+          "y": 1728
+        },
+        {
+          "height": 96,
+          "id": 50,
+          "name": "reading-chair",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 576,
+          "y": 1728
+        },
+        {
+          "height": 96,
+          "id": 51,
+          "name": "globe",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 0,
+          "y": 1920
+        },
+        {
+          "height": 96,
+          "id": 52,
+          "name": "computer-station",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 144,
+          "y": 1920
+        },
+        {
+          "height": 48,
+          "id": 53,
+          "name": "book-stack",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 288,
+          "y": 1920
         }
       ],
       "opacity": 1,
@@ -2621,7 +2747,7 @@
     }
   ],
   "nextlayerid": 8,
-  "nextobjectid": 51,
+  "nextobjectid": 57,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -2682,6 +2808,19 @@
     {
       "columns": 16,
       "firstgid": 11341,
+      "image": "../1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png",
+      "imageheight": 1632,
+      "imagewidth": 768,
+      "margin": 0,
+      "name": "classroom_library",
+      "spacing": 0,
+      "tilecount": 544,
+      "tileheight": 48,
+      "tilewidth": 48
+    },
+    {
+      "columns": 16,
+      "firstgid": 11885,
       "image": "../1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png",
       "imageheight": 2400,
       "imagewidth": 768,

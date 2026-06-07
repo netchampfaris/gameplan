@@ -5,9 +5,11 @@ const LIVING_ROOM = 'living_room'
 const GENERIC = 'generic'
 const BASEMENT = 'basement'
 const KITCHEN = 'kitchen'
+const CLASSROOM_LIBRARY = 'classroom_library'
 
 const bm = (...ids: number[]) => ids.map((id) => gid(BASEMENT, id))
 const kt = (...ids: number[]) => ids.map((id) => gid(KITCHEN, id))
+const cl = (...ids: number[]) => ids.map((id) => gid(CLASSROOM_LIBRARY, id))
 
 export const roomTiles = {
   // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.
@@ -24,6 +26,11 @@ export const roomTiles = {
   floorCafe: [[gid(ROOM_BUILDER, 2150), gid(ROOM_BUILDER, 2151), gid(ROOM_BUILDER, 2152)]],
   // Neutral gray weave — sealed left-hand rooms (no doorway yet).
   floorSealed: [[gid(ROOM_BUILDER, 1718), gid(ROOM_BUILDER, 1719), gid(ROOM_BUILDER, 1720)]],
+  // Warm tan parquet-weave, seamless 3x2 swatch — calmer Library floor.
+  floorLibrary: [
+    [gid(ROOM_BUILDER, 1634), gid(ROOM_BUILDER, 1635), gid(ROOM_BUILDER, 1636)],
+    [gid(ROOM_BUILDER, 1710), gid(ROOM_BUILDER, 1711), gid(ROOM_BUILDER, 1712)],
+  ],
 }
 
 export const prefabs = {
@@ -338,6 +345,46 @@ export const prefabs = {
     name: 'food-plate',
     tiles: [kt(555)],
   },
+
+  // ---- Library / Focus Room (5_Classroom_and_library_48x48.png) ------------
+  // Tall light-wood bookcase, 3 wide x 3 tall: top cap row + two filled book
+  // rows. A complete framed unit; entirely solid.
+  bookcaseTall: {
+    name: 'bookcase-tall',
+    solid: true,
+    tiles: [cl(208, 209, 210), cl(224, 225, 226), cl(240, 241, 242)],
+  },
+  // Wide reading desk with an open book on a green top, 3 wide x 2 tall. The
+  // top + legs both block movement.
+  readingDesk: {
+    name: 'reading-desk',
+    solid: true,
+    tiles: [cl(71, 72, 73), cl(87, 88, 89)],
+  },
+  // Cushioned reading chair, 1 wide x 2 tall. Walkable so a player can sit by
+  // standing on the seat.
+  readingChair: {
+    name: 'reading-chair',
+    tiles: [cl(52), cl(68)],
+  },
+  // Globe on a gold stand, 1 wide x 2 tall accent. Solid base.
+  globe: {
+    name: 'globe',
+    tiles: [cl(29), cl(45)],
+    collision: [[false], [true]],
+  },
+  // Retro desktop computer + keyboard on a stand, 1 wide x 2 tall — checkout /
+  // catalog station. Solid.
+  computerStation: {
+    name: 'computer-station',
+    solid: true,
+    tiles: [cl(176), cl(192)],
+  },
+  // Small stack of books, 1x1 front-layer accent.
+  bookStack: {
+    name: 'book-stack',
+    tiles: [cl(316)],
+  },
 } satisfies Record<string, Prefab>
 
 export const objectPalettePrefabs = [
@@ -388,4 +435,10 @@ export const objectPalettePrefabs = [
   prefabs.cafeStoolRed,
   prefabs.cafeStoolBlue,
   prefabs.foodPlate,
+  prefabs.bookcaseTall,
+  prefabs.readingDesk,
+  prefabs.readingChair,
+  prefabs.globe,
+  prefabs.computerStation,
+  prefabs.bookStack,
 ]
