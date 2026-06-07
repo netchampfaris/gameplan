@@ -2275,6 +2275,342 @@
           "width": 48,
           "x": 0,
           "y": 1152
+        },
+        {
+          "height": 96,
+          "id": 32,
+          "name": "bakery-display",
+          "properties": [
+            {
+              "name": "size",
+              "value": "3x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 144,
+          "x": 144,
+          "y": 1152
+        },
+        {
+          "height": 96,
+          "id": 33,
+          "name": "espresso-machine",
+          "properties": [
+            {
+              "name": "size",
+              "value": "2x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 96,
+          "x": 288,
+          "y": 1152
+        },
+        {
+          "height": 96,
+          "id": 34,
+          "name": "sink-counter",
+          "properties": [
+            {
+              "name": "size",
+              "value": "2x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 96,
+          "x": 432,
+          "y": 1152
+        },
+        {
+          "height": 96,
+          "id": 35,
+          "name": "cooktop",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 576,
+          "y": 1152
+        },
+        {
+          "height": 144,
+          "id": 36,
+          "name": "fridge",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x3"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 0,
+          "y": 1344
+        },
+        {
+          "height": 144,
+          "id": 37,
+          "name": "fridge-white",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x3"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 144,
+          "y": 1344
+        },
+        {
+          "height": 48,
+          "id": 38,
+          "name": "counter-left",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 288,
+          "y": 1344
+        },
+        {
+          "height": 48,
+          "id": 39,
+          "name": "counter-mid",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 432,
+          "y": 1344
+        },
+        {
+          "height": 48,
+          "id": 40,
+          "name": "counter-door",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 576,
+          "y": 1344
+        },
+        {
+          "height": 48,
+          "id": 41,
+          "name": "counter-right",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 0,
+          "y": 1536
+        },
+        {
+          "height": 96,
+          "id": 42,
+          "name": "dining-table",
+          "properties": [
+            {
+              "name": "size",
+              "value": "3x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 144,
+          "x": 144,
+          "y": 1536
+        },
+        {
+          "height": 144,
+          "id": 43,
+          "name": "checkered-table",
+          "properties": [
+            {
+              "name": "size",
+              "value": "2x3"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 96,
+          "x": 288,
+          "y": 1536
+        },
+        {
+          "height": 96,
+          "id": 44,
+          "name": "cafe-stool-yellow",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 432,
+          "y": 1536
+        },
+        {
+          "height": 96,
+          "id": 45,
+          "name": "cafe-stool-red",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 576,
+          "y": 1536
+        },
+        {
+          "height": 96,
+          "id": 46,
+          "name": "cafe-stool-blue",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 0,
+          "y": 1728
+        },
+        {
+          "height": 48,
+          "id": 47,
+          "name": "food-plate",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 144,
+          "y": 1728
         }
       ],
       "opacity": 1,
@@ -2285,7 +2621,7 @@
     }
   ],
   "nextlayerid": 8,
-  "nextobjectid": 35,
+  "nextobjectid": 51,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

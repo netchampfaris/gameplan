@@ -161,6 +161,83 @@ const gameRoomBack: Placement[] = [
   { prefab: prefabs.poufTan, x: gx + 11, y: gy + 15 },
 ]
 
+// Café furniture in map coordinates. CAFE = {40,0,20,20}; the doorway from the
+// common room lands at the left edge, rows y=8..10, kept clear. A service
+// counter run lines the top wall (bakery display, espresso, sink + cooktop,
+// fridges); four dining tables with top-down chairs spread through the room
+// with walkable aisles down the middle and along the door.
+const fx = CAFE.x // 40
+const fy = CAFE.y // 0
+
+// One continuous service counter strip along the top wall — left cap, a run of
+// straight + cabinet-door mids, and a right cap — with no bare-floor gaps. The
+// bakery display bookends the left and the fridge bank the right; the strip
+// fills every cell between them, so the whole top wall reads as one counter.
+// Appliances sit on top of the counter on the front layer (see cafeFront).
+const COUNTER_Y = fy + 2
+const counterRunStart = fx + 5 // first counter cell after the bakery display
+const counterRunEnd = fx + 15 // last counter cell before the fridge bank
+const counterRun: Placement[] = []
+for (let x = counterRunStart; x <= counterRunEnd; x += 1) {
+  let prefab = prefabs.counterMid
+  if (x === counterRunStart) prefab = prefabs.counterLeft
+  else if (x === counterRunEnd) prefab = prefabs.counterRight
+  else if ((x - counterRunStart) % 3 === 0) prefab = prefabs.counterDoor
+  counterRun.push({ prefab, x, y: COUNTER_Y })
+}
+
+const cafeBack: Placement[] = [
+  // bakery display bookends the left end of the counter
+  { prefab: prefabs.bakeryDisplay, x: fx + 2, y: COUNTER_Y },
+  // contiguous service counter run along the top wall, facing down
+  ...counterRun,
+  // fridge bank closing the right end, against the right wall
+  { prefab: prefabs.fridge, x: fx + 16, y: COUNTER_Y },
+  { prefab: prefabs.fridgeWhite, x: fx + 17, y: COUNTER_Y },
+
+  // dining tables, each flanked by a stool above and below; aisles kept clear
+  // down the middle and along the left-edge door (rows y=8..11).
+  { prefab: prefabs.cafeStoolYellow, x: fx + 5, y: fy + 7 },
+  { prefab: prefabs.diningTable, x: fx + 4, y: fy + 8 },
+  { prefab: prefabs.cafeStoolYellow, x: fx + 5, y: fy + 10 },
+
+  { prefab: prefabs.cafeStoolRed, x: fx + 12, y: fy + 7 },
+  { prefab: prefabs.diningTable, x: fx + 11, y: fy + 8 },
+  { prefab: prefabs.cafeStoolRed, x: fx + 12, y: fy + 10 },
+
+  { prefab: prefabs.cafeStoolBlue, x: fx + 5, y: fy + 13 },
+  { prefab: prefabs.diningTable, x: fx + 4, y: fy + 14 },
+  { prefab: prefabs.cafeStoolBlue, x: fx + 5, y: fy + 16 },
+
+  { prefab: prefabs.cafeStoolYellow, x: fx + 16, y: fy + 8 },
+  { prefab: prefabs.diningTable, x: fx + 15, y: fy + 9 },
+  { prefab: prefabs.cafeStoolYellow, x: fx + 16, y: fy + 11 },
+
+  // a checkered two-top in the lower-middle for variety, stools above + below
+  { prefab: prefabs.cafeStoolRed, x: fx + 11, y: fy + 12 },
+  { prefab: prefabs.checkeredTable, x: fx + 11, y: fy + 13 },
+  { prefab: prefabs.cafeStoolRed, x: fx + 11, y: fy + 16 },
+
+  // greenery framing the corners
+  { prefab: prefabs.tallPlant, x: fx + 17, y: fy + 15 },
+  { prefab: prefabs.slimPlant, x: fx + 1, y: fy + 17 },
+]
+
+const cafeFront: Placement[] = [
+  // appliances sit on top of the contiguous counter (front layer so the counter
+  // shows beneath them); spaced along the run. The counter beneath is already
+  // solid, so collision is covered.
+  { prefab: prefabs.espressoMachine, x: fx + 6, y: fy + 1 },
+  { prefab: prefabs.sinkCounter, x: fx + 9, y: fy + 1 },
+  { prefab: prefabs.cooktop, x: fx + 12, y: fy + 1 },
+
+  // plated food on the dining tables
+  { prefab: prefabs.foodPlate, x: fx + 5, y: fy + 8 },
+  { prefab: prefabs.foodPlate, x: fx + 12, y: fy + 8 },
+  { prefab: prefabs.foodPlate, x: fx + 16, y: fy + 9 },
+  { prefab: prefabs.foodPlate, x: fx + 5, y: fy + 14 },
+]
+
 // Rugs anchor the seating clusters and mark the spawn carpet.
 const decorPlacements: Placement[] = [
   { prefab: prefabs.carpetPurple, x: cx + 8, y: 9 },
@@ -181,6 +258,7 @@ const frontPlacements: Placement[] = [
   // game room flavour: a standing cue rack beside the pool table
   { prefab: prefabs.cueRack, x: gx + 12, y: gy + 9 },
   { prefab: prefabs.ballRack, x: gx + 6, y: gy + 10 },
+  ...cafeFront,
 ]
 
 // Spawn on the centre purple carpet of the common room.
@@ -192,7 +270,7 @@ const spawnPoints = [
 
 // All furniture that renders on the Objects Back layer and contributes solid
 // collision, across every furnished room.
-const allBackPlacements = [...backPlacements, ...gameRoomBack]
+const allBackPlacements = [...backPlacements, ...gameRoomBack, ...cafeBack]
 
 export function buildWorldMap() {
   const floorLayer = createEmptyLayer(dimensions)

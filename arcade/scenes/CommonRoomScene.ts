@@ -70,16 +70,32 @@ export class CommonRoomScene extends Phaser.Scene {
       TiledTilesetNames.generic,
       GameAssetKeys.tilesets.generic,
     )
+    const kitchenTileset = this.map.addTilesetImage(
+      TiledTilesetNames.kitchen,
+      GameAssetKeys.tilesets.kitchen,
+    )
     const basementTileset = this.map.addTilesetImage(
       TiledTilesetNames.basement,
       GameAssetKeys.tilesets.basement,
     )
 
-    if (!roomBuilderTileset || !livingRoomTileset || !genericTileset || !basementTileset) {
+    if (
+      !roomBuilderTileset ||
+      !livingRoomTileset ||
+      !genericTileset ||
+      !kitchenTileset ||
+      !basementTileset
+    ) {
       throw new Error('Common Room tilesets could not be loaded')
     }
 
-    const tilesets = [roomBuilderTileset, livingRoomTileset, genericTileset, basementTileset]
+    const tilesets = [
+      roomBuilderTileset,
+      livingRoomTileset,
+      genericTileset,
+      kitchenTileset,
+      basementTileset,
+    ]
     this.createVisibleLayer(['Floor'], tilesets, -30)
     this.createVisibleLayer(['Decor'], tilesets, -25, { optional: true })
     this.createVisibleLayer(['Objects Back', 'Objects'], tilesets, -10)
