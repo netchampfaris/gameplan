@@ -33,6 +33,11 @@ const GAME_DOOR = { edge: 'right' as const, offset: 28, width: 3 }
 // Library paints no right wall, leaving both sides walkable.
 const LIBRARY_DOOR = { edge: 'left' as const, offset: 8, width: 3 }
 
+// Doorway in the common room's left wall, lower half, opening into the
+// Conference Hall. Same ownership rule: the gap is cut in the common room's
+// left wall and the Conference Hall paints no right wall.
+const CONFERENCE_DOOR = { edge: 'left' as const, offset: 28, width: 3 }
+
 const wallStyle = { horizontal: prefabs.wallSegment, vertical: prefabs.wallVertical }
 
 // The common room owns the vertical partitions it shares with its neighbours:
@@ -44,7 +49,7 @@ const commonRoom: Room = {
   floorPattern: roomTiles.floorPattern,
   wallStyle,
   walls: ['top', 'bottom', 'left', 'right'],
-  doorways: [CAFE_DOOR, GAME_DOOR, LIBRARY_DOOR],
+  doorways: [CAFE_DOOR, GAME_DOOR, LIBRARY_DOOR, CONFERENCE_DOOR],
 }
 
 // Right-hand rooms skip their shared left wall (owned by the common room) so
@@ -75,15 +80,17 @@ const library: Room = {
   walls: ['top', 'bottom', 'left'],
 }
 
-// Sealed bottom-left room (becomes the Conference Hall in a later phase).
-const leftBottom: Room = {
+// Conference / All-Hands hall (bottom-left). Shares the common room's left wall
+// (which carries the Conference doorway), so it paints no right wall. Its top
+// edge seals it from the Library above; bottom + left close the room.
+const conference: Room = {
   rect: LEFT_BOTTOM,
-  floorPattern: roomTiles.floorSealed,
+  floorPattern: roomTiles.floorConference,
   wallStyle,
-  walls: ['bottom', 'left'],
+  walls: ['top', 'bottom', 'left'],
 }
 
-const rooms = [commonRoom, cafe, gameRoom, library, leftBottom]
+const rooms = [commonRoom, cafe, gameRoom, library, conference]
 
 // Common-room furniture in map coordinates. The original 20x15 arrangement is
 // ported and extended down the taller (40-tall) room so it does not feel empty:
@@ -293,6 +300,61 @@ const libraryFront: Placement[] = [
   { prefab: prefabs.bookStack, x: lx + 9, y: ly + 14 },
 ]
 
+// Conference / All-Hands furniture in map coordinates. CONFERENCE = {0,20,20,20};
+// the doorway from the common room lands on the right (x=20) wall at rows
+// y=28..30, so the right-side aisle (x=15..19 around those rows) is kept clear.
+// A projector screen + podium anchor the top wall, a rounded conference table
+// sits center-front of the screen ringed with meeting chairs, and the lower
+// half holds three rows of audience chairs facing the screen.
+const nx = LEFT_BOTTOM.x // 0
+const ny = LEFT_BOTTOM.y // 20
+
+// One row of audience seating: two symmetric blocks of office chairs facing up
+// toward the screen with a centre aisle between them. Stops before the door-side
+// aisle (x>=14) so the doorway rows (y=28..30) stay clear.
+const AUDIENCE_CHAIR_COLUMNS = [2, 3, 4, 5, 9, 10, 11, 12]
+function audienceRow(y: number): Placement[] {
+  return AUDIENCE_CHAIR_COLUMNS.map((column, index) => ({
+    prefab: index % 2 === 0 ? prefabs.officeChairGray : prefabs.officeChairGrayB,
+    x: nx + column,
+    y,
+  }))
+}
+
+const conferenceBack: Placement[] = [
+  // projector screen mounted on the top wall, centred, with the AV/podium
+  // cabinet beside it as a lectern.
+  { prefab: prefabs.projectorScreen, x: nx + 8, y: ny + 1 },
+  { prefab: prefabs.avCabinet, x: nx + 11, y: ny + 1 },
+
+  // presenter's conference table below the screen, with chairs behind it.
+  { prefab: prefabs.conferenceTable, x: nx + 7, y: ny + 6 },
+  { prefab: prefabs.officeChairGray, x: nx + 7, y: ny + 5 },
+  { prefab: prefabs.officeChairGrayB, x: nx + 9, y: ny + 5 },
+  { prefab: prefabs.officeChairBlue, x: nx + 10, y: ny + 5 },
+
+  // three rows of audience chairs in the lower half, all facing up toward the
+  // screen. A centre aisle splits each row; the door-side aisle (x>=14) stays
+  // clear of the doorway rows (y=28..30).
+  ...audienceRow(ny + 10),
+  ...audienceRow(ny + 13),
+  ...audienceRow(ny + 16),
+
+  // water cooler in the bottom-right corner away from the seating.
+  { prefab: prefabs.waterCooler, x: nx + 17, y: ny + 16 },
+
+  // greenery framing the room and flanking the screen.
+  { prefab: prefabs.tallPlant, x: nx + 1, y: ny + 1 },
+  { prefab: prefabs.slimPlant, x: nx + 6, y: ny + 1 },
+  { prefab: prefabs.tallPlant, x: nx + 17, y: ny + 1 },
+  { prefab: prefabs.tallPlant, x: nx + 1, y: ny + 16 },
+]
+
+const conferenceFront: Placement[] = [
+  // a coffee mug prop sits on the presenter's table (front layer).
+  { prefab: prefabs.bookStack, x: nx + 8, y: ny + 7 },
+]
+
 // Rugs anchor the seating clusters and mark the spawn carpet.
 const decorPlacements: Placement[] = [
   // library reading rugs under the desk clusters
@@ -309,6 +371,8 @@ const decorPlacements: Placement[] = [
   { prefab: prefabs.carpetRed, x: gx + 8, y: gy + 9 },
   { prefab: prefabs.carpetBlue, x: gx + 8, y: gy + 16 },
   { prefab: prefabs.carpetBlue, x: gx + 11, y: gy + 16 },
+  // conference: a red runner under the conference table to ground the stage area
+  { prefab: prefabs.carpetRed, x: nx + 8, y: ny + 6 },
 ]
 
 const frontPlacements: Placement[] = [
@@ -319,6 +383,7 @@ const frontPlacements: Placement[] = [
   { prefab: prefabs.ballRack, x: gx + 6, y: gy + 10 },
   ...cafeFront,
   ...libraryFront,
+  ...conferenceFront,
 ]
 
 // Spawn on the centre purple carpet of the common room.
@@ -330,7 +395,13 @@ const spawnPoints = [
 
 // All furniture that renders on the Objects Back layer and contributes solid
 // collision, across every furnished room.
-const allBackPlacements = [...backPlacements, ...gameRoomBack, ...cafeBack, ...libraryBack]
+const allBackPlacements = [
+  ...backPlacements,
+  ...gameRoomBack,
+  ...cafeBack,
+  ...libraryBack,
+  ...conferenceBack,
+]
 
 export function buildWorldMap() {
   const floorLayer = createEmptyLayer(dimensions)

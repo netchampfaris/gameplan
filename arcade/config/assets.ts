@@ -13,6 +13,7 @@ export const GameAssetKeys = {
     livingRoom: 'tileset:living-room',
     generic: 'tileset:generic',
     kitchen: 'tileset:kitchen',
+    conferenceHall: 'tileset:conference-hall',
     classroomLibrary: 'tileset:classroom-library',
     basement: 'tileset:basement',
   },
@@ -32,6 +33,7 @@ export const GameAssetPaths = {
     livingRoom: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png`,
     generic: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png`,
     kitchen: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/12_Kitchen_48x48.png`,
+    conferenceHall: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/13_Conference_Hall_48x48.png`,
     classroomLibrary: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png`,
     basement: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png`,
   },
@@ -45,6 +47,7 @@ export const TiledTilesetNames = {
   livingRoom: 'living_room',
   generic: 'generic',
   kitchen: 'kitchen',
+  conferenceHall: 'conference_hall',
   classroomLibrary: 'classroom_library',
   basement: 'basement',
 } as const

@@ -6,10 +6,12 @@ const GENERIC = 'generic'
 const BASEMENT = 'basement'
 const KITCHEN = 'kitchen'
 const CLASSROOM_LIBRARY = 'classroom_library'
+const CONFERENCE_HALL = 'conference_hall'
 
 const bm = (...ids: number[]) => ids.map((id) => gid(BASEMENT, id))
 const kt = (...ids: number[]) => ids.map((id) => gid(KITCHEN, id))
 const cl = (...ids: number[]) => ids.map((id) => gid(CLASSROOM_LIBRARY, id))
+const cf = (...ids: number[]) => ids.map((id) => gid(CONFERENCE_HALL, id))
 
 export const roomTiles = {
   // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.
@@ -30,6 +32,11 @@ export const roomTiles = {
   floorLibrary: [
     [gid(ROOM_BUILDER, 1634), gid(ROOM_BUILDER, 1635), gid(ROOM_BUILDER, 1636)],
     [gid(ROOM_BUILDER, 1710), gid(ROOM_BUILDER, 1711), gid(ROOM_BUILDER, 1712)],
+  ],
+  // Formal purple medallion carpet, seamless 3x2 swatch — Conference Hall floor.
+  floorConference: [
+    [gid(ROOM_BUILDER, 2246), gid(ROOM_BUILDER, 2247), gid(ROOM_BUILDER, 2248)],
+    [gid(ROOM_BUILDER, 2322), gid(ROOM_BUILDER, 2323), gid(ROOM_BUILDER, 2324)],
   ],
 }
 
@@ -385,6 +392,51 @@ export const prefabs = {
     name: 'book-stack',
     tiles: [cl(316)],
   },
+
+  // ---- Conference / All-Hands (13_Conference_Hall_48x48.png) ----------------
+  // Big rounded brown conference table, 4 wide x 2 tall with a coffee cup on it.
+  // The whole footprint blocks movement.
+  conferenceTable: {
+    name: 'conference-table',
+    solid: true,
+    tiles: [cf(73, 74, 75, 76), cf(89, 90, 91, 92)],
+  },
+  // Wall-mounted pull-down projector screen, 2 wide x 3 tall: a dark housing bar
+  // on top (10,11) over the framed screen surface (42,43 / 58,59). Hangs on the
+  // top wall (non-solid) so audience sightlines are not blocked at floor level.
+  projectorScreen: {
+    name: 'projector-screen',
+    tiles: [cf(10, 11), cf(42, 43), cf(58, 59)],
+  },
+  // Office swivel chairs (1_Generic) viewed from behind, 1x1 each, so they read
+  // as facing up toward the screen — used as audience and table seating. The
+  // conference sheet's own chairs render as ambiguous gray boxes, so we borrow
+  // these clearer ones. Walkable: a player can "sit" by standing on the seat.
+  officeChairGray: {
+    name: 'office-chair-gray',
+    tiles: [[gid(GENERIC, 1012)]],
+  },
+  officeChairGrayB: {
+    name: 'office-chair-gray-b',
+    tiles: [[gid(GENERIC, 1013)]],
+  },
+  officeChairBlue: {
+    name: 'office-chair-blue',
+    tiles: [[gid(GENERIC, 1044)]],
+  },
+  // Water cooler with a blue dispenser, 1 wide x 2 tall. Solid base.
+  waterCooler: {
+    name: 'water-cooler',
+    tiles: [cf(142), cf(158)],
+    collision: [[false], [true]],
+  },
+  // Green-display AV / monitor cabinet, 1 wide x 2 tall — sits beside the screen
+  // as a podium/lectern stand-in. Solid.
+  avCabinet: {
+    name: 'av-cabinet',
+    solid: true,
+    tiles: [cf(37), cf(53)],
+  },
 } satisfies Record<string, Prefab>
 
 export const objectPalettePrefabs = [
@@ -441,4 +493,11 @@ export const objectPalettePrefabs = [
   prefabs.globe,
   prefabs.computerStation,
   prefabs.bookStack,
+  prefabs.conferenceTable,
+  prefabs.projectorScreen,
+  prefabs.officeChairGray,
+  prefabs.officeChairGrayB,
+  prefabs.officeChairBlue,
+  prefabs.waterCooler,
+  prefabs.avCabinet,
 ]
