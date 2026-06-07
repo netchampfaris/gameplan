@@ -34,6 +34,10 @@ export class CommonRoomScene extends Phaser.Scene {
     this.load.image(GameAssetKeys.tilesets.generic, GameAssetPaths.tilesets.generic)
     this.load.image(GameAssetKeys.tilesets.kitchen, GameAssetPaths.tilesets.kitchen)
     this.load.image(
+      GameAssetKeys.tilesets.conferenceHall,
+      GameAssetPaths.tilesets.conferenceHall,
+    )
+    this.load.image(
       GameAssetKeys.tilesets.classroomLibrary,
       GameAssetPaths.tilesets.classroomLibrary,
     )
@@ -78,6 +82,10 @@ export class CommonRoomScene extends Phaser.Scene {
       TiledTilesetNames.kitchen,
       GameAssetKeys.tilesets.kitchen,
     )
+    const conferenceHallTileset = this.map.addTilesetImage(
+      TiledTilesetNames.conferenceHall,
+      GameAssetKeys.tilesets.conferenceHall,
+    )
     const classroomLibraryTileset = this.map.addTilesetImage(
       TiledTilesetNames.classroomLibrary,
       GameAssetKeys.tilesets.classroomLibrary,
@@ -92,6 +100,7 @@ export class CommonRoomScene extends Phaser.Scene {
       !livingRoomTileset ||
       !genericTileset ||
       !kitchenTileset ||
+      !conferenceHallTileset ||
       !classroomLibraryTileset ||
       !basementTileset
     ) {
@@ -103,6 +112,7 @@ export class CommonRoomScene extends Phaser.Scene {
       livingRoomTileset,
       genericTileset,
       kitchenTileset,
+      conferenceHallTileset,
       classroomLibraryTileset,
       basementTileset,
     ]
