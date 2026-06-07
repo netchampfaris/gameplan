@@ -4,8 +4,10 @@ const ROOM_BUILDER = 'room_builder'
 const LIVING_ROOM = 'living_room'
 const GENERIC = 'generic'
 const BASEMENT = 'basement'
+const KITCHEN = 'kitchen'
 
 const bm = (...ids: number[]) => ids.map((id) => gid(BASEMENT, id))
+const kt = (...ids: number[]) => ids.map((id) => gid(KITCHEN, id))
 
 export const roomTiles = {
   // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.
@@ -241,6 +243,101 @@ export const prefabs = {
     name: 'ball-rack',
     tiles: [bm(417)],
   },
+
+  // ---- Café / Kitchen (12_Kitchen_48x48.png) ------------------------------
+  // Glass-front bakery display case, 3 wide x 2 tall: wood top + pastry vitrine.
+  bakeryDisplay: {
+    name: 'bakery-display',
+    solid: true,
+    tiles: [kt(541, 542, 543), kt(557, 558, 559)],
+  },
+  // Twin-group espresso machine with portafilter spouts and a drip tray, 2x2.
+  // Sits on top of the counter run, so only the machine body blocks movement.
+  espressoMachine: {
+    name: 'espresso-machine',
+    solid: true,
+    tiles: [kt(519, 520), kt(535, 536)],
+  },
+  // Stainless twin-basin sink with faucet knobs, 2 wide x 2 tall, set into the
+  // counter run. Both tiles block movement.
+  sinkCounter: {
+    name: 'sink-counter',
+    solid: true,
+    tiles: [kt(551, 552), kt(567, 568)],
+  },
+  // Four-burner cooktop with the wall range hood floating above it. The hood
+  // hangs on the wall (non-solid); only the cooktop blocks movement.
+  cooktop: {
+    name: 'cooktop',
+    tiles: [kt(491), kt(507)],
+    collision: [[false], [true]],
+  },
+  // Single upright fridge, 1 wide x 3 tall (top, handled door, base).
+  fridge: {
+    name: 'fridge',
+    solid: true,
+    tiles: [kt(378), kt(394), kt(410)],
+  },
+  fridgeWhite: {
+    name: 'fridge-white',
+    solid: true,
+    tiles: [kt(379), kt(395), kt(411)],
+  },
+  // Wood counter run pieces, 1x1, top-down. They butt together seamlessly to
+  // form one continuous service counter: left cap, straight mid, cabinet-door
+  // mid, right cap. All solid.
+  counterLeft: {
+    name: 'counter-left',
+    solid: true,
+    tiles: [kt(114)],
+  },
+  counterMid: {
+    name: 'counter-mid',
+    solid: true,
+    tiles: [kt(115)],
+  },
+  counterDoor: {
+    name: 'counter-door',
+    solid: true,
+    tiles: [kt(116)],
+  },
+  counterRight: {
+    name: 'counter-right',
+    solid: true,
+    tiles: [kt(118)],
+  },
+  // Wooden dining table, 3 wide x 2 tall (plank top + front edge with legs).
+  diningTable: {
+    name: 'dining-table',
+    solid: true,
+    tiles: [kt(307, 308, 309), kt(323, 324, 325)],
+  },
+  // Red-and-white checkered tablecloth table, 2 wide x 3 tall.
+  checkeredTable: {
+    name: 'checkered-table',
+    solid: true,
+    tiles: [kt(340, 341), kt(356, 357), kt(372, 373)],
+  },
+  // Top-down café stools (cushioned seat + four legs, 1 wide x 2 tall) borrowed
+  // from the basement sheet — they read unambiguously as stools. Walkable so a
+  // player can "sit" by standing on the seat; only flavour, no collision.
+  cafeStoolYellow: {
+    name: 'cafe-stool-yellow',
+    tiles: [bm(410), bm(426)],
+  },
+  cafeStoolRed: {
+    name: 'cafe-stool-red',
+    tiles: [bm(411), bm(427)],
+  },
+  cafeStoolBlue: {
+    name: 'cafe-stool-blue',
+    tiles: [bm(412), bm(428)],
+  },
+  // Plated food props, 1x1, front-layer flavour for tables.
+  foodPlate: {
+    name: 'food-plate',
+    tiles: [kt(555)],
+  },
 } satisfies Record<string, Prefab>
 
 export const objectPalettePrefabs = [
@@ -275,4 +372,20 @@ export const objectPalettePrefabs = [
   prefabs.stoolRed,
   prefabs.cueRack,
   prefabs.ballRack,
+  prefabs.bakeryDisplay,
+  prefabs.espressoMachine,
+  prefabs.sinkCounter,
+  prefabs.cooktop,
+  prefabs.fridge,
+  prefabs.fridgeWhite,
+  prefabs.counterLeft,
+  prefabs.counterMid,
+  prefabs.counterDoor,
+  prefabs.counterRight,
+  prefabs.diningTable,
+  prefabs.checkeredTable,
+  prefabs.cafeStoolYellow,
+  prefabs.cafeStoolRed,
+  prefabs.cafeStoolBlue,
+  prefabs.foodPlate,
 ]
