@@ -2737,6 +2737,153 @@
           "width": 48,
           "x": 288,
           "y": 1920
+        },
+        {
+          "height": 96,
+          "id": 54,
+          "name": "conference-table",
+          "properties": [
+            {
+              "name": "size",
+              "value": "4x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 192,
+          "x": 432,
+          "y": 1920
+        },
+        {
+          "height": 144,
+          "id": 55,
+          "name": "projector-screen",
+          "properties": [
+            {
+              "name": "size",
+              "value": "2x3"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 96,
+          "x": 576,
+          "y": 1920
+        },
+        {
+          "height": 48,
+          "id": 56,
+          "name": "office-chair-gray",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 0,
+          "y": 2112
+        },
+        {
+          "height": 48,
+          "id": 57,
+          "name": "office-chair-gray-b",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 144,
+          "y": 2112
+        },
+        {
+          "height": 48,
+          "id": 58,
+          "name": "office-chair-blue",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x1"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 288,
+          "y": 2112
+        },
+        {
+          "height": 96,
+          "id": 59,
+          "name": "water-cooler",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": false
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 432,
+          "y": 2112
+        },
+        {
+          "height": 96,
+          "id": 60,
+          "name": "av-cabinet",
+          "properties": [
+            {
+              "name": "size",
+              "value": "1x2"
+            },
+            {
+              "name": "solid",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "type": "palette",
+          "visible": true,
+          "width": 48,
+          "x": 576,
+          "y": 2112
         }
       ],
       "opacity": 1,
@@ -2747,7 +2894,7 @@
     }
   ],
   "nextlayerid": 8,
-  "nextobjectid": 57,
+  "nextobjectid": 64,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -2808,6 +2955,19 @@
     {
       "columns": 16,
       "firstgid": 11341,
+      "image": "../1_Interiors/48x48/Theme_Sorter_48x48/13_Conference_Hall_48x48.png",
+      "imageheight": 576,
+      "imagewidth": 768,
+      "margin": 0,
+      "name": "conference_hall",
+      "spacing": 0,
+      "tilecount": 192,
+      "tileheight": 48,
+      "tilewidth": 48
+    },
+    {
+      "columns": 16,
+      "firstgid": 11533,
       "image": "../1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png",
       "imageheight": 1632,
       "imagewidth": 768,
@@ -2820,7 +2980,7 @@
     },
     {
       "columns": 16,
-      "firstgid": 11885,
+      "firstgid": 12077,
       "image": "../1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png",
       "imageheight": 2400,
       "imagewidth": 768,

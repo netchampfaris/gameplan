@@ -85,6 +85,13 @@ const sheetDefinitions: SheetDefinition[] = [
     imageheight: 2352,
   },
   {
+    name: 'conference_hall',
+    image: '../1_Interiors/48x48/Theme_Sorter_48x48/13_Conference_Hall_48x48.png',
+    columns: 16,
+    imagewidth: 768,
+    imageheight: 576,
+  },
+  {
     name: 'classroom_library',
     image: '../1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png',
     columns: 16,
