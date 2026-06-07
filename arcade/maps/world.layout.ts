@@ -28,6 +28,11 @@ const LEFT_BOTTOM = { x: 0, y: 20, width: 20, height: 20 }
 const CAFE_DOOR = { edge: 'right' as const, offset: 8, width: 3 }
 const GAME_DOOR = { edge: 'right' as const, offset: 28, width: 3 }
 
+// Doorway in the common room's left wall, upper half, opening into the Library.
+// The common room owns this shared partition, so the gap is cut here; the
+// Library paints no right wall, leaving both sides walkable.
+const LIBRARY_DOOR = { edge: 'left' as const, offset: 8, width: 3 }
+
 const wallStyle = { horizontal: prefabs.wallSegment, vertical: prefabs.wallVertical }
 
 // The common room owns the vertical partitions it shares with its neighbours:
@@ -39,7 +44,7 @@ const commonRoom: Room = {
   floorPattern: roomTiles.floorPattern,
   wallStyle,
   walls: ['top', 'bottom', 'left', 'right'],
-  doorways: [CAFE_DOOR, GAME_DOOR],
+  doorways: [CAFE_DOOR, GAME_DOOR, LIBRARY_DOOR],
 }
 
 // Right-hand rooms skip their shared left wall (owned by the common room) so
@@ -60,16 +65,17 @@ const gameRoom: Room = {
   walls: ['top', 'bottom', 'right'],
 }
 
-// Sealed left rooms: full perimeter, no doorways. They share the common room's
-// left wall, so they only paint their own top/bottom/left edges; the divider
-// between them is owned by the top room's bottom edge.
-const leftTop: Room = {
+// Library / Focus Room (top-left). Shares the common room's left wall (which
+// carries the Library doorway), so it paints only its own top/bottom/left
+// edges; the divider with the room below is owned by its bottom edge.
+const library: Room = {
   rect: LEFT_TOP,
-  floorPattern: roomTiles.floorSealed,
+  floorPattern: roomTiles.floorLibrary,
   wallStyle,
   walls: ['top', 'bottom', 'left'],
 }
 
+// Sealed bottom-left room (becomes the Conference Hall in a later phase).
 const leftBottom: Room = {
   rect: LEFT_BOTTOM,
   floorPattern: roomTiles.floorSealed,
@@ -77,7 +83,7 @@ const leftBottom: Room = {
   walls: ['bottom', 'left'],
 }
 
-const rooms = [commonRoom, cafe, gameRoom, leftTop, leftBottom]
+const rooms = [commonRoom, cafe, gameRoom, library, leftBottom]
 
 // Common-room furniture in map coordinates. The original 20x15 arrangement is
 // ported and extended down the taller (40-tall) room so it does not feel empty:
@@ -238,8 +244,61 @@ const cafeFront: Placement[] = [
   { prefab: prefabs.foodPlate, x: fx + 5, y: fy + 14 },
 ]
 
+// Library furniture in map coordinates. LIBRARY = {0,0,20,20}; the doorway
+// from the common room lands on the right (x=20) wall at rows y=8..11, so the
+// right-side aisle (x=15..19, around those rows) is kept clear. Bookcases line
+// the top wall and the left wall, reading desks fill the centre with walkable
+// aisles, and a computer/checkout station + globe accent a corner.
+const lx = LEFT_TOP.x // 0
+const ly = LEFT_TOP.y // 0
+
+const libraryBack: Placement[] = [
+  // bookcase run along the top wall, facing down into the room
+  { prefab: prefabs.bookcaseTall, x: lx + 3, y: ly + 2 },
+  { prefab: prefabs.bookcaseTall, x: lx + 6, y: ly + 2 },
+  { prefab: prefabs.bookcaseTall, x: lx + 9, y: ly + 2 },
+  { prefab: prefabs.bookcaseTall, x: lx + 12, y: ly + 2 },
+
+  // bookcase column down the left wall (sits just inside the wall)
+  { prefab: prefabs.bookcaseTall, x: lx + 2, y: ly + 6 },
+  { prefab: prefabs.bookcaseTall, x: lx + 2, y: ly + 10 },
+
+  // three reading desks down the centre, each with a chair above and below;
+  // aisles kept clear between desks and along the door side.
+  { prefab: prefabs.readingChair, x: lx + 7, y: ly + 7 },
+  { prefab: prefabs.readingDesk, x: lx + 6, y: ly + 8 },
+  { prefab: prefabs.readingChair, x: lx + 7, y: ly + 10 },
+
+  { prefab: prefabs.readingChair, x: lx + 12, y: ly + 7 },
+  { prefab: prefabs.readingDesk, x: lx + 11, y: ly + 8 },
+  { prefab: prefabs.readingChair, x: lx + 12, y: ly + 10 },
+
+  { prefab: prefabs.readingChair, x: lx + 8, y: ly + 13 },
+  { prefab: prefabs.readingDesk, x: lx + 7, y: ly + 14 },
+  { prefab: prefabs.readingChair, x: lx + 8, y: ly + 16 },
+
+  // computer / checkout station pair in the bottom-left corner
+  { prefab: prefabs.computerStation, x: lx + 2, y: ly + 15 },
+  { prefab: prefabs.computerStation, x: lx + 4, y: ly + 15 },
+
+  // globe accent by the door aisle
+  { prefab: prefabs.globe, x: lx + 16, y: ly + 6 },
+  { prefab: prefabs.globe, x: lx + 16, y: ly + 14 },
+]
+
+const libraryFront: Placement[] = [
+  // book-stack accents on the reading desks
+  { prefab: prefabs.bookStack, x: lx + 8, y: ly + 8 },
+  { prefab: prefabs.bookStack, x: lx + 13, y: ly + 8 },
+  { prefab: prefabs.bookStack, x: lx + 9, y: ly + 14 },
+]
+
 // Rugs anchor the seating clusters and mark the spawn carpet.
 const decorPlacements: Placement[] = [
+  // library reading rugs under the desk clusters
+  { prefab: prefabs.carpetBlue, x: lx + 6, y: ly + 8 },
+  { prefab: prefabs.carpetBlue, x: lx + 11, y: ly + 8 },
+  { prefab: prefabs.carpetRed, x: lx + 7, y: ly + 14 },
   { prefab: prefabs.carpetPurple, x: cx + 8, y: 9 },
   { prefab: prefabs.carpetBlue, x: cx + 13, y: 9 },
   // spawn carpet at the room's vertical centre
@@ -259,6 +318,7 @@ const frontPlacements: Placement[] = [
   { prefab: prefabs.cueRack, x: gx + 12, y: gy + 9 },
   { prefab: prefabs.ballRack, x: gx + 6, y: gy + 10 },
   ...cafeFront,
+  ...libraryFront,
 ]
 
 // Spawn on the centre purple carpet of the common room.
@@ -270,7 +330,7 @@ const spawnPoints = [
 
 // All furniture that renders on the Objects Back layer and contributes solid
 // collision, across every furnished room.
-const allBackPlacements = [...backPlacements, ...gameRoomBack, ...cafeBack]
+const allBackPlacements = [...backPlacements, ...gameRoomBack, ...cafeBack, ...libraryBack]
 
 export function buildWorldMap() {
   const floorLayer = createEmptyLayer(dimensions)

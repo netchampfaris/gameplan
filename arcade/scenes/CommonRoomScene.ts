@@ -33,6 +33,10 @@ export class CommonRoomScene extends Phaser.Scene {
     this.load.image(GameAssetKeys.tilesets.livingRoom, GameAssetPaths.tilesets.livingRoom)
     this.load.image(GameAssetKeys.tilesets.generic, GameAssetPaths.tilesets.generic)
     this.load.image(GameAssetKeys.tilesets.kitchen, GameAssetPaths.tilesets.kitchen)
+    this.load.image(
+      GameAssetKeys.tilesets.classroomLibrary,
+      GameAssetPaths.tilesets.classroomLibrary,
+    )
     this.load.image(GameAssetKeys.tilesets.basement, GameAssetPaths.tilesets.basement)
   }
 
@@ -74,6 +78,10 @@ export class CommonRoomScene extends Phaser.Scene {
       TiledTilesetNames.kitchen,
       GameAssetKeys.tilesets.kitchen,
     )
+    const classroomLibraryTileset = this.map.addTilesetImage(
+      TiledTilesetNames.classroomLibrary,
+      GameAssetKeys.tilesets.classroomLibrary,
+    )
     const basementTileset = this.map.addTilesetImage(
       TiledTilesetNames.basement,
       GameAssetKeys.tilesets.basement,
@@ -84,6 +92,7 @@ export class CommonRoomScene extends Phaser.Scene {
       !livingRoomTileset ||
       !genericTileset ||
       !kitchenTileset ||
+      !classroomLibraryTileset ||
       !basementTileset
     ) {
       throw new Error('Common Room tilesets could not be loaded')
@@ -94,6 +103,7 @@ export class CommonRoomScene extends Phaser.Scene {
       livingRoomTileset,
       genericTileset,
       kitchenTileset,
+      classroomLibraryTileset,
       basementTileset,
     ]
     this.createVisibleLayer(['Floor'], tilesets, -30)
