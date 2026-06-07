@@ -6,18 +6,18 @@ import {
   createSpawnLayer,
   createTileLayer,
   createTiledMap,
-  fillRectWithPattern,
   type MapDimensions,
   type Placement,
 } from './tiled.ts'
-import { paintRoomWalls, type Room } from './rooms.ts'
-import { objectPalettePrefabs, prefabs, roomTiles } from './prefabs.ts'
+import { WallPlan, type Room } from './rooms.ts'
+import { floorKits, grayWallKit, objectPalettePrefabs, prefabs } from './prefabs.ts'
 
 const dimensions: MapDimensions = { width: 60, height: 40 }
 
-// World is split into a center column (common room hub) flanked by two sealed
-// rooms on the left and the café / game room on the right. Shared partition
-// walls are owned by a single room so they never double up.
+// World is split into a center column (common room hub) flanked by the
+// library / conference hall on the left and the café / game room on the
+// right. Shared partition walls are owned by a single room so they never
+// double up; WallPlan resolves junctions and floor shadows globally.
 const COMMON = { x: 20, y: 0, width: 20, height: 40 }
 const CAFE = { x: 40, y: 0, width: 20, height: 20 }
 const GAME = { x: 40, y: 20, width: 20, height: 20 }
@@ -28,119 +28,118 @@ const LEFT_BOTTOM = { x: 0, y: 20, width: 20, height: 20 }
 const CAFE_DOOR = { edge: 'right' as const, offset: 8, width: 3 }
 const GAME_DOOR = { edge: 'right' as const, offset: 28, width: 3 }
 
-// Doorway in the common room's left wall, upper half, opening into the Library.
-// The common room owns this shared partition, so the gap is cut here; the
-// Library paints no right wall, leaving both sides walkable.
+// Doorways in the common room's left wall: upper half into the Library,
+// lower half into the Conference Hall. The common room owns both shared
+// partitions, so the gaps are cut here and the neighbours paint no right wall.
 const LIBRARY_DOOR = { edge: 'left' as const, offset: 8, width: 3 }
-
-// Doorway in the common room's left wall, lower half, opening into the
-// Conference Hall. Same ownership rule: the gap is cut in the common room's
-// left wall and the Conference Hall paints no right wall.
 const CONFERENCE_DOOR = { edge: 'left' as const, offset: 28, width: 3 }
 
-const wallStyle = { horizontal: prefabs.wallSegment, vertical: prefabs.wallVertical }
-
-// The common room owns the vertical partitions it shares with its neighbours:
-// the sealed left wall (no doorway) and the right wall with two doorways into
-// the café and game room. Top and bottom edges give it finished walls so the
-// room is fully sealed.
+// The common room owns the vertical partitions it shares with its
+// neighbours; top and bottom edges close the map perimeter.
 const commonRoom: Room = {
   rect: COMMON,
-  floorPattern: roomTiles.floorPattern,
-  wallStyle,
+  floorKit: floorKits.diagonalWood,
   walls: ['top', 'bottom', 'left', 'right'],
   doorways: [CAFE_DOOR, GAME_DOOR, LIBRARY_DOOR, CONFERENCE_DOOR],
 }
 
-// Right-hand rooms skip their shared left wall (owned by the common room) so
-// the doorways line up; the café also skips its bottom wall (shared divider,
-// owned by the game room) so the two rooms read as a stacked pair.
+// Right-hand rooms skip their shared left wall (owned by the common room);
+// the café also skips its bottom wall (the divider is owned by the game
+// room's top edge) so the pair shares a single 2-row band.
 const cafe: Room = {
   rect: CAFE,
-  floorPattern: roomTiles.floorCafe,
-  wallStyle,
+  floorKit: floorKits.stoneTile,
   walls: ['top', 'right'],
 }
 
 const gameRoom: Room = {
   rect: GAME,
-  floorPattern: roomTiles.floorGameRoom,
-  wallStyle,
-  // top edge is the café/game divider; bottom + right close the room.
+  floorKit: floorKits.darkStone,
   walls: ['top', 'bottom', 'right'],
 }
 
 // Library / Focus Room (top-left). Shares the common room's left wall (which
-// carries the Library doorway), so it paints only its own top/bottom/left
-// edges; the divider with the room below is owned by its bottom edge.
+// carries the Library doorway) and lets the Conference Hall's top edge be the
+// divider below, so each partition is a single band.
 const library: Room = {
   rect: LEFT_TOP,
-  floorPattern: roomTiles.floorLibrary,
-  wallStyle,
-  walls: ['top', 'bottom', 'left'],
+  floorKit: floorKits.parquet,
+  walls: ['top', 'left'],
 }
 
-// Conference / All-Hands hall (bottom-left). Shares the common room's left wall
-// (which carries the Conference doorway), so it paints no right wall. Its top
-// edge seals it from the Library above; bottom + left close the room.
+// Conference / All-Hands hall (bottom-left). Its top edge is the divider with
+// the Library; bottom + left close the map perimeter.
 const conference: Room = {
   rect: LEFT_BOTTOM,
-  floorPattern: roomTiles.floorConference,
-  wallStyle,
+  floorKit: floorKits.medallionCarpet,
   walls: ['top', 'bottom', 'left'],
 }
 
 const rooms = [commonRoom, cafe, gameRoom, library, conference]
 
-// Common-room furniture in map coordinates. The original 20x15 arrangement is
-// ported and extended down the taller (40-tall) room so it does not feel empty:
-// a back identity wall, two lounge clusters, a reading nook, a long table, and
-// greenery framing the space.
+// ---- Common room -----------------------------------------------------------
+// Furnished after the Generic_Home_1 example: an identity wall with a
+// fireplace centerpiece tightly flanked by chairs, lounge clusters anchored
+// on area rugs, plants tucked into corners, and doormats at every doorway.
+// Columns 20 and 39 are wall; usable floor is 21..38. The doorway corridors
+// (rows 8-10 and 28-30) stay clear wall to wall.
 const cx = COMMON.x // 20
 
 const backPlacements: Placement[] = [
-  // back identity wall: plants flanking bookshelves with a fireplace centerpiece
-  { prefab: prefabs.tallPlant, x: cx + 0, y: 1 },
+  // identity wall: plant / bookshelf / chair+fireplace+chair / bookshelf / plant
+  { prefab: prefabs.bushyPlant, x: cx + 1, y: 0 },
   { prefab: prefabs.bookshelfWide, x: cx + 2, y: 0 },
-  { prefab: prefabs.paintingLandscape, x: cx + 8, y: 1 },
+  { prefab: prefabs.armchairOrange, x: cx + 8, y: 1 },
   { prefab: prefabs.fireplace, x: cx + 9, y: 0 },
-  { prefab: prefabs.paintingOrange, x: cx + 11, y: 1 },
+  { prefab: prefabs.armchairOrange, x: cx + 11, y: 1 },
   { prefab: prefabs.bookshelfWide, x: cx + 12, y: 0 },
-  { prefab: prefabs.tallPlant, x: cx + 18, y: 1 },
+  { prefab: prefabs.bushyPlant, x: cx + 18, y: 0 },
 
-  // upper lounge: couch + armchair around a coffee table (ported)
-  { prefab: prefabs.armchairOrange, x: cx + 2, y: 6 },
-  { prefab: prefabs.couchGray, x: cx + 4, y: 5 },
-  { prefab: prefabs.lampBlue, x: cx + 7, y: 5 },
-  { prefab: prefabs.coffeeTable, x: cx + 4, y: 8 },
+  // upper-west lounge on a purple rug: couch along the rug's top edge,
+  // floor lamp beside it, armchair facing in, coffee table on the rug
+  { prefab: prefabs.couchGray, x: cx + 6, y: 3 },
+  { prefab: prefabs.lampBlue, x: cx + 9, y: 3 },
+  { prefab: prefabs.armchairOrange, x: cx + 4, y: 5 },
+  { prefab: prefabs.coffeeTable, x: cx + 6, y: 6 },
 
-  // upper chat nook on the right
-  { prefab: prefabs.couchBrown, x: cx + 14, y: 6 },
-  { prefab: prefabs.tableLamp, x: cx + 17, y: 6 },
-  { prefab: prefabs.armchairOrange, x: cx + 13, y: 6 },
+  // upper-east chat nook: brown couch + table lamp + facing armchair
+  { prefab: prefabs.couchBrown, x: cx + 14, y: 4 },
+  { prefab: prefabs.tableLamp, x: cx + 17, y: 4 },
+  { prefab: prefabs.armchairOrange, x: cx + 13, y: 5 },
 
-  // mid-room long table flanked by side tables and a plant
-  { prefab: prefabs.coffeeTable, x: cx + 8, y: 18 },
-  { prefab: prefabs.armchairOrange, x: cx + 6, y: 18 },
-  { prefab: prefabs.armchairOrange, x: cx + 12, y: 18 },
-  { prefab: prefabs.tallPlant, x: cx + 1, y: 17 },
-  { prefab: prefabs.tallPlant, x: cx + 17, y: 17 },
+  // mid-room chat pair on the west side
+  { prefab: prefabs.armchairOrange, x: cx + 2, y: 13 },
+  { prefab: prefabs.tableLamp, x: cx + 3, y: 13 },
+  { prefab: prefabs.armchairOrange, x: cx + 4, y: 13 },
+  // greenery breaking up the long east wall
+  { prefab: prefabs.bushyPlant, x: cx + 18, y: 12 },
+  { prefab: prefabs.bushyPlant, x: cx + 18, y: 16 },
 
-  // lower lounge cluster mirrors the upper one to fill the bottom half
-  { prefab: prefabs.couchBrown, x: cx + 3, y: 27 },
-  { prefab: prefabs.armchairOrange, x: cx + 2, y: 27 },
-  { prefab: prefabs.tableLamp, x: cx + 6, y: 27 },
-  // right-hand lower lounge: gray couch with a coffee table in front and a
-  // floor lamp to the side, spaced like the clean upper lounge.
-  { prefab: prefabs.couchGray, x: cx + 12, y: 27 },
-  { prefab: prefabs.lampBlue, x: cx + 15, y: 27 },
-  { prefab: prefabs.coffeeTable, x: cx + 12, y: 30 },
+  // central plaza: tall plants framing the spawn carpet
+  { prefab: prefabs.tallPlant, x: cx + 5, y: 19 },
+  { prefab: prefabs.tallPlant, x: cx + 13, y: 19 },
 
-  // greenery framing the lower corners (sits in front of the bottom wall)
+  // lower-mid long table flanked by armchairs
+  { prefab: prefabs.armchairOrange, x: cx + 5, y: 25 },
+  { prefab: prefabs.coffeeTable, x: cx + 7, y: 25 },
+  { prefab: prefabs.armchairOrange, x: cx + 10, y: 25 },
+
+  // lower-west lounge mirroring the upper one
+  { prefab: prefabs.couchBrown, x: cx + 6, y: 31 },
+  { prefab: prefabs.tableLamp, x: cx + 9, y: 31 },
+  { prefab: prefabs.armchairOrange, x: cx + 4, y: 33 },
+  { prefab: prefabs.coffeeTable, x: cx + 6, y: 34 },
+
+  // lower-east lounge: gray couch with lamp and table
+  { prefab: prefabs.couchGray, x: cx + 13, y: 32 },
+  { prefab: prefabs.lampBlue, x: cx + 16, y: 32 },
+  { prefab: prefabs.coffeeTable, x: cx + 13, y: 35 },
+
+  // bottom wall dressed with shelves and greenery (bases meet the wall band)
   { prefab: prefabs.slimPlant, x: cx + 1, y: 35 },
-  { prefab: prefabs.bookshelf, x: cx + 4, y: 35 },
-  { prefab: prefabs.tallPlant, x: cx + 9, y: 35 },
-  { prefab: prefabs.bookshelf, x: cx + 14, y: 35 },
+  { prefab: prefabs.bookshelf, x: cx + 3, y: 35 },
+  { prefab: prefabs.tallPlant, x: cx + 8, y: 35 },
+  { prefab: prefabs.bookshelf, x: cx + 15, y: 35 },
   { prefab: prefabs.slimPlant, x: cx + 18, y: 35 },
 ]
 
@@ -351,22 +350,31 @@ const conferenceBack: Placement[] = [
 ]
 
 const conferenceFront: Placement[] = [
-  // a coffee mug prop sits on the presenter's table (front layer).
+  // a book prop sits on the presenter's table (front layer).
   { prefab: prefabs.bookStack, x: nx + 8, y: ny + 7 },
 ]
 
-// Rugs anchor the seating clusters and mark the spawn carpet.
+// Rugs anchor the seating clusters; doormats mark every doorway threshold.
 const decorPlacements: Placement[] = [
   // library reading rugs under the desk clusters
   { prefab: prefabs.carpetBlue, x: lx + 6, y: ly + 8 },
   { prefab: prefabs.carpetBlue, x: lx + 11, y: ly + 8 },
   { prefab: prefabs.carpetRed, x: lx + 7, y: ly + 14 },
-  { prefab: prefabs.carpetPurple, x: cx + 8, y: 9 },
-  { prefab: prefabs.carpetBlue, x: cx + 13, y: 9 },
-  // spawn carpet at the room's vertical centre
-  { prefab: prefabs.carpetPurple, x: cx + 8, y: 21 },
-  { prefab: prefabs.carpetRed, x: cx + 13, y: 30 },
-  { prefab: prefabs.carpetBlue, x: cx + 4, y: 30 },
+
+  // common room: lounge rugs under the seating clusters
+  { prefab: prefabs.carpetPurple, x: cx + 6, y: 4 },
+  { prefab: prefabs.carpetRed, x: cx + 14, y: 6 },
+  { prefab: prefabs.carpetPurple, x: cx + 6, y: 32 },
+  { prefab: prefabs.carpetBlue, x: cx + 14, y: 34 },
+  // spawn plaza carpet at the room's vertical centre
+  { prefab: prefabs.carpetPurple, x: cx + 8, y: 19 },
+
+  // doormats inside the four doorways
+  { prefab: prefabs.carpetRed, x: cx + 1, y: 8 },
+  { prefab: prefabs.carpetBlue, x: cx + 17, y: 8 },
+  { prefab: prefabs.carpetBlue, x: cx + 1, y: 28 },
+  { prefab: prefabs.carpetRed, x: cx + 17, y: 28 },
+
   // game room: rug under the pool table and matching rugs under each pouf
   { prefab: prefabs.carpetRed, x: gx + 8, y: gy + 9 },
   { prefab: prefabs.carpetBlue, x: gx + 8, y: gy + 16 },
@@ -376,8 +384,8 @@ const decorPlacements: Placement[] = [
 ]
 
 const frontPlacements: Placement[] = [
-  { prefab: prefabs.couchPillows, x: cx + 5, y: 5 },
-  { prefab: prefabs.couchPillows, x: cx + 13, y: 27 },
+  { prefab: prefabs.couchPillows, x: cx + 7, y: 3 },
+  { prefab: prefabs.couchPillows, x: cx + 14, y: 32 },
   // game room flavour: a standing cue rack beside the pool table
   { prefab: prefabs.cueRack, x: gx + 12, y: gy + 9 },
   { prefab: prefabs.ballRack, x: gx + 6, y: gy + 10 },
@@ -388,9 +396,9 @@ const frontPlacements: Placement[] = [
 
 // Spawn on the centre purple carpet of the common room.
 const spawnPoints = [
-  { name: 'spawn-center', x: cx + 9, y: 22 },
-  { name: 'spawn-left', x: cx + 8, y: 23 },
-  { name: 'spawn-right', x: cx + 10, y: 23 },
+  { name: 'spawn-center', x: cx + 9, y: 21 },
+  { name: 'spawn-left', x: cx + 8, y: 22 },
+  { name: 'spawn-right', x: cx + 10, y: 22 },
 ]
 
 // All furniture that renders on the Objects Back layer and contributes solid
@@ -410,15 +418,12 @@ export function buildWorldMap() {
   const objectsFrontLayer = createEmptyLayer(dimensions)
   const collisionLayer = createCollisionLayer(allBackPlacements, dimensions)
 
+  const wallPlan = new WallPlan(rooms, dimensions)
   for (const room of rooms) {
-    fillRectWithPattern(floorLayer, room.floorPattern, room.rect, dimensions)
+    wallPlan.paintFloor(floorLayer, room)
   }
-
-  for (const room of rooms) {
-    const walls = paintRoomWalls(room)
-    applyPlacements(floorLayer, walls.floorPlacements, dimensions)
-    walls.applyCollision(collisionLayer, dimensions)
-  }
+  wallPlan.paintWalls(floorLayer, grayWallKit)
+  wallPlan.applyCollision(collisionLayer)
 
   applyPlacements(decorLayer, decorPlacements, dimensions)
   applyPlacements(objectsBackLayer, allBackPlacements, dimensions)
