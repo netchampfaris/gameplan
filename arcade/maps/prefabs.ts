@@ -1,4 +1,5 @@
 import { gid, type Prefab } from './tiled.ts'
+import type { FloorKit, WallKit } from './rooms.ts'
 
 const ROOM_BUILDER = 'room_builder'
 const LIVING_ROOM = 'living_room'
@@ -13,49 +14,54 @@ const kt = (...ids: number[]) => ids.map((id) => gid(KITCHEN, id))
 const cl = (...ids: number[]) => ids.map((id) => gid(CLASSROOM_LIBRARY, id))
 const cf = (...ids: number[]) => ids.map((id) => gid(CONFERENCE_HALL, id))
 
-export const roomTiles = {
-  // Golden wood planks, seamless 3x2 swatch from the Room Builder floor section.
-  floorPattern: [
-    [gid(ROOM_BUILDER, 1630), gid(ROOM_BUILDER, 1631), gid(ROOM_BUILDER, 1632)],
-    [gid(ROOM_BUILDER, 1706), gid(ROOM_BUILDER, 1707), gid(ROOM_BUILDER, 1708)],
-  ],
-  // Dark gray stone, seamless 3x2 swatch — Game Room floor.
-  floorGameRoom: [
-    [gid(ROOM_BUILDER, 2098), gid(ROOM_BUILDER, 2099), gid(ROOM_BUILDER, 2100)],
-    [gid(ROOM_BUILDER, 2174), gid(ROOM_BUILDER, 2175), gid(ROOM_BUILDER, 2176)],
-  ],
-  // Light-blue checkerboard tile, seamless 1x3 swatch — Café floor.
-  floorCafe: [[gid(ROOM_BUILDER, 2150), gid(ROOM_BUILDER, 2151), gid(ROOM_BUILDER, 2152)]],
-  // Neutral gray weave — sealed left-hand rooms (no doorway yet).
-  floorSealed: [[gid(ROOM_BUILDER, 1718), gid(ROOM_BUILDER, 1719), gid(ROOM_BUILDER, 1720)]],
-  // Warm tan parquet-weave, seamless 3x2 swatch — calmer Library floor.
-  floorLibrary: [
-    [gid(ROOM_BUILDER, 1634), gid(ROOM_BUILDER, 1635), gid(ROOM_BUILDER, 1636)],
-    [gid(ROOM_BUILDER, 1710), gid(ROOM_BUILDER, 1711), gid(ROOM_BUILDER, 1712)],
-  ],
-  // Formal purple medallion carpet, seamless 3x2 swatch — Conference Hall floor.
-  floorConference: [
-    [gid(ROOM_BUILDER, 2246), gid(ROOM_BUILDER, 2247), gid(ROOM_BUILDER, 2248)],
-    [gid(ROOM_BUILDER, 2322), gid(ROOM_BUILDER, 2323), gid(ROOM_BUILDER, 2324)],
-  ],
+// Room_Builder floors are published as 3x2 shadow-variant kits (see
+// maps/design-reference/DESIGN-GRAMMAR.md): the top-left tile of each kit is
+// the corner-shadow variant and the rest follow at fixed offsets.
+const floorKit = (topLeftId: number): FloorKit => ({
+  topLeft: gid(ROOM_BUILDER, topLeftId),
+  top: gid(ROOM_BUILDER, topLeftId + 1),
+  topFade: gid(ROOM_BUILDER, topLeftId + 2),
+  left: gid(ROOM_BUILDER, topLeftId + 76),
+  plain: gid(ROOM_BUILDER, topLeftId + 77),
+})
+
+export const floorKits = {
+  // Warm diagonal wood planks — the Generic_Home_1 living-room floor.
+  diagonalWood: floorKit(2998),
+  // Dark gray stone — Game Room floor.
+  darkStone: floorKit(2098),
+  // Light stone tile — Café floor (the Generic_Home_1 kitchen floor; the
+  // blue checkerboard block is a repeating pattern, not a shadow kit).
+  stoneTile: floorKit(3314),
+  // Warm tan parquet-weave — calmer Library floor.
+  parquet: floorKit(1634),
+  // Formal purple medallion carpet — Conference Hall floor.
+  medallionCarpet: floorKit(2246),
+}
+
+// The gray "3D" wall family used by the Generic_Home_1 example: 2-row
+// south-facing bands, beveled 1-column vertical bodies, and junction pieces
+// resolved by WallPlan from the neighbourhood.
+export const grayWallKit: WallKit = {
+  faceTop: gid(ROOM_BUILDER, 1141),
+  faceBottom: gid(ROOM_BUILDER, 1217),
+  runStartTop: gid(ROOM_BUILDER, 1140),
+  runStartBottom: gid(ROOM_BUILDER, 1216),
+  runEndTop: gid(ROOM_BUILDER, 1142),
+  runEndBottom: gid(ROOM_BUILDER, 1218),
+  stubTop: gid(ROOM_BUILDER, 1143),
+  stubBottom: gid(ROOM_BUILDER, 1219),
+  bodyEast: gid(ROOM_BUILDER, 4310),
+  bodyWest: gid(ROOM_BUILDER, 4313),
+  nwTop: gid(ROOM_BUILDER, 4158),
+  neTop: gid(ROOM_BUILDER, 4161),
+  tEastTop: gid(ROOM_BUILDER, 4159),
+  tWestTop: gid(ROOM_BUILDER, 4160),
+  eastBottom: gid(ROOM_BUILDER, 4234),
+  westBottom: gid(ROOM_BUILDER, 4236),
 }
 
 export const prefabs = {
-  // Wood-panel wall with ceiling trim (top row) and baseboard (bottom row).
-  wallSegment: {
-    name: 'wall-segment',
-    solid: true,
-    tiles: [
-      [gid(ROOM_BUILDER, 847), gid(ROOM_BUILDER, 848), gid(ROOM_BUILDER, 849), gid(ROOM_BUILDER, 850)],
-      [gid(ROOM_BUILDER, 923), gid(ROOM_BUILDER, 924), gid(ROOM_BUILDER, 925), gid(ROOM_BUILDER, 926)],
-    ],
-  },
-  // Single-column wood wall body for vertical partitions; tiles down an edge.
-  wallVertical: {
-    name: 'wall-vertical',
-    solid: true,
-    tiles: [[gid(ROOM_BUILDER, 924)], [gid(ROOM_BUILDER, 924)]],
-  },
   carpetPurple: {
     name: 'carpet-purple',
     tiles: [
@@ -141,6 +147,13 @@ export const prefabs = {
     name: 'slim-plant',
     solid: true,
     tiles: [[gid(LIVING_ROOM, 12)], [gid(LIVING_ROOM, 28)], [gid(LIVING_ROOM, 44)]],
+  },
+  // Bushy potted plant in a terracotta pot (the variety the Generic_Home_1
+  // example tucks against walls). Only the pot blocks movement.
+  bushyPlant: {
+    name: 'bushy-plant',
+    tiles: [[gid(LIVING_ROOM, 351)], [gid(LIVING_ROOM, 367)], [gid(LIVING_ROOM, 383)]],
+    collision: [[false], [false], [true]],
   },
   // Bookshelf units are 2 wide x 3 tall in the sheet; wide = three units side by side.
   bookshelfWide: {
@@ -440,7 +453,6 @@ export const prefabs = {
 } satisfies Record<string, Prefab>
 
 export const objectPalettePrefabs = [
-  prefabs.wallSegment,
   prefabs.carpetPurple,
   prefabs.carpetRed,
   prefabs.carpetBlue,
@@ -459,6 +471,7 @@ export const objectPalettePrefabs = [
   prefabs.sideTable,
   prefabs.tallPlant,
   prefabs.slimPlant,
+  prefabs.bushyPlant,
   prefabs.poolTable,
   prefabs.pingPongTable,
   prefabs.arcadeCabinetBlue,

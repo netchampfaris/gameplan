@@ -1,0 +1,11 @@
+# Tv_Studio_Design_layer_1_48x48.png (unmatched: 23)
+  0 | room_builder:7493 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:1315 room_builder:7498
+  1 | room_builder:7721 room_builder:1319 room_builder:1319                 ?                 ?                 ?                 ?                 ? room_builder:1319 room_builder:1319 room_builder:7726
+  2 | room_builder:7797 room_builder:7799 room_builder:7799                 ?                 ?                 ?                 ?                 ? room_builder:7799 room_builder:7799 room_builder:7802
+  3 | room_builder:7722 room_builder:1794 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003                 ? room_builder:7725
+  4 | room_builder:7722 room_builder:1870 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079                 ? room_builder:7725
+  5 | room_builder:7722 room_builder:1870 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079                 ? room_builder:7725
+  6 | room_builder:7722 room_builder:1870                 ?                 ?                 ?                 ?                 ?                 ?                 ?                 ? room_builder:7725
+  7 | room_builder:7722 room_builder:1870 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:7725
+  8 | room_builder:7722 room_builder:1870 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:1871 room_builder:7725
+  9 | room_builder:4530 room_builder:4531 room_builder:4531 room_builder:4531 room_builder:4531 room_builder:4531                 ? room_builder:1870 room_builder:1871                 ? room_builder:4533
