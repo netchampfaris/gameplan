@@ -197,7 +197,7 @@
           <div class="space-y-2">
             <label class="flex items-center justify-between">
               <div>
-                <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Category</div>
+                <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Community</div>
                 <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinToCategory">
                   Show in all {{ categoryTitle }} discussions
                 </div>
@@ -491,7 +491,7 @@ const actions = computed(() => [
         pinScope === 'Global'
           ? 'This discussion is pinned globally across all spaces.'
           : pinScope === 'Category'
-            ? `This discussion is pinned across all ${categoryTitle.value} discussions.`
+            ? `This discussion is pinned across the ${categoryTitle.value} community.`
             : `This discussion is pinned in ${space.value?.title} only.`
 
       dialog.confirm({

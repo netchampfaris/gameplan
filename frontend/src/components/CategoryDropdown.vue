@@ -42,7 +42,7 @@ const dropdownItems = computed(() => {
   return [
     {
       icon: 'lucide-settings',
-      label: 'Category settings',
+      label: 'Community settings',
       condition: () => isAdmin,
       onClick: () => {},
     },
@@ -59,7 +59,7 @@ const dropdownItems = computed(() => {
     },
     {
       icon: 'lucide-log-out',
-      label: 'Leave category',
+      label: 'Leave community',
       onClick: () => {},
     },
   ].filter((item) => (item.condition ? item.condition() : true))

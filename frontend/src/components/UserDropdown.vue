@@ -70,7 +70,7 @@ const dropdownItems = computed(() => [
   {
     icon: 'lucide-layout-panel-left',
     label:
-      shellIconStyle.value === 'logo' ? 'Use category icon at top' : 'Use Gameplan logo at top',
+      shellIconStyle.value === 'logo' ? 'Use community icon at top' : 'Use Gameplan logo at top',
     onClick: toggleShellIconStyle,
   },
   {

@@ -1,8 +1,8 @@
 <template>
   <Dialog title="New Space" v-model:open="show">
     <p class="text-p-base text-ink-gray-6">
-      Spaces keep discussions, tasks, and pages in one place. Use them to group by team, project or
-      any topic.
+      Spaces keep discussions, tasks, and pages in one place. Use them to group by community,
+      project, or any topic.
     </p>
     <div class="mt-3 space-y-2">
       <div class="space-x-2 flex items-center w-full">
@@ -25,7 +25,7 @@
       <div class="flex gap-2">
         <div class="size-7 shrink-0"></div>
         <div class="w-full">
-          <Combobox placeholder="Category" :options="categoryOptions" v-model="selectedCategory" />
+          <Combobox placeholder="Community" :options="categoryOptions" v-model="selectedCategory" />
         </div>
       </div>
       <div class="flex items-center space-x-2">

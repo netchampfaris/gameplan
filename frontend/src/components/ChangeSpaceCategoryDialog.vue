@@ -1,9 +1,9 @@
 <template>
-  <Dialog title="Change Category" @after-leave="setCurrentTeam" v-model:open="show">
+  <Dialog title="Change Community" @after-leave="setCurrentTeam" v-model:open="show">
     <Combobox
       :options="teamOptions"
       v-model="selectedTeam"
-      placeholder="Select a category"
+      placeholder="Select a community"
       class="w-full"
       open-on-click
       autofocus

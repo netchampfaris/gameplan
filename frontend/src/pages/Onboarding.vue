@@ -62,8 +62,8 @@
         <div class="mt-2 pt-8 border-t">
           <h2 class="text-base-medium text-ink-gray-8 mb-2">Let's create your first space</h2>
           <p class="text-p-sm text-ink-gray-6">
-            A space is where your discussions live. Create one for your team, project, or any topic
-            you want to discuss and organize.
+            A space is where your discussions live. Create one for your community, project, or any
+            topic you want to discuss and organize.
           </p>
           <div class="mt-6 space-y-2">
             <div class="space-x-2 flex items-start w-full">
@@ -99,7 +99,7 @@
           </div>
         </div>
         <div class="mt-8 border-t pt-8">
-          <h3 class="text-base-medium text-ink-gray-8 mb-2">Invite team members</h3>
+          <h3 class="text-base-medium text-ink-gray-8 mb-2">Invite people</h3>
           <p class="text-sm text-ink-gray-6">
             Add email addresses of people you'd like to invite to this space
           </p>

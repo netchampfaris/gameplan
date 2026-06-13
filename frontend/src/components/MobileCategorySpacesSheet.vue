@@ -35,7 +35,7 @@
         <template v-if="activeTeams.length <= 1 && activeCategory.team">
           {{ activeCategory.team.icon }} {{ activeCategory.team.title }}
         </template>
-        <template v-else>Choose channel</template>
+        <template v-else>Choose space</template>
       </div>
 
       <div v-if="categorySpaces.list.length === 0" class="px-4 py-4 text-sm text-ink-gray-4">

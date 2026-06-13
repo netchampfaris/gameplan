@@ -2,7 +2,7 @@
   <div class="pb-10">
     <header class="sticky top-0 z-10 border-b bg-surface-base px-4 py-2.5 sm:px-5">
       <div class="flex items-center justify-between">
-        <Breadcrumbs :items="[{ label: 'Teams', route: { name: 'Teams' } }]" />
+        <Breadcrumbs :items="[{ label: 'Communities', route: { name: 'Teams' } }]" />
       </div>
     </header>
     <div class="divide-y px-4">

@@ -47,7 +47,7 @@
             </TooltipTrigger>
             <TooltipBubble side="right">
               <template #content>
-                <div class="leading-relaxed">Switch category</div>
+                <div class="leading-relaxed">Switch community</div>
               </template>
             </TooltipBubble>
           </TooltipRoot>

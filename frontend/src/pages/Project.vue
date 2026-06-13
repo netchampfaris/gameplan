@@ -15,7 +15,7 @@
         <div v-if="$route.name === 'ProjectOverview'" class="flex items-center space-x-2">
           <Tooltip
             v-if="project.doc.is_private"
-            text="This project is only visible to team members"
+            text="This project is only visible to community members"
           >
             <Badge size="lg">
               <template #prefix><span class="lucide-lock w-3" /></template>
@@ -78,7 +78,7 @@
                 condition: () => !project.doc.archived_at,
               },
               {
-                label: 'Move to another team',
+                label: 'Move to another community',
                 icon: 'lucide-log-out',
                 onClick: () => (projectMoveDialog.show = true),
                 condition: () => !project.doc.archived_at,
@@ -132,14 +132,14 @@
             label="Visibility"
             :options="[
               { label: 'Visible to everyone', value: 0 },
-              { label: 'Visible to team members (Private)', value: 1 },
+              { label: 'Visible to community members (Private)', value: 1 },
             ]"
             v-model="project.doc.is_private"
           />
           <ErrorMessage class="mt-2" :message="project.setValue.error" />
         </Dialog>
         <Dialog
-          title="Move project to another team"
+          title="Move project to another community"
           @close="
             () => {
               projectMoveDialog.team = null
@@ -151,7 +151,7 @@
           <Combobox
             :options="moveToTeamsList"
             v-model="projectMoveDialog.team"
-            placeholder="Select a team"
+            placeholder="Select a community"
           >
             <template #item-prefix="{ item }">
               <span class="mr-2">{{ item.icon }}</span>
@@ -170,7 +170,7 @@
                     {
                       validate() {
                         if (!projectMoveDialog.team) {
-                          return 'Team is required to move this project'
+                          return 'Community is required to move this project'
                         }
                       },
                       onSuccess() {

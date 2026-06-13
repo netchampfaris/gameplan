@@ -110,7 +110,7 @@
               :options="teamsFilterOptions"
               :model-value="activeFilters.team || []"
               @update:model-value="(values) => updateFilter('team', values)"
-              placeholder="Category"
+              placeholder="Community"
             >
               <template #item-suffix="{ item }">
                 <span v-if="(item.count ?? 0) > 0" class="text-xs text-ink-gray-5">{{

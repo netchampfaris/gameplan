@@ -7,7 +7,7 @@
     v-else-if="$resources.team.get.error"
   >
     <div class="space-y-2">
-      <div>Invalid team or not permitted to access</div>
+      <div>Invalid community or not permitted to access</div>
       <Button icon-left="lucide-home" :route="{ name: 'Home' }"> Home </Button>
     </div>
   </div>

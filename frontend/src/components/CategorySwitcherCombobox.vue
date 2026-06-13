@@ -2,7 +2,7 @@
   <Combobox
     :options="categoryOptions"
     :model-value="activeCategory.id"
-    placeholder="Search categories"
+    placeholder="Search communities"
     align="start"
     @update:selectedOption="onSelect"
   >

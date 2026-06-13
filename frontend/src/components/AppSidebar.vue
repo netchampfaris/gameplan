@@ -47,7 +47,7 @@
 
           <div class="group/spaces mt-4">
             <div class="flex h-7 items-center justify-between pl-2 text-base text-ink-gray-5">
-              <span>Channels</span>
+              <span>Spaces</span>
               <Button
                 v-if="isAdmin"
                 variant="ghost"
@@ -86,7 +86,7 @@
                 v-if="spacesList.length === 0"
                 class="mt-1 px-2 text-xs leading-relaxed text-ink-gray-5"
               >
-                No spaces in this category yet.
+                No spaces in this community yet.
                 <Button
                   v-if="isAdmin"
                   size="sm"

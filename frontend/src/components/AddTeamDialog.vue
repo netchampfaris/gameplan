@@ -1,18 +1,18 @@
 <template>
-  <Dialog title="Add Team" v-model:open="showDialog">
+  <Dialog title="Add Community" v-model:open="showDialog">
     <div class="space-y-4">
       <TextInput
-        label="Team Name"
+        label="Community Name"
         type="text"
         v-model="newTeam.title"
-        placeholder="Team Name"
+        placeholder="Community Name"
         @keydown.enter="createTeam($event.target.value)"
       />
       <Select
         label="Visibility"
         :options="[
           { label: 'Visible to everyone', value: 0 },
-          { label: 'Visible to team members (Private)', value: 1 },
+          { label: 'Visible to community members (Private)', value: 1 },
         ]"
         v-model="newTeam.is_private"
       />
@@ -25,7 +25,7 @@
         @click="createTeam(teamName)"
         :loading="teams.insert.loading"
       >
-        Create Team
+        Create Community
       </Button>
     </template>
   </Dialog>

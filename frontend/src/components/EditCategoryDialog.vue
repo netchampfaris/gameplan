@@ -1,5 +1,5 @@
 <template>
-  <Dialog title="Change category title" v-model:open="show">
+  <Dialog title="Change community title" v-model:open="show">
     <FormControl label="Title" v-model="categoryTitle" autofocus />
     <template #actions>
       <div class="flex justify-end">

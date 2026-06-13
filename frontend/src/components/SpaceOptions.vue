@@ -80,7 +80,7 @@ const options = computed(() => [
     condition: () => !space.value?.archived_at,
   },
   {
-    label: 'Change Category',
+    label: 'Change Community',
     icon: 'lucide-log-out',
     onClick: () => (showSpaceCategoryDialog.value = true),
     condition: () => !space.value?.archived_at,
