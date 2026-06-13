@@ -1,19 +1,17 @@
 <template>
-  <Dialog v-model:open="show" title="Manage communities">
-    <div class="space-y-4">
-      <p class="text-p-sm text-ink-gray-6">
+  <Dialog v-model:open="show" title="Manage communities" size="md">
+    <div class="space-y-3">
+      <p class="text-p-base text-ink-gray-6">
         Choose the communities you want in your sidebar. Public communities can be joined anytime.
       </p>
 
-      <div class="space-y-1">
-        <button
+      <div class="space-y-0.5">
+        <div
           v-for="team in availableTeams"
           :key="team.name"
-          type="button"
-          class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition hover:bg-surface-gray-1"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition hover:bg-surface-gray-1"
           @click="toggleTeam(team.name)"
         >
-          <Checkbox :modelValue="isSelected(team.name)" />
           <span
             class="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-surface-gray-1"
           >
@@ -34,8 +32,15 @@
               <span v-if="team.is_private" class="lucide-lock size-3.5 shrink-0 text-ink-gray-5" />
             </span>
           </span>
-          <span v-if="isTeamJoined(team)" class="shrink-0 text-sm text-ink-gray-5">Joined</span>
-        </button>
+          <Switch
+            size="sm"
+            :label="team.title"
+            :model-value="isSelected(team.name)"
+            class="shrink-0 [&_label]:sr-only"
+            @click.stop
+            @update:model-value="setTeamSelected(team.name, $event)"
+          />
+        </div>
 
         <div
           v-if="availableTeams.length === 0"
@@ -65,7 +70,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Button, Checkbox, Dialog, toast, useCall } from 'frappe-ui'
+import { Button, Dialog, Switch, toast, useCall } from 'frappe-ui'
 import { activeCategory } from '@/data/activeCategory'
 import { activeTeams, availableTeams, isTeamJoined, teams } from '@/data/teams'
 
@@ -111,6 +116,11 @@ function toggleTeam(teamName: string) {
   } else {
     selectedTeamNames.value = [...selectedTeamNames.value, teamName]
   }
+}
+
+function setTeamSelected(teamName: string, selected: boolean) {
+  if (selected === isSelected(teamName)) return
+  toggleTeam(teamName)
 }
 
 async function save() {
