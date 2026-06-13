@@ -30,4 +30,10 @@ declare module 'vue' {
   }
 }
 
+declare global {
+  interface Window {
+    site_name: string
+  }
+}
+
 export {}

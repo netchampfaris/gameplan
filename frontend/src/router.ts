@@ -1,20 +1,44 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteLocationNormalized,
+  type RouteLocationRaw,
+  type RouteRecordRaw,
+} from 'vue-router'
 import { until } from '@vueuse/core'
 import { session } from './data/session'
 import { users } from './data/users'
 import { teams, getActiveTeam } from './data/teams'
 import { spaces, getSpace } from './data/spaces'
+import type { Space } from './data/spaces'
 import { activeCategory } from './data/activeCategory'
 import { getScrollContainer, scrollTo } from './utils/scrollContainer'
+
+declare const __FRONTEND_ROUTE__: string
+
+type ResourceLike = {
+  isFinished?: boolean
+}
+
+type RouteParamValue = string | string[]
 
 const discussionFeeds = ['recent', 'unread', 'participating']
 
 // Redirect-style guards still need a component record so Vue Router matches them consistently.
 const RouteGuard = { render: () => null }
 
-let router = createRouter({
-  history: createWebHistory(__FRONTEND_ROUTE__ + '/'),
-  routes: [
+function routeParam(value: RouteParamValue): string {
+  return Array.isArray(value) ? (value[0] ?? '') : value
+}
+
+function optionalRouteParam(value: RouteParamValue | undefined): string | undefined {
+  if (!value) return undefined
+
+  const resolvedValue = routeParam(value)
+  return resolvedValue || undefined
+}
+
+const routes: RouteRecordRaw[] = [
     {
       path: '/',
       alias: '',
@@ -50,7 +74,7 @@ let router = createRouter({
       path: '/community/:teamId',
       redirect: (to) => ({
         name: 'Discussions',
-        params: { teamId: String(to.params.teamId) },
+        params: { teamId: routeParam(to.params.teamId) },
       }),
     },
     {
@@ -67,7 +91,7 @@ let router = createRouter({
       props: true,
       meta: { categoryScope: true },
       beforeEnter(to) {
-        const feedType = String(to.params.feedType)
+        const feedType = routeParam(to.params.feedType)
 
         if (feedType === 'bookmarks') {
           return { name: 'Bookmarks' }
@@ -79,7 +103,7 @@ let router = createRouter({
 
         return {
           name: 'DiscussionsTab',
-          params: { teamId: String(to.params.teamId), feedType: 'recent' },
+          params: { teamId: routeParam(to.params.teamId), feedType: 'recent' },
           replace: true,
         }
       },
@@ -107,7 +131,7 @@ let router = createRouter({
       async beforeEnter(to) {
         await ensureCategoryDataLoaded()
 
-        const feedType = String(to.params.feedType)
+        const feedType = routeParam(to.params.feedType)
         if (feedType === 'bookmarks') {
           return { name: 'Bookmarks' }
         }
@@ -312,7 +336,7 @@ let router = createRouter({
       path: '/space/:spaceId',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -331,7 +355,7 @@ let router = createRouter({
       path: '/space/:spaceId/discussions',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -350,7 +374,7 @@ let router = createRouter({
       path: '/space/:spaceId/pages',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -370,7 +394,7 @@ let router = createRouter({
       path: '/space/:spaceId/pages/:pageId/:slug?',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -381,8 +405,8 @@ let router = createRouter({
           params: {
             teamId: space.team,
             spaceId: space.name,
-            pageId: String(to.params.pageId),
-            slug: to.params.slug ? String(to.params.slug) : undefined,
+            pageId: routeParam(to.params.pageId),
+            slug: optionalRouteParam(to.params.slug),
           },
           query: to.query,
           hash: to.hash,
@@ -393,7 +417,7 @@ let router = createRouter({
       path: '/space/:spaceId/tasks',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -412,7 +436,7 @@ let router = createRouter({
       path: '/space/:spaceId/tasks/:taskId',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -423,7 +447,7 @@ let router = createRouter({
           params: {
             teamId: space.team,
             spaceId: space.name,
-            taskId: String(to.params.taskId),
+            taskId: routeParam(to.params.taskId),
           },
           query: to.query,
         }
@@ -433,7 +457,7 @@ let router = createRouter({
       path: '/space/:spaceId/discussion/:postId/:slug?',
       component: RouteGuard,
       async beforeEnter(to) {
-        const space = await findSpace(String(to.params.spaceId))
+        const space = await findSpace(routeParam(to.params.spaceId))
 
         if (!space?.team) {
           return { name: 'NotFound' }
@@ -444,8 +468,8 @@ let router = createRouter({
           params: {
             teamId: space.team,
             spaceId: space.name,
-            postId: String(to.params.postId),
-            slug: to.params.slug ? String(to.params.slug) : undefined,
+            postId: routeParam(to.params.postId),
+            slug: optionalRouteParam(to.params.slug),
           },
           query: to.query,
           hash: to.hash,
@@ -465,26 +489,24 @@ let router = createRouter({
           component: () => import('@/pages/Team.vue'),
           redirect: (to) => ({
             name: 'Discussions',
-            params: { teamId: String(to.params.teamId) },
+            params: { teamId: routeParam(to.params.teamId) },
           }),
           props: true,
           children: [
             {
               name: 'TeamOverview',
               path: '',
-              component: () => import('@/pages/TeamOverview.vue'),
               redirect: (to) => ({
                 name: 'Discussions',
-                params: { teamId: String(to.params.teamId) },
+                params: { teamId: routeParam(to.params.teamId) },
               }),
             },
             {
               name: 'TeamDiscussions',
               path: 'discussions',
-              component: () => import('@/pages/TeamDiscussions.vue'),
               redirect: (to) => ({
                 name: 'Discussions',
-                params: { teamId: String(to.params.teamId) },
+                params: { teamId: routeParam(to.params.teamId) },
               }),
             },
           ],
@@ -506,39 +528,35 @@ let router = createRouter({
                 {
                   name: 'ProjectOverview',
                   path: '',
-                  component: () => import('@/pages/ProjectOverview.vue'),
                   redirect: (to) => ({
                     name: 'Space',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
                     },
                   }),
                 },
                 {
                   name: 'ProjectDiscussions',
                   path: 'discussions',
-                  component: () => import('@/pages/ProjectDiscussions.vue'),
                   redirect: (to) => ({
                     name: 'SpaceDiscussions',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
                     },
                   }),
                 },
                 {
                   name: 'ProjectDiscussion',
                   path: 'discussion/:postId/:slug?',
-                  component: () => import('@/pages/ProjectDiscussion.vue'),
-                  props: true,
                   redirect: (to) => ({
                     name: 'Discussion',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
-                      postId: String(to.params.postId),
-                      slug: to.params.slug ? String(to.params.slug) : undefined,
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
+                      postId: routeParam(to.params.postId),
+                      slug: optionalRouteParam(to.params.slug),
                     },
                     query: to.query,
                     hash: to.hash,
@@ -550,39 +568,35 @@ let router = createRouter({
                   redirect: (to) => ({
                     name: 'NewDiscussion',
                     params: {
-                      teamId: String(to.params.teamId),
+                        teamId: routeParam(to.params.teamId),
                     },
                     query: {
                       ...to.query,
-                      spaceId: String(to.params.projectId),
+                      spaceId: routeParam(to.params.projectId),
                     },
                   }),
                 },
                 {
                   name: 'ProjectTasks',
                   path: 'tasks',
-                  component: () => import('@/pages/ProjectTasks.vue'),
-                  props: true,
                   redirect: (to) => ({
                     name: 'SpaceTasks',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
                     },
                   }),
                 },
                 {
                   name: 'ProjectTaskDetail',
                   path: 'task/:taskId',
-                  component: () => import('@/pages/ProjectTaskDetail.vue'),
-                  props: true,
                   meta: { fullWidth: true },
                   redirect: (to) => ({
                     name: 'SpaceTask',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
-                      taskId: String(to.params.taskId),
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
+                      taskId: routeParam(to.params.taskId),
                     },
                     query: to.query,
                   }),
@@ -590,12 +604,11 @@ let router = createRouter({
                 {
                   name: 'ProjectPages',
                   path: 'pages',
-                  component: () => import('@/pages/ProjectPages.vue'),
                   redirect: (to) => ({
                     name: 'SpacePages',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
                     },
                     hash: to.hash,
                   }),
@@ -603,16 +616,14 @@ let router = createRouter({
                 {
                   name: 'ProjectPage',
                   path: 'pages/:pageId/:slug?',
-                  component: () => import('@/pages/Page.vue'),
-                  props: true,
                   meta: { fullWidth: true, hideHeader: true },
                   redirect: (to) => ({
                     name: 'SpacePage',
                     params: {
-                      teamId: String(to.params.teamId),
-                      spaceId: String(to.params.projectId),
-                      pageId: String(to.params.pageId),
-                      slug: to.params.slug ? String(to.params.slug) : undefined,
+                      teamId: routeParam(to.params.teamId),
+                      spaceId: routeParam(to.params.projectId),
+                      pageId: routeParam(to.params.pageId),
+                      slug: optionalRouteParam(to.params.slug),
                     },
                     query: to.query,
                     hash: to.hash,
@@ -628,11 +639,19 @@ let router = createRouter({
       path: '/:pathMatch(.*)*',
       redirect: { name: 'NotFound' },
     },
-  ],
+]
+
+const router = createRouter({
+  history: createWebHistory(__FRONTEND_ROUTE__ + '/'),
+  routes,
 })
 
-let scrollPositions = {}
-function saveAndRestoreScrollPosition(to, from) {
+const scrollPositions: Record<string, number> = {}
+
+function saveAndRestoreScrollPosition(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+) {
   let scrollContainer = getScrollContainer()
   if (scrollContainer) {
     scrollPositions[from.path] = scrollContainer.scrollTop
@@ -674,9 +693,9 @@ router.beforeEach(async (to, from) => {
     return
   }
 
-  let teamId = String(to.params.teamId)
+  let teamId = routeParam(to.params.teamId)
 
-  // Invalid category URLs should fail loudly instead of silently switching shell state.
+  // Invalid community URLs should fail loudly instead of silently switching shell state.
   if (!getActiveTeam(teamId)) {
     return { name: 'NotFound' }
   }
@@ -685,9 +704,9 @@ router.beforeEach(async (to, from) => {
     return
   }
 
-  let space = getSpace(String(to.params.spaceId))
+  let space = getSpace(routeParam(to.params.spaceId))
 
-  // A scoped space URL is only valid inside the category that owns that space.
+  // A scoped space URL is only valid inside the community that owns that space.
   if (!space || space.team !== teamId) {
     return { name: 'NotFound' }
   }
@@ -698,9 +717,9 @@ router.afterEach((to) => {
     return
   }
 
-  let teamId = String(to.params.teamId)
+  let teamId = routeParam(to.params.teamId)
 
-  // Deep links should update shell state so shared links open in the matching category.
+  // Deep links should update shell state so shared links open in the matching community.
   if (getActiveTeam(teamId)) {
     activeCategory.change(teamId)
   }
@@ -712,7 +731,7 @@ async function ensureCategoryDataLoaded() {
   await Promise.all([waitForResource(teams), waitForResource(spaces)])
 }
 
-async function waitForResource(resource) {
+async function waitForResource(resource: ResourceLike) {
   if (resource?.isFinished) {
     return
   }
@@ -720,8 +739,8 @@ async function waitForResource(resource) {
   await until(() => resource?.isFinished).toBe(true)
 }
 
-function getHomeRoute() {
-  // Home resolves to the active category when possible; onboarding stays only for truly empty sites.
+function getHomeRoute(): RouteLocationRaw {
+  // Home resolves to the active community when possible; onboarding stays only for truly empty sites.
   if (activeCategory.id) {
     return {
       name: 'Discussions',
@@ -734,19 +753,13 @@ function getHomeRoute() {
   }
 
   return { name: 'PersonalHome' }
-
-  // return isAdmin() ? { name: 'Spaces' } : { name: 'NoCategories' }
 }
 
-function hasAnyData() {
+function hasAnyData(): boolean {
   return (teams.data?.length ?? 0) > 0 || (spaces.data?.length ?? 0) > 0
 }
 
-function isAdmin() {
-  return users.data?.find((user) => user.name === session.user.value)?.role === 'Gameplan Admin'
-}
-
-async function findSpace(spaceId) {
+async function findSpace(spaceId: string): Promise<Space | null> {
   await ensureCategoryDataLoaded()
   return getSpace(spaceId)
 }
