@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="px-4 pt-6 pb-2 text-2xl font-semibold text-ink-gray-9">More</div>
+    <div class="px-4 pt-6 pb-2 text-4xl-semibold text-ink-gray-9">More</div>
 
     <nav class="flex-1 px-2">
       <button
@@ -26,7 +26,7 @@
           >
             <UserAvatar v-if="sessionUser.name" :user="sessionUser.name" size="lg" class="size-9" />
             <span class="flex flex-col">
-              <span class="text-base font-medium text-ink-gray-9">{{ sessionUser.full_name }}</span>
+              <span class="text-base-medium text-ink-gray-9">{{ sessionUser.full_name }}</span>
               <span class="text-xs text-ink-gray-5">Account &amp; settings</span>
             </span>
             <LucideChevronUp class="ml-auto size-4 text-ink-gray-4" />

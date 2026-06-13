@@ -6,7 +6,7 @@
       @click="showCategorySpacesSheet = true"
     >
       <span class="text-xl">{{ activeCategory.team.icon }}</span>
-      <span class="ml-1 truncate text-lg font-semibold text-ink-gray-9">{{
+      <span class="ml-1 truncate text-xl-semibold text-ink-gray-9">{{
         activeCategory.team.title
       }}</span>
       <LucideChevronsUpDown class="ml-2 size-4 shrink-0 text-ink-gray-5" />

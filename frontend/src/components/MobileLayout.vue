@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 flex flex-col overflow-hidden touch-none">
-    <div v-if="showHomeTopBar" class="shrink-0 border-b border-outline-gray-2 bg-surface-white">
+    <div v-if="showHomeTopBar" class="shrink-0 border-b border-outline-gray-2 bg-surface-base">
       <div class="flex items-center gap-2 px-4 py-2">
         <button
           v-if="activeCategory.team"
@@ -10,7 +10,7 @@
           <span class="grid h-5 w-6 place-items-center text-base text-ink-gray-6">
             {{ activeCategory.team.icon || activeCategory.team.title?.[0] }}
           </span>
-          <span class="truncate text-base font-medium text-ink-gray-9">
+          <span class="truncate text-base-medium text-ink-gray-9">
             {{ activeCategory.team.title }}
           </span>
           <LucideChevronsUpDown

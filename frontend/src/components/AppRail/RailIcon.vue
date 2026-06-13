@@ -6,7 +6,7 @@
         class="flex size-7 items-center justify-center rounded transition"
         :class="
           isActive
-            ? 'bg-surface-white text-ink-gray-8 shadow-sm'
+            ? 'bg-surface-base text-ink-gray-8 shadow-sm'
             : 'text-ink-gray-6 hover:bg-surface-gray-3'
         "
         @click="emit('click')"

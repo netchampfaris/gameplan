@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-full w-[52px] shrink-0 pt-1 flex-col items-center bg-surface-menu-bar px-3 pb-3"
+    class="flex h-full w-[52px] shrink-0 flex-col items-center bg-surface-sidebar px-3 pb-3 pt-1"
   >
     <TooltipProvider>
       <!-- Top: category icon OR product logo, controlled by shellIconStyle preference.

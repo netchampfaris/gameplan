@@ -17,7 +17,7 @@
           <span class="w-6 text-center text-xl leading-none">{{ team.icon }}</span>
           <span
             class="flex-1 truncate text-lg text-ink-gray-8"
-            :class="team.name === activeCategory.id ? 'font-semibold-' : ''"
+            :class="team.name === activeCategory.id ? 'font-semibold' : ''"
           >
             {{ team.title }}
           </span>
@@ -31,7 +31,7 @@
       </template>
 
       <!-- Spaces -->
-      <div class="mt-6 px-4 pb-1.5 text-xl font-semibold text-ink-gray-9 text-center">
+      <div class="mt-6 px-4 pb-1.5 text-center text-3xl-semibold text-ink-gray-9">
         <template v-if="activeTeams.length <= 1 && activeCategory.team">
           {{ activeCategory.team.icon }} {{ activeCategory.team.title }}
         </template>

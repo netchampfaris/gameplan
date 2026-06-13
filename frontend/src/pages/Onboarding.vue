@@ -2,7 +2,20 @@
   <div class="flex">
     <div class="bg-surface-sidebar min-w-[256px] pointer-events-none min-h-screen">
       <div class="p-2">
-        <UserDropdown />
+        <UserDropdown>
+          <template #trigger="{ open }">
+            <button
+              class="flex w-[14rem] items-center rounded-md px-2 py-2 text-left"
+              :class="open ? 'bg-surface-elevation-2 shadow-sm' : 'hover:bg-surface-gray-2'"
+            >
+              <GameplanLogo class="h-8 w-8 rounded" />
+              <div class="ml-2 flex flex-col">
+                <div class="text-base-medium leading-none text-ink-gray-8">Gameplan</div>
+              </div>
+              <span class="lucide-chevron-down ml-auto hidden h-4 w-4 text-ink-gray-7 sm:inline" />
+            </button>
+          </template>
+        </UserDropdown>
       </div>
       <div class="flex-1">
         <nav class="space-y-0.5 px-2">
@@ -126,6 +139,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCall } from 'frappe-ui'
+import GameplanLogo from '@/components/GameplanLogo.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import { getSpace, joinedSpaces, spaces } from '@/data/spaces'
 import { teams } from '@/data/teams'

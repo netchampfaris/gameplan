@@ -547,7 +547,6 @@ let router = createRouter({
                 {
                   name: 'ProjectDiscussionNew',
                   path: 'discussions/new',
-                  component: () => import('@/pages/ProjectDiscussionNew.vue'),
                   redirect: (to) => ({
                     name: 'NewDiscussion',
                     params: {

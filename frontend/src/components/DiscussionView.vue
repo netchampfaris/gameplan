@@ -194,19 +194,18 @@
             When a discussion is pinned, it shows up on top of the discussion list.
           </p>
 
-            <div class="space-y-2">
-              <label class="flex items-center justify-between">
-                <div>
-                  <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Category</div>
-                  <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinToCategory">
-                    Show in all {{ categoryTitle }} discussions
-                  </div>
-                  <div class="text-sm text-ink-gray-5" v-else>Show in {{ space?.title }} only</div>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between">
+              <div>
+                <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Category</div>
+                <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinToCategory">
+                  Show in all {{ categoryTitle }} discussions
                 </div>
-                <Switch size="sm" v-model="pinDialog.pinToCategory" />
-              </label>
-            </div>
-          </template>
+                <div class="text-sm text-ink-gray-5" v-else>Show in {{ space?.title }} only</div>
+              </div>
+              <Switch size="sm" v-model="pinDialog.pinToCategory" />
+            </label>
+          </div>
           <template #actions>
             <div class="flex">
               <Button
