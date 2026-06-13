@@ -13,36 +13,21 @@
         :side-offset="6"
         :collision-padding="12"
         class="z-[100] outline-none"
-        @open-auto-focus.prevent="focusSearch"
+        @open-auto-focus.prevent
       >
         <div
-          class="w-[21rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg bg-surface-elevation-2 text-base shadow-2xl ring-1 ring-black ring-opacity-5"
+          class="max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg bg-surface-elevation-2 text-base shadow-2xl ring-1 ring-black ring-opacity-5"
           style="transform-origin: var(--reka-popover-content-transform-origin)"
         >
-          <div class="border-b border-outline-gray-1 p-2">
-            <label
-              class="flex h-8 items-center rounded-md bg-surface-gray-1 px-2 ring-1 ring-outline-gray-2 focus-within:bg-surface-white focus-within:ring-outline-gray-4"
-            >
-              <span class="lucide-search size-4 shrink-0 text-ink-gray-5" />
-              <input
-                ref="searchInput"
-                v-model="search"
-                type="text"
-                class="ml-2 h-full min-w-0 flex-1 bg-transparent text-sm text-ink-gray-8 outline-none placeholder:text-ink-gray-5"
-                placeholder="Search icons"
-                @keydown.escape.stop="closePopover"
-              />
-            </label>
-          </div>
           <div class="relative">
             <div class="max-h-72 overflow-y-auto p-2 pb-5">
-              <div class="grid grid-cols-8 gap-0.5" role="listbox" aria-label="Space icons">
+              <div class="grid grid-cols-8 gap-1" role="listbox" aria-label="Space icons">
                 <button
                   v-for="icon in filteredIcons"
                   :key="icon.class"
                   type="button"
                   role="option"
-                  class="flex size-8 items-center justify-center rounded-md text-ink-gray-7 hover:bg-surface-gray-2 focus:outline-none focus:ring-2 focus:ring-outline-gray-3"
+                  class="flex size-8 items-center justify-center rounded text-ink-gray-7 hover:bg-surface-gray-2"
                   :class="icon.class === modelValue ? 'bg-surface-gray-3 text-ink-gray-9' : ''"
                   :title="icon.label"
                   :aria-label="icon.label"
@@ -52,12 +37,8 @@
                   <span :class="[icon.class, 'size-5']" />
                 </button>
               </div>
-              <div v-if="!filteredIcons.length" class="py-8 text-center text-sm text-ink-gray-5">
-                No icons found
-              </div>
             </div>
             <div
-              v-if="filteredIcons.length"
               class="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface-elevation-2 to-transparent"
             />
           </div>
@@ -68,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot } from 'reka-ui'
 
 type IconOption = {
@@ -85,9 +66,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void
 }>()
 
-const search = ref('')
 const isOpen = ref(false)
-const searchInput = ref<HTMLInputElement | null>(null)
 
 const icons: IconOption[] = [
   { class: 'lucide-megaphone', label: 'Announcements', keywords: ['broadcast'] },
@@ -179,19 +158,7 @@ const icons: IconOption[] = [
   { class: 'lucide-scan', label: 'Scan', keywords: ['review'] },
 ]
 
-const filteredIcons = computed(() => {
-  let query = search.value.trim().toLowerCase()
-  if (!query) {
-    return icons
-  }
-
-  return icons.filter((icon) => {
-    let keywords = [icon.label, icon.class.replace('lucide-', ''), ...(icon.keywords || [])]
-      .join(' ')
-      .toLowerCase()
-    return keywords.includes(query)
-  })
-})
+const filteredIcons = icons
 
 function selectIcon(icon: string, togglePopover: () => void) {
   emit('update:modelValue', icon)
@@ -206,20 +173,4 @@ function togglePopover(flag?: boolean | Event) {
 
   isOpen.value = flag
 }
-
-function closePopover() {
-  isOpen.value = false
-}
-
-function focusSearch() {
-  nextTick(() => searchInput.value?.focus())
-}
-
-watch(isOpen, (value) => {
-  if (value) {
-    focusSearch()
-  } else {
-    search.value = ''
-  }
-})
 </script>

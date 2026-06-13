@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-full w-[50px] shrink-0 flex-col items-center bg-surface-sidebar px-[11px] pb-3 pt-2.5"
+    class="flex h-full w-[50px] border-r shrink-0 flex-col items-center bg-surface-sidebar px-[11px] pb-3 pt-2.5"
   >
     <TooltipProvider>
       <div class="flex shrink-0 items-center justify-center mb-3">
@@ -60,7 +60,7 @@
                 <template #default="{ open }">
                   <button
                     type="button"
-                    class="flex size-7 items-center justify-center rounded-[7px] text-ink-gray-6 transition"
+                    class="flex size-7 items-center justify-center rounded-[7px] text-ink-gray-5 transition"
                     :class="open ? 'bg-surface-base shadow-sm' : 'hover:bg-surface-gray-3'"
                     aria-label="More communities"
                   >

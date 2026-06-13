@@ -22,7 +22,7 @@
           autofocus
         />
       </div>
-      <div class="flex gap-2">
+      <div v-if="!props.category" class="flex gap-2">
         <div class="size-7 shrink-0"></div>
         <div class="w-full">
           <Combobox placeholder="Community" :options="categoryOptions" v-model="selectedCategory" />
@@ -131,8 +131,9 @@ function selectCategory(categoryId: string) {
 }
 
 function submit() {
-  if (selectedCategory.value) {
-    newSpace.doc.team = selectedCategory.value
+  const category = props.category || selectedCategory.value
+  if (category) {
+    newSpace.doc.team = category
   }
   newSpace.submit().then(() => {
     // TODO: useNewDoc should automatically reload related resources

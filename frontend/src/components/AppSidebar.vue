@@ -13,7 +13,7 @@
               :isActive="isRoute('Discussions')"
             >
               <template #prefix>
-                <LucideMessageSquareText class="size-4 text-ink-gray-6" />
+                <span class="size-4 lucide-message-square-text" />
               </template>
               All Discussions
             </AppSidebarLink>
@@ -26,7 +26,7 @@
               :isActive="isParticipatingFeed"
             >
               <template #prefix>
-                <LucideAtSign class="size-4 text-ink-gray-6" />
+                <span class="size-4 lucide-at-sign" />
               </template>
               Participating
             </AppSidebarLink>
@@ -39,7 +39,7 @@
               :isActive="isUnreadFeed"
             >
               <template #prefix>
-                <LucideMailOpen class="size-4 text-ink-gray-6" />
+                <span class="size-4 lucide-mail-open" />
               </template>
               Unread
             </AppSidebarLink>
@@ -52,7 +52,7 @@
                 v-if="isAdmin"
                 variant="ghost"
                 size="sm"
-                icon="lucide-plus"
+                icon="lucide-plus text-ink-gray-5"
                 aria-label="New space"
                 @click="openNewSpaceDialog"
               />

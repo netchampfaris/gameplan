@@ -1,11 +1,11 @@
 <template>
   <Dialog title="Edit Space" v-model:open="show">
     <div class="mt-3 space-y-2" v-if="space">
-      <div class="space-x-2 flex items-center w-full">
+      <div class="gap-1 flex items-center w-full">
         <IconPicker v-model="space.icon" v-slot="{ togglePopover }">
           <Button @click="togglePopover()">
             <template #icon>
-              <SpaceIcon v-if="space.icon" :icon="space.icon" class="size-4" />
+              <SpaceIcon v-if="space.icon" :icon="space.icon" class="size-4.5" />
               <span v-else class="lucide-plus h-4 w-4" />
             </template>
           </Button>
@@ -13,7 +13,7 @@
         <TextInput class="w-full" placeholder="Space name" v-model="space.title" autofocus />
       </div>
 
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center gap-1">
         <div class="w-7 h-7"></div>
         <div>
           <FormControl
