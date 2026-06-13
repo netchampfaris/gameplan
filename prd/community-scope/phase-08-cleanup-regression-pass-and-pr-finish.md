@@ -103,7 +103,7 @@ The PR description should summarize:
 - no global discussions feed remains
 - `/` and `/home` resolve correctly
 - community switcher (combobox) accessible from rail-top icon when multiple communities exist
-- community sidebar visible only on `/c/:teamId/*` routes; hidden on global routes with width transition
+- community sidebar visible only on `/community/:teamId/*` routes; hidden on global routes with width transition
 - sidebar only shows current-community spaces
 
 ### Global surfaces

@@ -37,7 +37,7 @@ This phase should deliver:
 
 ### 1. Update composer state logic
 In `frontend/src/pages/NewDiscussion/useNewDiscussion.ts`:
-- treat `/c/:teamId/new-discussion` as canonical route
+- treat `/community/:teamId/new-discussion` as canonical route
 - derive current community from route params in scoped mode
 - restrict space options to current community in scoped mode
 - do not auto-create a brand-new draft until a space is selected

@@ -50,7 +50,7 @@ Width: 28px icon buttons inside `px-3` (≈52px total). Gray background (`bg-sur
 Vertical structure (top → bottom):
 1. **Community icon** (28px). Renders `team.icon` emoji or first-letter fallback. Container is a rounded square sized to allow swapping in an `<img>` later without layout change.
    - Multi-community: clicking opens `CategorySwitcherCombobox`.
-   - Single-community: static badge — no click handler, no chevron, no hover affordance. Active highlight only on `/c/:teamId/*` routes.
+   - Single-community: static badge — no click handler, no chevron, no hover affordance. Active highlight only on `/community/:teamId/*` routes.
 2. **Group 1** (divider above and below): Home, Inbox, Search.
 3. **Group 2**: Drafts, Bookmarks, Tasks, Pages.
 4. **Group 3**: People, **Spaces** *(rendered only when `user.roles.includes('Gameplan Admin')`)*.
@@ -71,7 +71,7 @@ Top-row composite header (must align horizontally with the rail's community icon
 
 Below the header:
 - Row: "All discussions" → `{ name: 'Discussions', params: { teamId: activeCategory.id } }`. Active only on the canonical `Discussions` route (recent feed).
-- Row: "Unread" → `{ name: 'DiscussionsUnread', params: { teamId } }` (or equivalent named route for `/c/:teamId/discussions/unread`). Optional trailing unread count badge.
+- Row: "Unread" → `{ name: 'DiscussionsUnread', params: { teamId } }` (or equivalent named route for `/community/:teamId/discussions/unread`). Optional trailing unread count badge.
 - Row: "Participating" → `{ name: 'DiscussionsParticipating', params: { teamId } }`.
 - These three rows replace the old tab strip on the discussions page. The discussions page reads the active feed type from the route name and renders accordingly.
 - Section header: "Spaces" with a `+` revealed on hover and on focus-within (admin only). Click `+` opens the new-space flow with community locked (Phase 06 — `lockedCategoryId: activeCategory.id`).
@@ -94,7 +94,7 @@ Empty state (if `categorySpaces.list.length === 0`):
 - Hide / no-op when only one active community exists (rail-top icon becomes a static badge in that case).
 
 ### 4. Sidebar visibility + width transition in `DesktopLayout.vue`
-- Render the community sidebar only when the current route matches `/c/:teamId/*`.
+- Render the community sidebar only when the current route matches `/community/:teamId/*`.
 - Use a width-animated wrapper around the sidebar (e.g. `<div class="transition-all duration-150 overflow-hidden" :class="onCategoryRoute ? 'w-56' : 'w-0'">`) so navigation between community and global routes slides instead of snaps.
 - The rail itself is always visible.
 
@@ -134,7 +134,7 @@ Empty state (if `categorySpaces.list.length === 0`):
 
 - Rail visible on every route.
 - Community icon at top of rail acts as switcher when multiple communities exist; static badge when only one.
-- Community sidebar visible only on `/c/:teamId/*` routes; transitions out smoothly on global routes.
+- Community sidebar visible only on `/community/:teamId/*` routes; transitions out smoothly on global routes.
 - Composite header reads as one continuous element across rail + sidebar.
 - Spaces list shows globe/lock leading icons; no emoji on space rows.
 - `+` next to "Spaces" header is visible on hover and on keyboard focus (admin only).

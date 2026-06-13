@@ -32,14 +32,14 @@ Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categ
 
 ### Route behavior
 - `/` and `/home` resolve to last selected accessible community, else first accessible community, else onboarding.
-- `/c/:teamId` redirects to `/c/:teamId/discussions`.
+- `/community/:teamId` redirects to `/community/:teamId/discussions`.
 - Deep links navigate to the target community but **do not** silently overwrite the persisted current community. Persistence updates only on deliberate switches (rail switcher click, sidebar click, explicit community nav). This avoids notification clicks rewriting "home" for the user.
 - `/discussions` redirects to the current selected community, or first accessible community.
 
 ### Feed types
 - Keep only: `recent`, `unread`, `participating`.
 - These are surfaced as **rows in the community sidebar** ("All discussions", "Unread", "Participating"), not as a tab strip on the discussions page. The discussions page renders the list for whichever feed type the route specifies.
-- Routes: a single `DiscussionsTab` named route at `/c/:teamId/discussions/:feedType` plus the canonical `Discussions` route at `/c/:teamId/discussions` (treated as `feedType: 'recent'`). `feedType` is a filter param, not a separate route name.
+- Routes: a single `DiscussionsTab` named route at `/community/:teamId/discussions/:feedType` plus the canonical `Discussions` route at `/community/:teamId/discussions` (treated as `feedType: 'recent'`). `feedType` is a filter param, not a separate route name.
 - `following` removed from the frontend (URL allow-list and `FeedType` union); backend handler kept intact for backward compatibility. Any incoming `:feedType` outside the allow-list redirects to `recent`.
 
 ### Bookmarks
@@ -93,21 +93,21 @@ Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categ
   - Group 3: People, Spaces *(Spaces icon shown only to admins — `Gameplan Admin` role)*.
   - Bottom: user avatar (`UserDropdown`).
 - **Community sidebar** (`w-56`, white bg). Top row = community name (text), opens `CategoryDropdown` for community-level actions. Aligned horizontally with the rail's community icon to read as one composite header. Below in order:
-  - "All discussions" row → `/c/:teamId/discussions`
-  - "Unread" row → `/c/:teamId/discussions/unread`
-  - "Participating" row → `/c/:teamId/discussions/participating`
+  - "All discussions" row → `/community/:teamId/discussions`
+  - "Unread" row → `/community/:teamId/discussions/unread`
+  - "Participating" row → `/community/:teamId/discussions/participating`
   - "Spaces" header with a hover/focus-revealed `+` (admin only) opening the new-space flow
   - Spaces list
   - No persistent footer.
 - **Content area** fills the remaining width.
 
 #### Sidebar visibility
-- Community sidebar visible only on `/c/:teamId/*` routes.
+- Community sidebar visible only on `/community/:teamId/*` routes.
 - Hidden on global routes (`/search`, `/people`, `/pages`, `/tasks`, `/bookmarks`, `/notifications`, `/drafts`, `/spaces`); content area expands. Width transition animated (~150ms).
 
 #### Active-state semantics
 - Active = "this is the destination the user is currently on", not "this destination is in the user's context".
-- Rail community icon: active only on `/c/:teamId/*` routes.
+- Rail community icon: active only on `/community/:teamId/*` routes.
 - Rail destination icons: active only when on the route they target.
 - Sidebar "All discussions" / space rows: active only on the exact destination.
 
@@ -164,7 +164,7 @@ Do not over-scope global pages just because the shell now has a selected communi
 ### Safe first milestone
 If splitting work, land these first:
 1. `activeCategory.ts`
-2. Router changes for `/c/:teamId/...`
+2. Router changes for `/community/:teamId/...`
 3. AppSidebar rewrite
 4. Community discussions page changes
 5. `/bookmarks`

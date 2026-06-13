@@ -4,7 +4,7 @@ Status: completed
 Commit checkpoint: pending
 Notes:
 - Refactored community state into `frontend/src/data/activeCategory.ts` using a session-style semantic module.
-- Tightened canonical routes to strict `/c/:teamId/...` paths and added explicit `NotFound` handling.
+- Tightened canonical routes to strict `/community/:teamId/...` paths and added explicit `NotFound` handling.
 - Replaced generic redirect helpers with smaller inline redirects and route-specific checks.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
@@ -17,7 +17,7 @@ Create the new routing foundation for community scope.
 
 This phase should establish:
 - current-community resolution
-- canonical `/c/:teamId/...` route structure
+- canonical `/community/:teamId/...` route structure
 - `/bookmarks`
 - compatibility redirects from `/`, `/home`, and `/discussions`
 
@@ -63,9 +63,9 @@ Key rules:
 ### 2. Replace primary community-scoped routes with scoped paths
 In `frontend/src/router.js`:
 - keep existing route names where possible
-- move canonical community-scoped paths under `/c/:teamId/...`
-- make `/c/:teamId` redirect to `/c/:teamId/discussions`
-- add `/c/:teamId/discussions` (recent), `/c/:teamId/discussions/unread`, `/c/:teamId/discussions/participating` as distinct routes (no tab strip — the sidebar drives the active feed)
+- move canonical community-scoped paths under `/community/:teamId/...`
+- make `/community/:teamId` redirect to `/community/:teamId/discussions`
+- add `/community/:teamId/discussions` (recent), `/community/:teamId/discussions/unread`, `/community/:teamId/discussions/participating` as distinct routes (no tab strip — the sidebar drives the active feed)
 - any other `/discussions/:feedType` value 404s
 - add scoped space paths
 - add scoped `NewDiscussion`
@@ -91,7 +91,7 @@ Behavior:
 - `/discussions` -> current selected community discussions or first accessible community
 - unsupported old feed types should fall back to `recent`
 - `/new-discussion` is handled by `LegacyNewDiscussion` (not a redirect)
-- `/space/:spaceId` -> resolve `teamId` from space data and redirect to `/c/:teamId/space/:spaceId`
+- `/space/:spaceId` -> resolve `teamId` from space data and redirect to `/community/:teamId/space/:spaceId`
 - `/space/:spaceId/discussion/:postId/:slug?` -> resolve `teamId` and redirect to canonical scoped route
 
 Important: old `/space/:spaceId/...` URLs are widely bookmarked and shared. They must continue working as redirects.
@@ -138,7 +138,7 @@ Send them to resolved community discussions.
 
 - `/` resolves correctly
 - `/home` resolves correctly
-- `/c/:teamId` redirects correctly
+- `/community/:teamId` redirects correctly
 - `/discussions` redirects correctly
 - old project/team URLs still land somewhere valid
 - old `/space/:spaceId/...` URLs redirect to canonical scoped routes

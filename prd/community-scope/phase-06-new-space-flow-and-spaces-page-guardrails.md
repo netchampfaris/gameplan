@@ -44,7 +44,7 @@ In `frontend/src/components/NewSpaceDialog.vue`:
 
 ### 2. Add canonical scoped new-space route
 In `frontend/src/router.js`:
-- add `/c/:teamId/new-space`
+- add `/community/:teamId/new-space`
 - route may render a small wrapper page or a full page component
 
 If needed, create:

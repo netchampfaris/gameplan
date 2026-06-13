@@ -34,7 +34,7 @@ let router = createRouter({
       },
     },
     {
-      path: '/c',
+      path: '/community',
       component: RouteGuard,
       async beforeEnter() {
         await ensureCategoryDataLoaded()
@@ -47,7 +47,7 @@ let router = createRouter({
       component: () => import('@/pages/PersonalHome.vue'),
     },
     {
-      path: '/c/:teamId',
+      path: '/community/:teamId',
       redirect: (to) => ({
         name: 'Discussions',
         params: { teamId: String(to.params.teamId) },
@@ -55,14 +55,14 @@ let router = createRouter({
     },
     {
       name: 'Discussions',
-      path: '/c/:teamId/discussions',
+      path: '/community/:teamId/discussions',
       component: () => import('@/pages/Discussions.vue'),
       props: true,
       meta: { categoryScope: true },
     },
     {
       name: 'DiscussionsTab',
-      path: '/c/:teamId/discussions/:feedType',
+      path: '/community/:teamId/discussions/:feedType',
       component: () => import('@/pages/Discussions.vue'),
       props: true,
       meta: { categoryScope: true },
@@ -201,7 +201,7 @@ let router = createRouter({
     },
     {
       name: 'Space',
-      path: '/c/:teamId/space/:spaceId',
+      path: '/community/:teamId/space/:spaceId',
       component: () => import('@/pages/Space.vue'),
       redirect: { name: 'SpaceDiscussions' },
       props: true,
@@ -246,14 +246,14 @@ let router = createRouter({
     },
     {
       name: 'Discussion',
-      path: '/c/:teamId/space/:spaceId/discussion/:postId/:slug?',
+      path: '/community/:teamId/space/:spaceId/discussion/:postId/:slug?',
       component: () => import('@/pages/SpaceDiscussion.vue'),
       props: true,
       meta: { categoryScope: true },
     },
     {
       name: 'NewDiscussion',
-      path: '/c/:teamId/new-discussion',
+      path: '/community/:teamId/new-discussion',
       component: () => import('@/pages/NewDiscussion/NewDiscussion.vue'),
       meta: { categoryScope: true },
     },
@@ -264,7 +264,7 @@ let router = createRouter({
     },
     {
       name: 'NewSpace',
-      path: '/c/:teamId/new-space',
+      path: '/community/:teamId/new-space',
       component: () => import('@/pages/ComingSoon.vue'),
       meta: { categoryScope: true },
     },
@@ -307,7 +307,7 @@ let router = createRouter({
       name: 'More',
       component: () => import('@/pages/MoreMenu.vue'),
     },
-    // Keep old shared space links working while moving canonical URLs under `/c/:teamId/...`.
+    // Keep old shared space links working while moving canonical URLs under `/community/:teamId/...`.
     {
       path: '/space/:spaceId',
       component: RouteGuard,
@@ -666,7 +666,7 @@ router.beforeEach(async (to, from) => {
 
   await ensureCategoryDataLoaded()
 
-  if (['/', '/home', '/c'].includes(to.path)) {
+  if (['/', '/home', '/community'].includes(to.path)) {
     return getHomeRoute()
   }
 

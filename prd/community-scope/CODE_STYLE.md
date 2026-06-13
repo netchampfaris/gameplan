@@ -126,10 +126,10 @@ activeCategory.change(teamId)
 
 ### Route rules
 Canonical scoped routes should look like:
-- `/c/:teamId/discussions`
-- `/c/:teamId/discussions/:feedType`
-- `/c/:teamId/space/:spaceId`
-- `/c/:teamId/new-discussion`
+- `/community/:teamId/discussions`
+- `/community/:teamId/discussions/:feedType`
+- `/community/:teamId/space/:spaceId`
+- `/community/:teamId/new-discussion`
 
 ### Redirect rules
 - Legacy URLs may redirect into canonical scoped URLs.

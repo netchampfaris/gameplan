@@ -8,7 +8,7 @@ Notes:
 - `Discussions.vue` was further simplified after the initial scope: feed-specific navbar title (`All Discussions` / `Unread` / `Participating`) driven by `feedType`, and the sort selector moved into the page header.
 - `SpaceBreadcrumbs` dropped the leading community crumb — the `AppSidebar` already conveys community context.
 - Decisions locked before implementation:
-  1. Route shape: keep the single `DiscussionsTab` route at `/c/:teamId/discussions/:feedType`. `feedType` is a filter param, not a separate route name.
+  1. Route shape: keep the single `DiscussionsTab` route at `/community/:teamId/discussions/:feedType`. `feedType` is a filter param, not a separate route name.
   2. `following` feed is removed from the UI and from the URL allow-list. `discussionFeeds` drops `'following'`; any incoming `:feedType` not in the allow-list redirects to `recent`. The backend `following` handler stays for backward compatibility.
    3. `pin_scope` union widens to `'Global' | 'Category' | 'Space'`. New writes use `'Category'` for community pins; existing `'Global'` rows remain readable until Phase 07.
   4. No `team` backfill required. `GP Discussion.team` is populated for all rows.
@@ -26,7 +26,7 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 Convert the discussions experience from global to community-scoped, while moving bookmarks to their own global route.
 
 This phase should deliver:
-- community discussions under `/c/:teamId/discussions` and `/c/:teamId/discussions/:feedType` (single `DiscussionsTab` route).
+- community discussions under `/community/:teamId/discussions` and `/community/:teamId/discussions/:feedType` (single `DiscussionsTab` route).
 - feed types limited to `recent` / `unread` / `participating` — `following` removed from the URL allow-list and the type union.
 - global bookmarks page (promoted out of the user profile).
 - community-vs-space pin behavior, with read compatibility for legacy `'Global'` pins.
@@ -54,7 +54,7 @@ This phase should deliver:
 
 ### 1. Repurpose Discussions page as community discussions
 In `frontend/src/pages/Discussions.vue`:
-- read `teamId` and `feedType` from route **params** (single `DiscussionsTab` route at `/c/:teamId/discussions/:feedType`; the canonical `Discussions` route at `/c/:teamId/discussions` is treated as `feedType: 'recent'`).
+- read `teamId` and `feedType` from route **params** (single `DiscussionsTab` route at `/community/:teamId/discussions/:feedType`; the canonical `Discussions` route at `/community/:teamId/discussions` is treated as `feedType: 'recent'`).
 - pass `team: teamId` and `feed_type` into filters.
 - **remove the tab strip entirely** — the sidebar (Phase 02) drives feed selection now.
 - drop `'following'` and `'drafts'` from the `FeedType` union. The backend `following` handler still exists; we just no longer surface or accept it from the URL.
@@ -86,7 +86,7 @@ In `frontend/src/components/DiscussionView.vue`:
 
 ### 5. Widen pin_scope union and add legacy route redirects
 - In `frontend/src/types/doctypes.ts`, widen `pin_scope?: 'Global' | 'Space'` to `'Global' | 'Category' | 'Space'`. Mirror the same change in `frontend/src/data/discussions.ts` (`pinDiscussion` parameter type).
-- In `frontend/src/router.js`, drop `'following'` from `discussionFeeds` so `/discussions/following` and `/c/:teamId/discussions/following` redirect to `recent`.
+- In `frontend/src/router.js`, drop `'following'` from `discussionFeeds` so `/discussions/following` and `/community/:teamId/discussions/following` redirect to `recent`.
 - Add redirects from legacy route names to new ones:
   - `ProjectDiscussion` → `Discussion` (`teamId` + `spaceId`)
   - `ProjectDiscussions` / `TeamDiscussions` → community-scoped `Discussions`
@@ -115,9 +115,9 @@ Ensure:
 
 ## Verify before commit
 
-- `/c/:teamId/discussions` loads discussions only for that community.
-- `/c/:teamId/discussions/recent`, `.../unread`, `.../participating` resolve via the single `DiscussionsTab` route.
-- `/c/:teamId/discussions/following` redirects to `.../recent`.
+- `/community/:teamId/discussions` loads discussions only for that community.
+- `/community/:teamId/discussions/recent`, `.../unread`, `.../participating` resolve via the single `DiscussionsTab` route.
+- `/community/:teamId/discussions/following` redirects to `.../recent`.
 - `/discussions/following` (legacy unscoped) also redirects to `.../recent` under the active community.
 - `/bookmarks` works and stays global; profile bookmarks link still resolves.
 - Community discussions show only community pins; space discussions show only space pins; legacy `'Global'` pins still render until Phase 07 backfill.
