@@ -63,16 +63,17 @@
                 v-for="space in spacesList"
                 :key="space.name"
                 :to="{ name: 'Space', params: { teamId: space.team, spaceId: space.name } }"
-                class="flex h-7 items-center rounded px-2 text-ink-gray-7 transition"
-                activeClass="bg-surface-elevation-3 shadow-sm"
-                inactiveClass="hover:bg-surface-gray-2"
+                class="flex h-7 items-center rounded px-2 transition"
+                activeClass="bg-surface-elevation-3 shadow-sm text-ink-gray-8"
+                inactiveClass="hover:bg-surface-gray-2 text-ink-gray-6"
               >
                 <span class="flex w-full min-w-0 items-center">
-                  <component
-                    :is="space.is_private ? LucideLock : LucideGlobe"
-                    class="size-4 shrink-0 text-ink-gray-5"
-                  />
+                  <SpaceIcon :icon="space.icon" class="size-4" />
                   <span class="ml-2 flex-1 truncate text-sm">{{ space.title }}</span>
+                  <LucideLock
+                    v-if="space.is_private"
+                    class="ml-1 size-3 shrink-0 text-ink-gray-5"
+                  />
                   <span
                     v-if="getSpaceUnreadCount(space.name) > 0"
                     class="ml-2 shrink-0 text-xs text-ink-gray-5"
@@ -122,8 +123,8 @@ import AppDropdown from './AppDropdown.vue'
 import AppSidebarLink from './AppSidebarLink.vue'
 import NewSpaceDialog from './NewSpaceDialog.vue'
 import ScrollBar from './ScrollBar.vue'
+import SpaceIcon from './SpaceIcon.vue'
 import LucideAtSign from '~icons/lucide/at-sign'
-import LucideGlobe from '~icons/lucide/globe'
 import LucideLock from '~icons/lucide/lock'
 import LucideMailOpen from '~icons/lucide/mail-open'
 import LucideMessageSquareText from '~icons/lucide/message-square-text'

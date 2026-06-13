@@ -276,7 +276,6 @@ import {
   dialog,
 } from 'frappe-ui'
 import Pie from '@/components/Pie.vue'
-import IconPicker from '@/components/IconPicker.vue'
 import Links from '@/components/Links.vue'
 import Tabs from '@/components/Tabs.vue'
 import InviteGuestDialog from '@/components/InviteGuestDialog.vue'
@@ -291,7 +290,6 @@ export default {
     Input,
     Dropdown,
     Pie,
-    IconPicker,
     Links,
     Tabs,
     Combobox,

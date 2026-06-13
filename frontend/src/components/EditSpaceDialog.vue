@@ -2,10 +2,10 @@
   <Dialog title="Edit Space" v-model:open="show">
     <div class="mt-3 space-y-2" v-if="space">
       <div class="space-x-2 flex items-center w-full">
-        <IconPicker v-model="space.icon" v-slot="{ isOpen }">
-          <Button>
+        <IconPicker v-model="space.icon" v-slot="{ togglePopover }">
+          <Button @click="togglePopover()">
             <template #icon>
-              <span v-if="space.icon">{{ space.icon }}</span>
+              <SpaceIcon v-if="space.icon" :icon="space.icon" class="size-4" />
               <span v-else class="lucide-plus h-4 w-4" />
             </template>
           </Button>
@@ -42,6 +42,7 @@
 <script setup lang="ts">
 import { Dialog, ErrorMessage, FormControl, TextInput } from 'frappe-ui'
 import IconPicker from './IconPicker.vue'
+import SpaceIcon from './SpaceIcon.vue'
 import { useSpace } from '@/data/spaces'
 import { useDoctype } from 'frappe-ui'
 import { GPProject } from '@/types/doctypes'

@@ -40,9 +40,7 @@
                 v-if="d.project"
                 :set="(space = getSpace(d))"
               >
-                <div>
-                  {{ space?.icon }}
-                </div>
+                <SpaceIcon :icon="space?.icon" class="size-4 text-ink-gray-6" />
                 <div>{{ space?.title }}</div>
               </div>
             </div>
@@ -67,6 +65,7 @@
 <script setup lang="ts">
 import { Dropdown, useList, UseListOptions, dialog } from 'frappe-ui'
 import EmptyStateBox from '@/components/EmptyStateBox.vue'
+import SpaceIcon from '@/components/SpaceIcon.vue'
 import { GPPage } from '@/types/doctypes'
 import { useSpace } from '@/data/spaces'
 

@@ -10,9 +10,7 @@
   >
     <div class="flex items-start w-full">
       <div class="inline-flex min-w-0 flex-1 mr-1">
-        <span class="text-xl mr-1.5 font-[emoji] leading-5">
-          {{ space.icon }}
-        </span>
+        <SpaceIcon :icon="space.icon" class="mr-1.5 size-5 text-ink-gray-6" />
         <span class="text-base-medium leading-5 text-ink-gray-9 truncate">
           {{ space.title }}
           <span
@@ -82,6 +80,7 @@
 import { Badge, Button, Tooltip } from 'frappe-ui'
 import { getSpaceUnreadCount, Space, unarchiveSpace } from '@/data/spaces'
 import SpaceOptions from '@/components/SpaceOptions.vue'
+import SpaceIcon from '@/components/SpaceIcon.vue'
 import { isPinActionLoading, isPinned, pinSpace, unpinSpace } from '@/data/pinnedSpaces'
 
 interface Props {

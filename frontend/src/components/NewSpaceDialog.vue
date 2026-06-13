@@ -6,10 +6,10 @@
     </p>
     <div class="mt-3 space-y-2">
       <div class="space-x-2 flex items-center w-full">
-        <IconPicker v-model="newSpace.doc.icon" v-slot="{ isOpen }">
-          <Button>
+        <IconPicker v-model="newSpace.doc.icon" v-slot="{ togglePopover }">
+          <Button @click="togglePopover()">
             <template #icon>
-              <span v-if="newSpace.doc.icon">{{ newSpace.doc.icon }}</span>
+              <SpaceIcon v-if="newSpace.doc.icon" :icon="newSpace.doc.icon" class="size-4" />
               <span v-else class="lucide-plus h-4 w-4" />
             </template>
           </Button>
@@ -61,6 +61,7 @@ import {
   type ComboboxOption,
 } from 'frappe-ui'
 import IconPicker from './IconPicker.vue'
+import SpaceIcon from './SpaceIcon.vue'
 import { useNewDoc } from 'frappe-ui'
 import { GPProject, GPTeam } from '@/types/doctypes'
 import { spaces } from '@/data/spaces'

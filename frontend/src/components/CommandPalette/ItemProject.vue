@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full items-center rounded px-2 py-2 text-base" v-if="space">
-    <span class="font-[emoji] size-4 leading-4 text-xl mr-3">{{ space.icon }}</span>
+    <SpaceIcon :icon="space.icon" class="mr-3 size-4 text-ink-gray-6" />
     <span v-if="category" class="font-medium inline-flex items-end text-ink-gray-5">
       {{ category?.title }}
       <div class="h-4 grid place-content-center mx-1">
@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { useSpace } from '@/data/spaces'
 import { useTeam } from '@/data/teams'
+import SpaceIcon from '@/components/SpaceIcon.vue'
 const props = defineProps({
   item: {
     type: Object,

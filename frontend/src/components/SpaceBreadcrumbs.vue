@@ -4,28 +4,30 @@
     :items="[
       {
         label: space?.title,
-        prefix: h('span', { class: 'grid place-items-center font-[emoji] text-xl' }, space?.icon),
+        prefix: h(SpaceIcon, { icon: space?.icon }),
         suffix: space?.is_private ? 'lucide-lock' : null,
-        route: { name: 'Space', params: { teamId: category?.name, spaceId } },
+        onClick: () => (showSpaceEditDialog = true),
       },
       ...(items || []),
     ]"
   >
     <template #prefix="{ item }">
-      <component :is="item.prefix" v-if="item.prefix" class="mr-1.5 size-4 text-ink-gray-6" />
+      <component :is="item.prefix" v-if="item.prefix" class="mr-1.5 size-5 text-ink-gray-6" />
     </template>
     <template #suffix="{ item }">
       <span v-if="item.suffix" :class="[item.suffix, 'ml-1.5 size-3.5 text-ink-gray-6']" />
     </template>
   </Breadcrumbs>
+  <EditSpaceDialog v-model="showSpaceEditDialog" :spaceId="spaceId" />
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import { Breadcrumbs } from 'frappe-ui'
 import { useSpace } from '@/data/spaces'
 import { RouteComponent } from 'vue-router'
-import { useTeam } from '@/data/teams'
+import EditSpaceDialog from './EditSpaceDialog.vue'
+import SpaceIcon from './SpaceIcon.vue'
 
 const props = defineProps<{
   spaceId: string
@@ -39,7 +41,7 @@ const props = defineProps<{
 }>()
 
 const space = useSpace(() => props.spaceId)
-const category = useTeam(() => space.value?.team)
+const showSpaceEditDialog = ref(false)
 </script>
 
 <style>

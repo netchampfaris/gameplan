@@ -43,9 +43,7 @@
           <div class="mb-2 mt-0.5 space-y-0.5">
             <div class="flex h-7 items-center rounded px-2 text-ink-gray-7 transition">
               <span class="inline-flex min-w-0 items-center space-x-2">
-                <span class="flex-shrink-0 flex h-5 w-6 items-center justify-center text-3xl">
-                  {{ space.icon }}
-                </span>
+                <SpaceIcon :icon="space.icon" class="size-4 flex-shrink-0 text-ink-gray-6" />
                 <span class="truncate text-sm flex-grow">
                   {{ space.title }}
                 </span>
@@ -67,10 +65,10 @@
           </p>
           <div class="mt-6 space-y-2">
             <div class="space-x-2 flex items-start w-full">
-              <IconPicker v-model="space.icon" v-slot="{ isOpen }">
-                <Button>
+              <IconPicker v-model="space.icon" v-slot="{ togglePopover }">
+                <Button @click="togglePopover()">
                   <template #icon>
-                    <span v-if="space.icon">{{ space.icon }}</span>
+                    <SpaceIcon v-if="space.icon" :icon="space.icon" class="size-4" />
                     <span v-else class="lucide-plus h-4 w-4" />
                   </template>
                 </Button>
@@ -140,6 +138,8 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCall } from 'frappe-ui'
 import GameplanLogo from '@/components/GameplanLogo.vue'
+import IconPicker from '@/components/IconPicker.vue'
+import SpaceIcon from '@/components/SpaceIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import { getSpace, joinedSpaces, spaces } from '@/data/spaces'
 import { teams } from '@/data/teams'

@@ -49,7 +49,7 @@
         :class="isActive(space.name) ? 'bg-surface-gray-2' : 'hover:bg-surface-gray-1'"
         @click="openSpace(space.name)"
       >
-        <span class="w-6 text-center text-lg leading-none">{{ space.icon }}</span>
+        <SpaceIcon :icon="space.icon" class="size-5 text-ink-gray-6" />
         <span
           class="flex-1 truncate text-[15px] text-ink-gray-8"
           :class="isActive(space.name) ? 'font-semibold' : ''"
@@ -70,6 +70,7 @@ import { activeCategory } from '@/data/activeCategory'
 import { categorySpaces } from '@/data/categorySpaces'
 import { activeTeams } from '@/data/teams'
 import BottomSheet from './BottomSheet.vue'
+import SpaceIcon from './SpaceIcon.vue'
 import LucideCheck from '~icons/lucide/check'
 import LucideLock from '~icons/lucide/lock'
 

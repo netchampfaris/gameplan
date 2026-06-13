@@ -12,7 +12,7 @@
           ]"
         >
           <template #prefix>
-            <IconPicker
+            <EmojiPicker
               v-model="team.doc.icon"
               @update:modelValue="team.setValueDebounced.submit({ icon: team.doc.icon })"
               v-slot="{ isOpen }"
@@ -23,7 +23,7 @@
               >
                 {{ team.doc.icon }}
               </button>
-            </IconPicker>
+            </EmojiPicker>
           </template>
         </Breadcrumbs>
 
@@ -73,7 +73,7 @@
 </template>
 <script>
 import { Breadcrumbs, Dropdown, Badge, Tooltip, dialog } from 'frappe-ui'
-import IconPicker from '@/components/IconPicker.vue'
+import EmojiPicker from '@/components/EmojiPicker.vue'
 import Tabs from '@/components/Tabs.vue'
 
 export default {
@@ -82,7 +82,7 @@ export default {
   components: {
     Breadcrumbs,
     Dropdown,
-    IconPicker,
+    EmojiPicker,
     Tabs,
     Tooltip,
     Badge,
