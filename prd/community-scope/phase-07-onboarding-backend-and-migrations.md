@@ -14,19 +14,19 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 Finalize backend and data-layer changes required by the new information architecture.
 
 This phase should deliver:
-- onboarding creates category + first space
-- every newly created category auto-creates a `General` space (server-side hook, not just onboarding)
+- onboarding creates community + first space
+- every newly created community auto-creates a `General` space (server-side hook, not just onboarding)
 - uncategorized spaces migrate into `Default`
 - pin scope migrates from `Global` to `Category`
 - backend defaults match the new model
 
 ## ⚠️ Migration ordering note
 
-The `team` backfill migration (task 3 below) is **critical for category discussions to work correctly**. Without it, discussions created before this feature will have null/empty `team` fields and will not appear in any category feed.
+The `team` backfill migration (task 3 below) is **critical for community discussions to work correctly**. Without it, discussions created before this feature will have null/empty `team` fields and will not appear in any community feed.
 
 **If deploying incrementally**: run the migration patch before enabling the scoped discussions UI. In a single-PR workflow, ensure the migration is registered in `patches.txt` so it runs on `bench migrate` before users access the new routes.
 
-**For development/testing**: run `bench --site <site> migrate` after adding the patches but before testing Phase 03 (category discussions). If testing Phase 03 before Phase 07 is implemented, manually backfill `team` on `GP Discussion` or category discussions will return empty results.
+**For development/testing**: run `bench --site <site> migrate` after adding the patches but before testing Phase 03 (community discussions). If testing Phase 03 before Phase 07 is implemented, manually backfill `team` on `GP Discussion` or community discussions will return empty results.
 
 ---
 
@@ -56,23 +56,23 @@ In `gameplan/api.py`:
   1. `GP Team` (the `after_insert` hook in §1a will auto-create `General` inside it)
   2. `GP Project` (user-named first space) linked to that team — created in addition to `General`
 - return team id and the user-named space id to the frontend
-- a freshly onboarded site therefore lands with a category containing **two** spaces: `General` (public, hook-created) and the user-named space (whatever privacy the user chose)
+- a freshly onboarded site therefore lands with a community containing **two** spaces: `General` (public, hook-created) and the user-named space (whatever privacy the user chose)
 
 ### 1a. Auto-create `General` space on `GP Team` insert
 In `gameplan/gameplan/doctype/gp_team/gp_team.py`:
 - add an `after_insert` hook that creates a `GP Project` titled `General` linked to the new team
-- `General` must be **public** (`is_private = 0`) so all category members have access by default; do not insert per-member ACL rows for `General`
+- `General` must be **public** (`is_private = 0`) so all community members have access by default; do not insert per-member ACL rows for `General`
 - **idempotency rule**: skip auto-create if **any** `GP Project` already exists in this team (broader than checking by title — protects the migration path where `Default` may inherit pre-existing orphaned spaces)
-- this guarantees every category has at least one valid landing destination — eliminates the empty-category edge case from the routing layer
+- this guarantees every community has at least one valid landing destination — eliminates the empty-community edge case from the routing layer
 - this rule is documented in `./DECISIONS.md` under "Auto-create `General` space"
 
 ### 2. Update onboarding frontend page
 In `frontend/src/pages/Onboarding.vue`:
-- collect category name + first space name
+- collect community name + first space name
 - keep email invite behavior
 - reload spaces and teams on success
-- persist selected category
-- route to category discussions
+- persist selected community
+- route to community discussions
 
 ### 3. Add migration for uncategorized spaces (existing-site only)
 Create patch:
@@ -121,7 +121,7 @@ In `gameplan/www/g.py`:
 - otherwise return `/home`
 - a site with projects-but-no-teams is handled by the migration in §3 (creates `Default`), not by onboarding
 - a site with teams-but-no-projects is handled by the `after_insert` hook (auto-creates `General`), not by onboarding
-- do not move last-selected-category logic to the server
+- do not move last-selected-community logic to the server
 
 ### 8. Update generated frontend types
 Ensure frontend type definitions reflect:
@@ -131,7 +131,7 @@ Ensure frontend type definitions reflect:
 
 ## Guardrails
 
-- Do not move category-resolution persistence to the backend.
+- Do not move community-resolution persistence to the backend.
 - Do not rewrite search or unrelated APIs in this phase.
 - Migration patches must be idempotent and safe for existing sites.
 
@@ -139,8 +139,8 @@ Ensure frontend type definitions reflect:
 
 ## Verify before commit
 
-- onboarding creates category + space successfully
-- onboarding lands in category discussions
+- onboarding creates community + space successfully
+- onboarding lands in community discussions
 - creating a new `GP Team` outside of onboarding (e.g. via admin flow) automatically creates a `General` space inside it
 - the `after_insert` hook is idempotent (does not duplicate `General` for the migration `Default` team)
 - uncategorized spaces are assigned to `Default`
@@ -153,4 +153,4 @@ Ensure frontend type definitions reflect:
 
 ## Suggested commit checkpoint
 
-`feat(category-scope): add onboarding and migration support for category scope`
+`feat(community): add onboarding and migration support for community scope`

@@ -23,7 +23,7 @@ This phase should remove obsolete active references, verify regressions, and pre
 - `frontend/src/composables/usePreferredHomePage.ts`
 - `frontend/src/components/HomePageSettingsDialog.vue`
 - `frontend/src/pages/Home.vue`
-- `frontend/src/pages/PersonalHome.vue` — superseded by rail Home → category discussions (see `./DECISIONS.md` "Shell information architecture")
+- `frontend/src/pages/PersonalHome.vue` — superseded by rail Home → community discussions (see `./DECISIONS.md` "Shell information architecture")
 - `frontend/src/components/CategorySwitcher.vue` — role moved to `CategorySwitcherCombobox` triggered by the rail-top icon. Delete once no call sites remain.
 - old Team / Project pages if they are truly unused after redirect migration
 - any stale imports created during previous phases
@@ -50,11 +50,11 @@ Per the agreed plan, **do not delete** old Team / Project page files in this bra
 ### 3. Regression pass on primary flows
 Verify:
 - app entry routes
-- category switcher (combobox) opens from rail-top icon; static badge when single category
-- composite header (rail icon + sidebar category name) reads as one row
-- category sidebar slides out smoothly on global routes and back in on category routes
+- community switcher (combobox) opens from rail-top icon; static badge when single community
+- composite header (rail icon + sidebar community name) reads as one row
+- community sidebar slides out smoothly on global routes and back in on community routes
 - rail destination active states only highlight the exact current destination
-- category discussions
+- community discussions
 - global bookmarks
 - scoped composer
 - legacy draft behavior
@@ -62,7 +62,7 @@ Verify:
 - `/spaces` admin and non-admin behavior
 - onboarding
 - mobile bottom tabs (Home, Inbox, Search, More) with persistent tab bar on drill-down
-- mobile Home tab shows category context; other tabs do not
+- mobile Home tab shows community context; other tabs do not
 - empty-spaces state renders only in the rare case (`General` auto-create should make this unreachable in normal flows)
 
 ### 4. Update PRD status markers
@@ -92,7 +92,7 @@ The PR description should summarize:
 ## Guardrails
 
 - Do not add extra scope in cleanup.
-- Do not slip category filtering into global pages.
+- Do not slip community filtering into global pages.
 - Do not remove legacy draft support.
 
 ---
@@ -102,19 +102,19 @@ The PR description should summarize:
 ### Core behavior
 - no global discussions feed remains
 - `/` and `/home` resolve correctly
-- category switcher (combobox) accessible from rail-top icon when multiple categories exist
-- category sidebar visible only on `/c/:teamId/*` routes; hidden on global routes with width transition
-- sidebar only shows current-category spaces
+- community switcher (combobox) accessible from rail-top icon when multiple communities exist
+- community sidebar visible only on `/c/:teamId/*` routes; hidden on global routes with width transition
+- sidebar only shows current-community spaces
 
 ### Global surfaces
 - `/bookmarks` is global
 - `/search`, `/tasks`, `/pages`, `/people`, `/notifications`, `/drafts`, `/spaces` remain global in content
 
 ### Scoped flows
-- discussions are category-scoped
+- discussions are community-scoped
 - new discussion is scoped
 - new space is scoped
-- deep links auto-establish the correct category context
+- deep links auto-establish the correct community context
 
 ### Compatibility
 - legacy unscoped drafts still open
@@ -129,5 +129,5 @@ The PR description should summarize:
 ## Suggested final commits
 
 Examples:
-- `refactor(category-scope): remove preferred home remnants and dead route dependencies`
-- `chore(category-scope): finalize regression fixes and update implementation docs`
+- `refactor(community): remove preferred home remnants and dead route dependencies`
+- `chore(community): finalize regression fixes and update implementation docs`

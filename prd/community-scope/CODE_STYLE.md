@@ -1,6 +1,10 @@
-# Category Scope Code Style
+# Community Scope Code Style
 
 These guidelines define the implementation style for this PRD. Apply them across all phases.
+
+Product language uses **Community** for the top-level entity and **Space** for the nested entity.
+Existing implementation identifiers still use `category` and `team` in many places; keep those names
+when changing them would create churn unrelated to this PRD.
 
 ## Principles
 
@@ -29,10 +33,12 @@ Avoid:
 - generic resolver-style files
 - abstraction layers that hide simple domain behavior
 
-### Use domain language
-Prefer names from the product model.
+### Use domain and implementation language deliberately
+Prefer names from the product model for user-facing copy and new concepts. Preserve current
+implementation identifiers when touching existing code.
 
 Use:
+- `community` in user-facing strings
 - `activeCategory`
 - `category`
 - `teamId`
@@ -100,7 +106,7 @@ Use `frontend/src/data/session.ts` as the primary frontend reference.
 ### Make 404 behavior explicit
 For invalid scoped URLs:
 - show `NotFound`
-- do not silently reroute to another category
+- do not silently reroute to another community
 
 This also applies to legacy scoped URLs that can no longer be resolved.
 

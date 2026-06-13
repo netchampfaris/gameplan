@@ -11,11 +11,11 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 
 ## Goal
 
-Make new discussion creation category-scoped while preserving legacy unscoped drafts that do not yet have a selected space/category.
+Make new discussion creation community-scoped while preserving legacy unscoped drafts that do not yet have a selected space/community.
 
 This phase should deliver:
 - scoped canonical new discussion route
-- category-scoped space picker
+- community-scoped space picker
 - new drafts only after space selection
 - conditional draft routing between scoped and legacy modes
 
@@ -38,11 +38,11 @@ This phase should deliver:
 ### 1. Update composer state logic
 In `frontend/src/pages/NewDiscussion/useNewDiscussion.ts`:
 - treat `/c/:teamId/new-discussion` as canonical route
-- derive current category from route params in scoped mode
-- restrict space options to current category in scoped mode
+- derive current community from route params in scoped mode
+- restrict space options to current community in scoped mode
 - do not auto-create a brand-new draft until a space is selected
 - when a draft already has a project, normalize/open it under scoped route
-- when a draft has no project/category, allow legacy `/new-discussion?draft=...`
+- when a draft has no project/community, allow legacy `/new-discussion?draft=...`
 - when publishing, route to `Discussion` with `teamId` and `spaceId`
 
 ### 2. Update composer wrapper and metadata
@@ -53,25 +53,25 @@ In:
 
 Implement:
 - breadcrumb behavior for scoped vs legacy draft route
-- metadata space picker uses scoped category spaces when in canonical mode
+- metadata space picker uses scoped community spaces when in canonical mode
 
 ### 3. Update Drafts page routing logic
 In `frontend/src/pages/Drafts.vue`:
-- **Remove the "Add new" button** from this page. Drafts is now a pure list view; new-discussion creation lives only inside category discussions list (per `./DECISIONS.md`).
+- **Remove the "Add new" button** from this page. Drafts is now a pure list view; new-discussion creation lives only inside community discussions list (per `./DECISIONS.md`).
 - draft rows should route:
   - to scoped composer when draft has project/team
   - to legacy `/new-discussion?draft=...` when project is missing
 - keep Drafts page global
 
 ### 4. Command palette — deferred
-The command palette "Add Discussion" entry point is **out of scope** for this branch. Leave existing palette code as-is (or stub it to navigate to category discussions if it actively breaks). Track for a follow-up.
+The command palette "Add Discussion" entry point is **out of scope** for this branch. Leave existing palette code as-is (or stub it to navigate to community discussions if it actively breaks). Track for a follow-up.
 
 ---
 
 ## Guardrails
 
 - Legacy drafts with no selected space must continue working.
-- Do not make Drafts page category-scoped.
+- Do not make Drafts page community-scoped.
 - Do not auto-create drafts before a space is selected for new content.
 
 ---
@@ -88,4 +88,4 @@ The command palette "Add Discussion" entry point is **out of scope** for this br
 
 ## Suggested commit checkpoint
 
-`feat(category-scope): scope composer and preserve legacy draft routing`
+`feat(community): scope composer and preserve legacy draft routing`

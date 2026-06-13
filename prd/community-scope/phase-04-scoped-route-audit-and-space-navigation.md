@@ -11,7 +11,7 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 
 ## Goal
 
-Audit and fix all routes that now require `teamId`, especially links from global surfaces into scoped category routes.
+Audit and fix all routes that now require `teamId`, especially links from global surfaces into scoped community routes.
 
 This phase should make route usage internally consistent across the app.
 
@@ -50,7 +50,7 @@ In `frontend/src/pages/Space.vue`:
   - **Option B**: accept a brief render, then redirect once `useSpace()` resolves the mismatch
 - keep existing visit tracking behavior
 
-### 2. Update current-category space navigation
+### 2. Update current-community space navigation
 In:
 - `frontend/src/pages/SpaceDiscussions.vue`
 - `frontend/src/components/SpaceBreadcrumbs.vue`
@@ -60,7 +60,7 @@ In:
 Ensure all space routes include `teamId`.
 
 Important breadcrumb rule:
-- breadcrumb root should point to category discussions, not global `/spaces`
+- breadcrumb root should point to community discussions, not global `/spaces`
 
 ### 3. Update global surfaces to link into scoped routes correctly
 In:
@@ -93,7 +93,7 @@ Review every match and ensure `teamId` is included where needed.
 ## Guardrails
 
 - Global surfaces must remain global in content.
-- Do not introduce category filtering to Search/Tasks/Pages/People/Notifications.
+- Do not introduce community filtering to Search/Tasks/Pages/People/Notifications.
 - `/spaces` remains a global housekeeping page.
 
 ---
@@ -102,7 +102,7 @@ Review every match and ensure `teamId` is included where needed.
 
 - opening a space from anywhere lands on canonical scoped route
 - opening a discussion from search/notifications/bookmarks lands on canonical scoped route
-- task/page links from global surfaces include correct category
+- task/page links from global surfaces include correct community
 - breadcrumb paths are correct
 - no obvious route-param runtime errors remain
 
@@ -110,4 +110,4 @@ Review every match and ensure `teamId` is included where needed.
 
 ## Suggested commit checkpoint
 
-`refactor(category-scope): normalize scoped route params across global and space flows`
+`refactor(community): normalize scoped route params across global and space flows`
