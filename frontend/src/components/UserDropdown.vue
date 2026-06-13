@@ -16,7 +16,6 @@ import { useUser } from '@/data/users'
 import { session } from '@/data/session'
 import { clear as clearIndexDb } from 'idb-keyval'
 import { useTheme } from '@/utils/useTheme'
-import { shellIconStyle, toggleShellIconStyle } from '@/data/shellPreferences'
 
 const user = useUser()
 const showAboutDialog = ref(false)
@@ -66,12 +65,6 @@ const dropdownItems = computed(() => [
         onClick: () => setTheme('system'),
       },
     ],
-  },
-  {
-    icon: 'lucide-layout-panel-left',
-    label:
-      shellIconStyle.value === 'logo' ? 'Use community icon at top' : 'Use Gameplan logo at top',
-    onClick: toggleShellIconStyle,
   },
   {
     icon: 'lucide-list-restart',

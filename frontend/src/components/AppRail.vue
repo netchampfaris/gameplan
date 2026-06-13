@@ -1,92 +1,88 @@
 <template>
   <div
-    class="flex h-full w-[52px] shrink-0 flex-col items-center bg-surface-sidebar px-3 pb-3 pt-1"
+    class="flex h-full w-[50px] shrink-0 flex-col items-center bg-surface-sidebar px-[11px] pb-3 pt-2.5"
   >
     <TooltipProvider>
-      <!-- Top: category icon OR product logo, controlled by shellIconStyle preference.
-           Zone is always reserved so the divider below lands at a stable Y. -->
-      <div class="flex h-12 shrink-0 items-center justify-center">
-        <!-- Logo style: gameplan logo at top of rail. -->
+      <div class="flex shrink-0 items-center justify-center mb-3">
         <button
-          v-if="useLogoAtTop"
           type="button"
-          class="flex size-8 items-center justify-center rounded-md transition"
-          :class="onCategoryRoute ? '' : 'hover:opacity-90'"
+          class="flex size-7 items-center justify-center rounded-[7px] transition"
+          :class="isRoute('Home') ? 'bg-surface-base shadow-sm' : 'hover:opacity-90'"
           aria-label="Home"
           @click="goHome"
         >
-          <GameplanLogo class="size-7 rounded" />
+          <GameplanLogo class="size-7 rounded-[7px]" />
         </button>
-
-        <!-- Category style: rail-icon switcher (existing behavior). -->
-        <template v-else-if="activeCategory.team">
-          <TooltipRoot v-if="hasMultipleCategories">
-            <TooltipTrigger as-child>
-              <div class="flex">
-                <CategorySwitcherCombobox>
-                  <template #default="{ open }">
-                    <button
-                      type="button"
-                      class="flex size-8 items-center justify-center overflow-hidden rounded text-base transition"
-                      :class="categoryIconClass(open)"
-                    >
-                      <img
-                        v-if="activeCategory.team.image"
-                        :src="activeCategory.team.image"
-                        :alt="activeCategory.team.title"
-                        class="size-full object-cover"
-                      />
-                      <span v-else-if="activeCategory.team.icon">{{
-                        activeCategory.team.icon
-                      }}</span>
-                      <span v-else>{{ activeCategory.team.title?.[0] }}</span>
-                    </button>
-                  </template>
-                </CategorySwitcherCombobox>
-              </div>
-            </TooltipTrigger>
-            <TooltipBubble side="right">
-              <template #content>
-                <div class="leading-relaxed">Switch community</div>
-              </template>
-            </TooltipBubble>
-          </TooltipRoot>
-
-          <div
-            v-else
-            class="flex size-7 items-center justify-center overflow-hidden rounded-md text-base transition"
-            :class="categoryIconClass(false)"
-          >
-            <img
-              v-if="activeCategory.team.image"
-              :src="activeCategory.team.image"
-              :alt="activeCategory.team.title"
-              class="size-full object-cover"
-            />
-            <span v-else-if="activeCategory.team.icon">{{ activeCategory.team.icon }}</span>
-            <span v-else>{{ activeCategory.team.title?.[0] }}</span>
-          </div>
-        </template>
       </div>
 
-      <!-- Group 1: Home, Inbox, Search -->
-      <div class="flex w-full flex-col items-center gap-0.5 border-outline-gray-2 pt-3">
-        <RailIcon
-          v-for="item in group1"
-          :key="item.label"
-          :label="item.label"
-          :icon="item.icon"
-          :is-active="item.isActive"
-          @click="goTo(item)"
-        />
+      <div
+        v-if="activeTeams.length"
+        class="flex w-full flex-col items-center gap-3 border-t border-outline-gray-2 pt-3"
+      >
+        <TooltipRoot v-for="team in visibleCommunities" :key="team.name">
+          <TooltipTrigger as-child>
+            <button
+              type="button"
+              class="relative flex h-7 w-full items-center justify-center text-base"
+              :aria-label="team.title"
+              @click="goToCommunity(team)"
+            >
+              <span
+                v-if="team.name === activeCategory.id"
+                class="absolute -left-[11px] top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-surface-gray-8"
+              />
+              <span
+                class="flex size-7 items-center justify-center overflow-hidden rounded-[7px] transition"
+                :class="communityIconClass(team.name)"
+              >
+                <img
+                  v-if="team.image"
+                  :src="team.image"
+                  :alt="team.title"
+                  class="size-full object-cover"
+                />
+                <span v-else-if="team.icon" class="leading-none">{{ team.icon }}</span>
+                <span v-else class="text-xs font-medium uppercase">{{ team.title?.[0] }}</span>
+              </span>
+            </button>
+          </TooltipTrigger>
+          <TooltipBubble side="right">
+            <template #content>
+              <div class="text-base">{{ team.title }}</div>
+            </template>
+          </TooltipBubble>
+        </TooltipRoot>
+
+        <TooltipRoot>
+          <TooltipTrigger as-child>
+            <div class="flex">
+              <CategorySwitcherCombobox>
+                <template #default="{ open }">
+                  <button
+                    type="button"
+                    class="flex size-7 items-center justify-center rounded-[7px] text-ink-gray-6 transition"
+                    :class="open ? 'bg-surface-base shadow-sm' : 'hover:bg-surface-gray-3'"
+                    aria-label="More communities"
+                  >
+                    <span class="lucide-more-horizontal size-4" />
+                  </button>
+                </template>
+              </CategorySwitcherCombobox>
+            </div>
+          </TooltipTrigger>
+          <TooltipBubble side="right">
+            <template #content>
+              <div class="leading-relaxed">More communities</div>
+            </template>
+          </TooltipBubble>
+        </TooltipRoot>
       </div>
 
-      <!-- Group 2: Drafts, Bookmarks, Tasks, Pages -->
       <div
         class="mt-3 flex w-full flex-col items-center gap-0.5 border-t border-outline-gray-2 pt-3"
       >
         <RailIcon
-          v-for="item in group2"
+          v-for="item in primaryShortcuts"
           :key="item.label"
           :label="item.label"
           :icon="item.icon"
@@ -95,12 +91,11 @@
         />
       </div>
 
-      <!-- Group 3: People, Spaces (admin only) -->
       <div
         class="mt-3 flex w-full flex-col items-center gap-0.5 border-t border-outline-gray-2 pt-3"
       >
         <RailIcon
-          v-for="item in group3"
+          v-for="item in shortcuts"
           :key="item.label"
           :label="item.label"
           :icon="item.icon"
@@ -109,7 +104,6 @@
         />
       </div>
 
-      <!-- Spacer + user avatar -->
       <div class="flex-1" />
       <UserDropdown>
         <template #trigger="{ open }">
@@ -134,13 +128,13 @@ import { TooltipBubble } from 'frappe-ui'
 import type { RouteLocationRaw } from 'vue-router'
 import { activeCategory } from '@/data/activeCategory'
 import { activeTeams } from '@/data/teams'
+import type { Team } from '@/data/teams'
 import { useSessionUser } from '@/data/users'
 import CategorySwitcherCombobox from './CategorySwitcherCombobox.vue'
 import GameplanLogo from './GameplanLogo.vue'
 import RailIcon from './AppRail/RailIcon.vue'
 import UserAvatar from './UserAvatar.vue'
 import UserDropdown from './UserDropdown.vue'
-import { shellIconStyle } from '@/data/shellPreferences'
 
 interface RailItem {
   label: string
@@ -153,27 +147,13 @@ const route = useRoute()
 const router = useRouter()
 const sessionUser = useSessionUser()
 
-const hasMultipleCategories = computed(() => activeTeams.value.length > 1)
+const communitySlotCount = 5
 
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 
-const useLogoAtTop = computed(() => shellIconStyle.value === 'logo')
-
-const onCategoryRoute = computed(() =>
-  isRoute(
-    'Discussions',
-    'DiscussionsTab',
-    'Space',
-    'SpaceDiscussions',
-    'SpacePages',
-    'SpacePage',
-    'SpaceTasks',
-    'SpaceTask',
-    'Discussion',
-    'NewDiscussion',
-    'NewSpace',
-  ),
-)
+const visibleCommunities = computed(() => {
+  return activeTeams.value.slice(0, communitySlotCount)
+})
 
 const homeRoute = computed<RouteLocationRaw>(() => {
   if (activeCategory.id) {
@@ -182,20 +162,12 @@ const homeRoute = computed<RouteLocationRaw>(() => {
   return { name: 'Home' }
 })
 
-function categoryIconClass(open: boolean): string {
-  if (open) return 'ring ring-gray-400'
-  if (onCategoryRoute.value) return 'bg-surface-gray-4 text-ink-white'
-  if (hasMultipleCategories.value) return 'text-ink-gray-1 hover:bg-surface-gray-3'
-  return 'text-ink-gray-1'
+function communityIconClass(teamId: string): string {
+  if (teamId === activeCategory.id) return ''
+  return 'grayscale opacity-50'
 }
 
-const group1 = computed<RailItem[]>(() => [
-  {
-    label: 'Home',
-    icon: 'lucide-home',
-    isActive: isRoute('Discussions', 'DiscussionsTab'),
-    route: homeRoute.value,
-  },
+const primaryShortcuts = computed<RailItem[]>(() => [
   {
     label: 'Inbox',
     icon: 'lucide-inbox',
@@ -210,7 +182,7 @@ const group1 = computed<RailItem[]>(() => [
   },
 ])
 
-const group2 = computed<RailItem[]>(() => [
+const secondaryShortcuts = computed<RailItem[]>(() => [
   {
     label: 'Drafts',
     icon: 'lucide-pencil-line',
@@ -235,38 +207,42 @@ const group2 = computed<RailItem[]>(() => [
     isActive: isRoute('MyPages', 'Page'),
     route: { name: 'MyPages' },
   },
+  {
+    label: 'People',
+    icon: 'lucide-users-2',
+    isActive: isRoute(
+      'People',
+      'PersonProfile',
+      'PersonProfileAboutMe',
+      'PersonProfilePosts',
+      'PersonProfileReplies',
+    ),
+    route: { name: 'People' },
+  },
 ])
 
-const group3 = computed<RailItem[]>(() => {
-  const items: RailItem[] = [
-    {
-      label: 'People',
-      icon: 'lucide-users-2',
-      isActive: isRoute(
-        'People',
-        'PersonProfile',
-        'PersonProfileAboutMe',
-        'PersonProfilePosts',
-        'PersonProfileReplies',
-      ),
-      route: { name: 'People' },
-    },
-  ]
+const adminShortcuts = computed<RailItem[]>(() => {
+  if (!isAdmin.value) return []
 
-  if (isAdmin.value) {
-    items.push({
+  return [
+    {
       label: 'Spaces',
       icon: 'lucide-layout-grid',
       isActive: isRoute('Spaces'),
       route: { name: 'Spaces' },
-    })
-  }
-
-  return items
+    },
+  ]
 })
+
+const shortcuts = computed(() => [...secondaryShortcuts.value, ...adminShortcuts.value])
 
 function goTo(item: RailItem) {
   router.push(item.route)
+}
+
+function goToCommunity(team: Team) {
+  activeCategory.change(team.name)
+  router.push({ name: 'Discussions', params: { teamId: team.name } })
 }
 
 function goHome() {

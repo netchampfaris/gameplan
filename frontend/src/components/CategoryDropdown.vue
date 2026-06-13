@@ -5,17 +5,6 @@
         class="flex items-center gap-2 rounded px-2 py-1 transition-colors"
         :class="open ? 'bg-surface-gray-3' : 'hover:bg-surface-gray-2'"
       >
-        <template v-if="showIconInSidebar">
-          <img
-            v-if="activeCategory.team.image"
-            :src="activeCategory.team.image"
-            :alt="activeCategory.team.title"
-            class="size-7 shrink-0 rounded object-cover"
-          />
-          <span v-else class="text-base leading-none">
-            {{ activeCategory.team.icon || activeCategory.team.title?.[0] }}
-          </span>
-        </template>
         <span class="font-medium">
           {{ activeCategory.team.title }}
         </span>
@@ -30,11 +19,8 @@ import { computed } from 'vue'
 import { Dropdown } from 'frappe-ui'
 import { activeCategory } from '@/data/activeCategory'
 import { useSessionUser } from '@/data/users'
-import { shellIconStyle } from '@/data/shellPreferences'
 
 const sessionUser = useSessionUser()
-
-const showIconInSidebar = computed(() => shellIconStyle.value === 'logo')
 
 const dropdownItems = computed(() => {
   const isAdmin = sessionUser.role === 'Gameplan Admin'

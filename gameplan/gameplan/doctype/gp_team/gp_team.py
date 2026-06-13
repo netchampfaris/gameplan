@@ -8,6 +8,7 @@ from pypika.terms import ExistsCriterion
 
 import gameplan
 from gameplan.mixins.archivable import Archivable
+from gameplan.utils import validate_type
 
 
 class GPTeam(Archivable, Document):
@@ -66,3 +67,52 @@ class GPTeam(Archivable, Document):
 				self.remove(member)
 				self.save()
 				break
+
+
+@frappe.whitelist(methods=["POST"])
+@validate_type
+def update_joined_teams(teams: list = None):
+	if gameplan.is_guest():
+		frappe.throw("Guests cannot manage communities")
+
+	team_names = set(teams or [])
+	if not team_names:
+		frappe.throw("Select at least one community")
+
+	accessible_team_names = set(get_accessible_team_names())
+	if invalid_teams := team_names - accessible_team_names:
+		frappe.throw(f"Not permitted to join: {', '.join(sorted(invalid_teams))}")
+
+	user = frappe.session.user
+	for team_name in accessible_team_names:
+		team = frappe.get_doc("GP Team", team_name)
+		member = next((member for member in team.members if member.user == user), None)
+
+		if team_name in team_names and not member:
+			team.append("members", {"user": user})
+			team.save(ignore_permissions=True)
+		elif team_name not in team_names and member:
+			team.remove(member)
+			team.save(ignore_permissions=True)
+
+	return list(team_names)
+
+
+def get_accessible_team_names():
+	Team = frappe.qb.DocType("GP Team")
+	Member = frappe.qb.DocType("GP Member")
+	member_exists = (
+		frappe.qb.from_(Member)
+		.select(Member.name)
+		.where(Member.parenttype == "GP Team")
+		.where(Member.parent == Team.name)
+		.where(Member.user == frappe.session.user)
+	)
+	query = (
+		frappe.qb.from_(Team)
+		.select(Team.name)
+		.where(Team.archived_at.isnull())
+		.where((Team.is_private == 0) | ((Team.is_private == 1) & ExistsCriterion(member_exists)))
+	)
+
+	return [team.name for team in query.run(as_dict=True)]

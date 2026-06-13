@@ -33,18 +33,36 @@
         {{ item.label?.[0] }}
       </span>
     </template>
+
+    <template #footer="{ setOpen }">
+      <div class="border-t border-outline-gray-1 p-1">
+        <Button
+          variant="ghost"
+          class="w-full justify-start"
+          @click="openManageCommunities(setOpen)"
+        >
+          <template #prefix>
+            <span class="lucide-settings-2 size-4" />
+          </template>
+          Manage communities
+        </Button>
+      </div>
+    </template>
   </Combobox>
+
+  <ManageCommunitiesDialog v-model="showManageCommunities" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Combobox } from 'frappe-ui'
+import { Button, Combobox } from 'frappe-ui'
 import { activeCategory } from '@/data/activeCategory'
 import { activeTeams } from '@/data/teams'
-import LucideCheck from '~icons/lucide/check'
+import ManageCommunitiesDialog from './ManageCommunitiesDialog.vue'
 
 const router = useRouter()
+const showManageCommunities = ref(false)
 
 const categoryOptions = computed(() => {
   return activeTeams.value.map((team) => ({
@@ -60,5 +78,10 @@ function onSelect(option: { value: string } | null) {
 
   activeCategory.change(option.value)
   router.push({ name: 'Discussions', params: { teamId: option.value } })
+}
+
+function openManageCommunities(setOpen: (value: boolean) => void) {
+  setOpen(false)
+  showManageCommunities.value = true
 }
 </script>

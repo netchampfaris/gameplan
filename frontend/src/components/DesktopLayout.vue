@@ -3,9 +3,9 @@
     <div class="h-full flex-1 standalone:border-t">
       <div class="flex h-full">
         <AppRail />
+        <AppSidebar v-if="onCategoryRoute" />
         <div class="flex min-w-0 flex-1 py-1 pr-1">
           <div class="flex min-w-0 flex-1 overflow-hidden rounded-lg bg-surface-base shadow-sm">
-            <AppSidebar v-if="onCategoryRoute" />
             <div class="flex flex-1 min-w-0 flex-col">
               <div id="pageHeaderTarget" />
               <ScrollContainer>

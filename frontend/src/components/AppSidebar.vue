@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full w-56 flex-col border-r bg-surface-base">
+  <div class="flex h-full w-56 flex-col bg-surface-sidebar">
     <template v-if="activeCategory.team">
       <div class="flex h-12 shrink-0 items-center border-b px-2 py-3">
         <CategoryDropdown />
