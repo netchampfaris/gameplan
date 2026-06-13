@@ -1,12 +1,12 @@
 <template>
   <div class="flex h-full w-56 flex-col bg-surface-sidebar">
     <template v-if="activeCategory.team">
-      <div class="flex h-12 shrink-0 items-center border-b px-2 py-3">
-        <CategoryDropdown />
+      <div class="flex shrink-0 items-center p-2">
+        <AppDropdown />
       </div>
 
       <ScrollAreaRoot class="relative flex min-h-0 flex-1 flex-col">
-        <ScrollAreaViewport class="h-full w-full overflow-y-auto px-2 pt-3 pb-10">
+        <ScrollAreaViewport class="h-full w-full overflow-y-auto px-2 pt-0.5 pb-10">
           <nav class="space-y-0.5">
             <AppSidebarLink
               :to="{ name: 'Discussions', params: { teamId: activeCategory.id } }"
@@ -118,13 +118,12 @@ import { categorySpaces } from '@/data/categorySpaces'
 import { getSpaceUnreadCount } from '@/data/spaces'
 import { useSessionUser } from '@/data/users'
 import AppLink from './AppLink.vue'
+import AppDropdown from './AppDropdown.vue'
 import AppSidebarLink from './AppSidebarLink.vue'
-import CategoryDropdown from './CategoryDropdown.vue'
 import NewSpaceDialog from './NewSpaceDialog.vue'
 import ScrollBar from './ScrollBar.vue'
 import LucideAtSign from '~icons/lucide/at-sign'
 import LucideGlobe from '~icons/lucide/globe'
-import LucideHash from '~icons/lucide/hash'
 import LucideLock from '~icons/lucide/lock'
 import LucideMailOpen from '~icons/lucide/mail-open'
 import LucideMessageSquareText from '~icons/lucide/message-square-text'

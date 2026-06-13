@@ -4,22 +4,16 @@
       <slot name="trigger" :open="open"></slot>
     </template>
   </Dropdown>
-  <AboutDialog v-model="showAboutDialog" />
 </template>
 <script setup>
-import { h, computed, ref, markRaw } from 'vue'
+import { h, computed } from 'vue'
 import { Dropdown } from 'frappe-ui'
-import { showSettingsDialog } from '@/components/Settings'
-import AboutDialog from './AboutDialog.vue'
-import AppSelector from './AppSelector.vue'
 import { useUser } from '@/data/users'
 import { session } from '@/data/session'
-import { clear as clearIndexDb } from 'idb-keyval'
 import { useTheme } from '@/utils/useTheme'
 
 const user = useUser()
-const showAboutDialog = ref(false)
-const { setTheme } = useTheme()
+const { currentTheme, setTheme } = useTheme()
 
 const dropdownItems = computed(() => [
   {
@@ -31,52 +25,34 @@ const dropdownItems = computed(() => [
     },
   },
   {
-    icon: 'lucide-layout-grid',
-    label: 'Apps',
-    submenu: [
-      {
-        component: markRaw(AppSelector),
-      },
-    ],
-  },
-  {
-    icon: 'lucide-settings',
-    label: 'Settings & Members',
-    onClick: () => showSettingsDialog(),
-    condition: () => user.isNotGuest,
-  },
-  {
     icon: 'lucide-moon',
     label: 'Toggle theme',
     submenu: [
       {
         label: 'Light Mode',
         icon: 'lucide-sun',
+        slots: {
+          suffix: () => themeCheckmark('light'),
+        },
         onClick: () => setTheme('light'),
       },
       {
         label: 'Dark Mode',
         icon: 'lucide-moon',
+        slots: {
+          suffix: () => themeCheckmark('dark'),
+        },
         onClick: () => setTheme('dark'),
       },
       {
         label: 'System Default',
         icon: 'lucide-monitor',
+        slots: {
+          suffix: () => themeCheckmark('system'),
+        },
         onClick: () => setTheme('system'),
       },
     ],
-  },
-  {
-    icon: 'lucide-list-restart',
-    label: 'Clear cache',
-    onClick: clearCache,
-  },
-  {
-    icon: 'lucide-info',
-    label: 'About',
-    onClick: () => {
-      showAboutDialog.value = true
-    },
   },
   {
     icon: () => h('span', { class: 'lucide-credit-card' }),
@@ -93,12 +69,8 @@ const dropdownItems = computed(() => [
   },
 ])
 
-function clearCache() {
-  localStorage.clear()
-  sessionStorage.clear()
-  clearIndexDb().then(() => {
-    console.log('Cache cleared')
-    window.location.reload()
-  })
+function themeCheckmark(theme) {
+  if (currentTheme.value !== theme) return null
+  return h('span', { class: 'lucide-check size-4 text-ink-gray-6' })
 }
 </script>
