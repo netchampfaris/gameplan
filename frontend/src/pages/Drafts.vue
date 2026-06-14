@@ -13,9 +13,6 @@
             },
           ]"
         />
-        <Button icon-left="lucide-plus" variant="solid" @click="router.push(newDiscussionRoute)">
-          Add new
-        </Button>
       </template>
       <template v-else>
         <Button variant="ghost" @click="cancelBulkDelete">Cancel</Button>
@@ -38,11 +35,7 @@
       </EmptyStateBox>
       <div class="-mx-3" v-else>
         <template v-for="(draft, index) in drafts.data" :key="draft.name">
-          <RouterLink
-            :to="{ name: 'LegacyNewDiscussion', query: { draft: draft.name } }"
-            custom
-            v-slot="{ href, navigate }"
-          >
+          <RouterLink :to="draftRoute(draft)" custom v-slot="{ href, navigate }">
             <a
               :href="href"
               class="flex items-center py-2 px-3 group relative h-15 rounded-[10px] transition hover:bg-surface-gray-2 cursor-pointer"
@@ -145,14 +138,13 @@ import {
 import { GPDraft } from '@/types/doctypes'
 import { useList } from 'frappe-ui'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
-import { useSpace } from '@/data/spaces'
+import { getSpace, useSpace } from '@/data/spaces'
 import { relativeTimestamp } from '@/utils'
 import PageHeader from '@/components/PageHeader.vue'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 import { motion, AnimatePresence } from 'motion-v'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
-import { communityState } from '@/data/communityState'
 
 interface Draft extends GPDraft {
   project_title: string
@@ -169,18 +161,21 @@ interface DeleteDraftsResponse {
 const isBulkDeleteMode = ref(false)
 const selectedDrafts = ref<string[]>([])
 const showDeleteConfirm = ref(false)
-const router = useRouter()
 
-const newDiscussionRoute = computed(() => {
-  if (!communityState.id) {
-    return { name: 'LegacyNewDiscussion' }
+// Drafts with a space open in the scoped composer; legacy drafts without a
+// resolvable community keep opening on the unscoped route.
+function draftRoute(draft: Draft): RouteLocationRaw {
+  const communityId = draft.project ? getSpace(draft.project)?.team : null
+  if (!communityId) {
+    return { name: 'LegacyNewDiscussion', query: { draft: draft.name } }
   }
 
   return {
     name: 'NewDiscussion',
-    params: { communityId: communityState.id },
+    params: { communityId },
+    query: { draft: draft.name },
   }
-})
+}
 
 function toggleSelection(name: string) {
   if (selectedDrafts.value.includes(name)) {

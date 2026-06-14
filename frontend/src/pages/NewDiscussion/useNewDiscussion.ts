@@ -30,6 +30,10 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     { deep: true },
   )
 
+  // The canonical composer route carries the community; the legacy route does not.
+  const communityId = computed(() => optionalParam(currentRoute.params.communityId))
+  const isScoped = computed(() => Boolean(communityId.value))
+
   const draftDoc = ref<DraftDocument>(null)
   const errorMessage = ref<string | null>(null)
   const publishing = ref(false)
@@ -60,7 +64,13 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
   const savingDraft = ref(false)
 
   const canAutoSave = computed(() => {
-    return !savingDraft.value && (draftData.value.title.trim().length > 0 || hasBodyContent())
+    if (savingDraft.value) return false
+    const hasContent = draftData.value.title.trim().length > 0 || hasBodyContent()
+    if (!hasContent) return false
+    // A brand-new draft is only created once a space is selected. Existing drafts
+    // keep auto-saving even when their space is cleared.
+    if (!draftDoc.value && !draftData.value.project) return false
+    return true
   })
 
   function hasBodyContent() {
@@ -88,10 +98,10 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     const doc = await draft.submit()
     persistedDraftData.value = getDraftData(doc)
 
-    if (currentRoute.params.communityId) {
+    if (communityId.value) {
       router.replace({
         name: 'NewDiscussion',
-        params: { communityId: currentRoute.params.communityId },
+        params: { communityId: communityId.value },
         query: { draft: doc.name },
       })
     } else {
@@ -138,8 +148,12 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     error: null,
   }))
 
-  // Space options and formatting
-  const spaceOptions = useGroupedSpaceOptions({ filterFn: (space) => !space.archived_at })
+  // Space options and formatting. In scoped mode the picker only offers spaces
+  // from the route's community; the legacy route keeps the full grouped list.
+  const spaceOptions = useGroupedSpaceOptions({
+    filterFn: (space) =>
+      !space.archived_at && (!isScoped.value || space.team === communityId.value),
+  })
 
   const formattedSpaceOptions = computed(() => {
     return spaceOptions.value.map((d) => {
@@ -163,7 +177,24 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
         publish: 'publish',
       },
     })
-    return draftDoc.value.onSuccess((doc) => updateLocalDraft(doc))
+    return draftDoc.value.onSuccess((doc) => {
+      updateLocalDraft(doc)
+      normalizeDraftRoute(doc)
+    })
+  }
+
+  // A draft opened on the legacy route that already belongs to a space is moved
+  // onto the canonical scoped route. Drafts with no resolvable community stay on
+  // the legacy route so unscoped drafts keep working.
+  function normalizeDraftRoute(doc: GPDraft) {
+    if (isScoped.value || !doc.project) return
+    const targetCommunityId = getSpace(doc.project.toString())?.team
+    if (!targetCommunityId) return
+    router.replace({
+      name: 'NewDiscussion',
+      params: { communityId: targetCommunityId },
+      query: { draft: doc.name },
+    })
   }
 
   function getDraftData(doc: GPDraft): DraftData {
@@ -267,15 +298,15 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
         .then((discussionId: any) => {
           if (discussionId) {
             const spaceId = draftData.value.project
-            const communityId =
-              currentRoute.params.communityId || (spaceId ? getSpace(spaceId)?.team : null)
+            const targetCommunityId =
+              communityId.value || (spaceId ? getSpace(spaceId)?.team : null)
 
             resetValues()
             router
               .replace({
                 name: 'Discussion',
                 params: {
-                  communityId,
+                  communityId: targetCommunityId,
                   spaceId: spaceId,
                   postId: discussionId,
                 },
@@ -299,7 +330,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
       })
       .then((doc) => {
         if (doc) {
-          const communityId = currentRoute.params.communityId || getSpace(doc.project)?.team
+          const targetCommunityId = communityId.value || getSpace(doc.project)?.team
 
           isPublishingSuccessfully.value = true
           resetValues()
@@ -307,7 +338,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
             .replace({
               name: 'Discussion',
               params: {
-                communityId,
+                communityId: targetCommunityId,
                 spaceId: doc.project,
                 postId: doc.name,
               },
@@ -440,6 +471,11 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     // Lifecycle
     initialize,
   }
+}
+
+function optionalParam(value: string | string[] | undefined): string | undefined {
+  const resolved = Array.isArray(value) ? value[0] : value
+  return resolved || undefined
 }
 
 export type NewDiscussionContext = ReturnType<typeof useNewDiscussion>
