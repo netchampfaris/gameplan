@@ -56,6 +56,7 @@ In `gameplan/api.py`:
   1. `GP Team` (the `after_insert` hook in §1a will auto-create `General` inside it)
   2. `GP Project` (user-named first space) linked to that team — created in addition to `General`
 - return team id and the user-named space id to the frontend
+- **join the onboarding user to the new community.** A freshly inserted `GP Team` does **not** auto-add the creator as a member (discovered in the Phase 04 pilot), and `getActiveCommunity` only sees joined communities — without this the scoped-route guard 404s the creator immediately after onboarding. Use the same membership mechanism as `update_joined_teams`.
 - a freshly onboarded site therefore lands with a community containing **two** spaces: `General` (public, hook-created) and the user-named space (whatever privacy the user chose)
 
 ### 1a. Auto-create `General` space on `GP Team` insert
@@ -147,7 +148,7 @@ In `gameplan/www/g.py`:
 
 ## Cypress + backend coverage (required)
 
-- **Cypress:** extend `cypress/e2e/onboarding.cy.js` so onboarding creates a community + first space, lands on that community's discussions, and the auto-created `General` space is present.
+- **Cypress:** extend `cypress/e2e/onboarding.cy.js` so onboarding creates a community + first space, lands on that community's discussions, and the auto-created `General` space is present. This phase must turn the currently-red onboarding + space-detail specs **green** — they fail at HEAD because onboarding creates a teamless space and never joins the creator (see `./AGENT_RUNBOOK.md` → "Known execution realities").
 - **Backend** (`bench --site gameplan.frappe.test run-tests --app gameplan`): migration tests mirroring `gameplan/gameplan/doctype/gp_discussion/test_gp_discussion.py`, covering: idempotency on re-run, no `Default` created on a fully-categorized site, no duplicate `General` inside `Default`, `fetch_from` populates `team` on new rows, and null-`team` discussions become visible in a community feed after backfill.
 
 See `./AGENT_RUNBOOK.md` for run commands and conventions.

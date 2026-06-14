@@ -40,6 +40,15 @@ Read in order: `PLAN.md` → `DECISIONS.md` → `CODE_STYLE.md` → the specific
 
 ---
 
+## Known execution realities (updated as phases run)
+
+From the **Phase 04 pilot**:
+- **Cypress runs in-environment.** `gameplan-demo.test:8000` is up and Chrome is installed, so the verifier can and should run the phase spec headless (`yarn --cwd frontend cypress run --spec ...`). A green run is expected, not optional.
+- **Seed joined membership in specs.** A freshly inserted `GP Team` does **not** auto-add its creator as a member, and `getActiveCommunity` (router guard + `communityState`) only sees *joined* communities. A spec that creates a community must also join it (e.g. `update_joined_teams`) or the scoped-route guard 404s. The rail switcher uses a custom `#trigger` slot with no `aria-haspopup="listbox"`, so open it via the `aria-label="More communities"` icon button, not `selectCombobox`.
+- **Pre-existing red specs — do NOT attribute to your phase.** `onboarding.cy.js` and the space-detail specs (`discussion.cy.js`, `page.cy.js`, `task.cy.js`, `project.cy.js`, and draft-publish in `new-discussion.cy.ts`) fail at HEAD for reasons outside phases 04–07: (a) `gameplan.api.onboarding` creates a `GP Project` with no `team`, and (b) those specs visit `/g/space/<space>` for a community the test user never joined. **Phase 08 fixes both** (community-required onboarding that joins the creator + the auto-created public `General` space). Verifiers for phases 05–08 should run their **targeted** spec, not the full suite; Phase 09 runs the full suite and expects it green once Phase 08 has landed.
+
+---
+
 ## Recording new realities (required)
 
 Implementers **will** find the codebase differs from the plan — it already happened (the `team` `fetch_from` correction; the Phase 01–03 Notes). Do not silently diverge:
