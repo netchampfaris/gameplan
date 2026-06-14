@@ -10,14 +10,19 @@
   <div v-else>
     <div class="relative" v-for="d in pages.data" :key="d.name">
       <router-link
-        :to="{
-          name: d.project ? 'SpacePage' : 'Page',
-          params: {
-            pageId: d.name,
-            slug: d.slug,
-            spaceId: d.project,
-          },
-        }"
+        :to="
+          d.project
+            ? {
+                name: 'SpacePage',
+                params: {
+                  communityId: d.team || getSpace(d)?.team,
+                  pageId: d.name,
+                  slug: d.slug,
+                  spaceId: d.project,
+                },
+              }
+            : { name: 'Page', params: { pageId: d.name, slug: d.slug } }
+        "
       >
         <section class="group">
           <div

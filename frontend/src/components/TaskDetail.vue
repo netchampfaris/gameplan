@@ -162,6 +162,7 @@ import { LoadingText, DatePicker, Button, Combobox, Select, dialog } from 'frapp
 import { vFocus } from '@/directives'
 import { activeUsers } from '@/data/users'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
+import { getSpace } from '@/data/spaces'
 import { useTask } from '@/data/tasks'
 import { GPTask } from '@/types/doctypes'
 
@@ -246,6 +247,7 @@ function updateRoute() {
       name: task.doc.project ? 'SpaceTask' : 'Task',
       params: task.doc.project
         ? {
+            communityId: getSpace(task.doc.project)?.team,
             taskId: task.doc.name,
             spaceId: task.doc.project,
           }

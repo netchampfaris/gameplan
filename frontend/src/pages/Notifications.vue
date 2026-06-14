@@ -34,20 +34,20 @@
             :to="
               d.discussion
                 ? {
-                    name: 'ProjectDiscussion',
+                    name: 'Discussion',
                     params: {
+                      communityId: d.team,
+                      spaceId: d.project,
                       postId: d.discussion,
-                      projectId: d.project,
-                      teamId: d.team,
                     },
                     query: d.comment ? { comment: d.comment } : null,
                   }
                 : d.task
                   ? {
-                      name: 'ProjectTaskDetail',
+                      name: 'SpaceTask',
                       params: {
-                        teamId: d.team,
-                        projectId: d.project,
+                        communityId: d.team,
+                        spaceId: d.project,
                         taskId: d.task,
                       },
                       query: d.comment ? { comment: d.comment } : null,

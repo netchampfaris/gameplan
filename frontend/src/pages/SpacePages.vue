@@ -54,12 +54,14 @@ import SpaceTabs from '@/components/SpaceTabs.vue'
 import SpaceHeaderActions from '@/components/SpaceHeaderActions.vue'
 import PageGrid from './PageGrid.vue'
 import { GPPage } from '@/types/doctypes'
+import { useSpace } from '@/data/spaces'
 
 const props = defineProps<{
   spaceId: string
 }>()
 
 const router = useRouter()
+const space = useSpace(() => props.spaceId)
 const orderBy: UseListOptions<GPPage>['orderBy'] = ref('modified desc')
 
 const newPage = useNewDoc<GPPage>('GP Page', {
@@ -72,7 +74,7 @@ function createNewPage() {
   newPage.submit().then((doc) => {
     router.push({
       name: 'SpacePage',
-      params: { spaceId: props.spaceId, pageId: doc.name },
+      params: { communityId: space.value?.team, spaceId: props.spaceId, pageId: doc.name },
     })
   })
 }

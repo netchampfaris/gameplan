@@ -17,10 +17,18 @@
       <div :class="{ hidden: !(isOpen[group.title] ?? true) }">
         <div v-for="(d, index) in group.tasks" :key="d.name">
           <router-link
-            :to="{
-              name: d.project ? 'SpaceTask' : 'Task',
-              params: { spaceId: d.project, taskId: d.name },
-            }"
+            :to="
+              d.project
+                ? {
+                    name: 'SpaceTask',
+                    params: {
+                      communityId: d.team || getSpace(d.project)?.team,
+                      spaceId: d.project,
+                      taskId: d.name,
+                    },
+                  }
+                : { name: 'Task', params: { taskId: d.name } }
+            "
             class="flex h-15 w-full items-center rounded p-2.5 transition hover:bg-surface-gray-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3 group"
             :class="{
               'pointer-events-none': tasks.delete.loading && tasks.delete.params.name === d.name,
@@ -129,6 +137,7 @@ import EmptyStateBox from './EmptyStateBox.vue'
 import TaskStatusIcon from './NewTaskDialog/TaskStatusIcon.vue'
 import { useList } from 'frappe-ui'
 import { GPTask } from '@/types/doctypes'
+import { getSpace } from '@/data/spaces'
 import { UseListOptions } from 'frappe-ui'
 import DropdownMoreOptions from './DropdownMoreOptions.vue'
 
