@@ -490,11 +490,9 @@ const actions = computed(() => [
     onClick: () => {
       const pinScope = discussion.doc?.pin_scope
       const scopeText =
-        pinScope === 'Global'
-          ? 'This discussion is pinned globally across all spaces.'
-          : pinScope === 'Category'
-            ? `This discussion is pinned across the ${communityTitle.value} community.`
-            : `This discussion is pinned in ${space.value?.title} only.`
+        pinScope === 'Category'
+          ? `This discussion is pinned across the ${communityTitle.value} community.`
+          : `This discussion is pinned in ${space.value?.title} only.`
 
       dialog.confirm({
         title: 'Unpin discussion',

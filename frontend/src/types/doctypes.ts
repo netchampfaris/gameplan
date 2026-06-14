@@ -156,7 +156,7 @@ export interface GPDiscussion extends DocType {
   /** Tags: Table (GP Tag Link) */
   tags: GPTagLink[]
   /** Pin Scope: Select */
-  pin_scope?: 'Global' | 'Category' | 'Space'
+  pin_scope?: 'Category' | 'Space'
 }
 
 // Last updated: 2026-05-01 22:51:01.454329

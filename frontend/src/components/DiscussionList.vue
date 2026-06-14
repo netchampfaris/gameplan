@@ -91,11 +91,10 @@ const pinnedDiscussions = useDiscussions({
       }
     }
 
-    // Category lists read both new `Category` pins and legacy `Global` pins until Phase 07 backfills them.
     return {
       ...baseFilters,
       pinned_at: ['is', 'set'],
-      pin_scope: ['in', ['Category', 'Global']],
+      pin_scope: 'Category',
     }
   },
   orderBy: 'pinned_at desc' as OrderBy,

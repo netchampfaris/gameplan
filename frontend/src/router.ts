@@ -66,11 +66,6 @@ const routes: RouteRecordRaw[] = [
       },
     },
     {
-      path: '/personal',
-      name: 'PersonalHome',
-      component: () => import('@/pages/PersonalHome.vue'),
-    },
-    {
       path: '/community/:communityId',
       redirect: (to) => ({
         name: 'Discussions',
@@ -748,7 +743,13 @@ function getHomeRoute(): RouteLocationRaw {
     return { name: 'Onboarding' }
   }
 
-  return { name: 'PersonalHome' }
+  // The site has communities/spaces but the user has joined none. Admins manage
+  // them on the global Spaces page; everyone else sees the no-communities state.
+  if (useSessionUser().role === 'Gameplan Admin') {
+    return { name: 'Spaces' }
+  }
+
+  return { name: 'NoCommunities' }
 }
 
 function hasAnyData(): boolean {
