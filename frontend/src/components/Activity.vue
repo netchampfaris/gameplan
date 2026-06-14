@@ -41,7 +41,7 @@
           :to="{
             name: 'Space',
             params: {
-              teamId: getSpace(activity.data.old_project)?.team,
+              communityId: getSpace(activity.data.old_project)?.team,
               spaceId: activity.data.old_project,
             },
           }"
@@ -54,7 +54,7 @@
           :to="{
             name: 'Space',
             params: {
-              teamId: getSpace(activity.data.new_project)?.team,
+              communityId: getSpace(activity.data.new_project)?.team,
               spaceId: activity.data.new_project,
             },
           }"
@@ -83,7 +83,7 @@
             :to="{
               name: 'Space',
               params: {
-                teamId: getSpace(activity.data.old_value)?.team,
+                communityId: getSpace(activity.data.old_value)?.team,
                 spaceId: activity.data.old_value,
               },
             }"
@@ -96,7 +96,7 @@
             :to="{
               name: 'Space',
               params: {
-                teamId: getSpace(activity.data.new_value)?.team,
+                communityId: getSpace(activity.data.new_value)?.team,
                 spaceId: activity.data.new_value,
               },
             }"

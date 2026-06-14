@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full w-56 flex-col bg-surface-sidebar">
-    <template v-if="activeCategory.team">
+    <template v-if="communityState.doc">
       <div class="flex shrink-0 items-center p-2">
         <AppDropdown />
       </div>
@@ -9,7 +9,7 @@
         <ScrollAreaViewport class="h-full w-full overflow-y-auto px-2 pt-0.5 pb-10">
           <nav class="space-y-0.5">
             <AppSidebarLink
-              :to="{ name: 'Discussions', params: { teamId: activeCategory.id } }"
+              :to="{ name: 'Discussions', params: { communityId: communityState.id } }"
               :isActive="isRoute('Discussions')"
             >
               <template #prefix>
@@ -21,7 +21,7 @@
             <AppSidebarLink
               :to="{
                 name: 'DiscussionsTab',
-                params: { teamId: activeCategory.id, feedType: 'participating' },
+                params: { communityId: communityState.id, feedType: 'participating' },
               }"
               :isActive="isParticipatingFeed"
             >
@@ -34,7 +34,7 @@
             <AppSidebarLink
               :to="{
                 name: 'DiscussionsTab',
-                params: { teamId: activeCategory.id, feedType: 'unread' },
+                params: { communityId: communityState.id, feedType: 'unread' },
               }"
               :isActive="isUnreadFeed"
             >
@@ -62,7 +62,7 @@
               <AppLink
                 v-for="space in spacesList"
                 :key="space.name"
-                :to="{ name: 'Space', params: { teamId: space.team, spaceId: space.name } }"
+                :to="{ name: 'Space', params: { communityId: space.team, spaceId: space.name } }"
                 class="flex h-7 items-center rounded px-2 transition"
                 activeClass="bg-surface-elevation-3 shadow-sm text-ink-gray-8"
                 inactiveClass="hover:bg-surface-gray-2 text-ink-gray-6"
@@ -106,7 +106,7 @@
     </template>
   </div>
 
-  <NewSpaceDialog v-model="showNewSpaceDialog" :category="activeCategory.id ?? undefined" />
+  <NewSpaceDialog v-model="showNewSpaceDialog" :category="communityState.id ?? undefined" />
 </template>
 
 <script setup lang="ts">
@@ -114,8 +114,8 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui'
 import { Button } from 'frappe-ui'
-import { activeCategory } from '@/data/activeCategory'
-import { categorySpaces } from '@/data/categorySpaces'
+import { communityState } from '@/data/communityState'
+import { communitySpaces } from '@/data/communitySpaces'
 import { getSpaceUnreadCount } from '@/data/spaces'
 import { useSessionUser } from '@/data/users'
 import AppLink from './AppLink.vue'
@@ -134,7 +134,7 @@ const sessionUser = useSessionUser()
 
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 
-const spacesList = computed(() => categorySpaces.list)
+const spacesList = computed(() => communitySpaces.list)
 
 const feedType = computed(() => {
   if (route.name !== 'DiscussionsTab') return null

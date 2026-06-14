@@ -9,7 +9,7 @@
             label: 'Pages',
             route: {
               name: 'SpacePages',
-              params: { teamId: space?.team, spaceId: space?.name },
+              params: { communityId: space?.team, spaceId: space?.name },
             },
           },
           {
@@ -17,7 +17,7 @@
             route: {
               name: 'SpacePage',
               params: {
-                teamId: space?.team,
+                communityId: space?.team,
                 pageId: props.pageId,
                 slug: props.slug,
                 spaceId: space?.name,

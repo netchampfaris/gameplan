@@ -13,7 +13,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { activeCategory } from '@/data/activeCategory'
+import { communityState } from '@/data/communityState'
 import { useRoute } from 'vue-router'
 import { Breadcrumbs, getCachedDocumentResource, usePageMeta } from 'frappe-ui'
 import PageHeader from '@/components/PageHeader.vue'
@@ -21,10 +21,10 @@ import PageHeader from '@/components/PageHeader.vue'
 let breadcrumbs = computed(() => {
   let route = useRoute()
   let items = [{ label: 'Home', route: { name: 'Home' } }]
-  if (route.name === 'Discussions' && activeCategory.id) {
+  if (route.name === 'Discussions' && communityState.id) {
     items.push({
       label: 'Discussions',
-      route: { name: 'Discussions', params: { teamId: activeCategory.id } },
+      route: { name: 'Discussions', params: { communityId: communityState.id } },
     })
   }
   if (['MyTasks', 'Task'].includes(route.name)) {

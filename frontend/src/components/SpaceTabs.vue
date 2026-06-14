@@ -40,7 +40,7 @@ const currentTab = computed({
     }[value]
     router.push({
       name: routeName,
-      params: { teamId: currentRoute.params.teamId, spaceId: props.spaceId },
+      params: { communityId: currentRoute.params.communityId, spaceId: props.spaceId },
     })
   },
 })

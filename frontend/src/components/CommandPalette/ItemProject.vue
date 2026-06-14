@@ -1,8 +1,8 @@
 <template>
   <div class="flex w-full items-center rounded px-2 py-2 text-base" v-if="space">
     <SpaceIcon :icon="space.icon" class="mr-3 size-4 text-ink-gray-6" />
-    <span v-if="category" class="font-medium inline-flex items-end text-ink-gray-5">
-      {{ category?.title }}
+    <span v-if="community" class="font-medium inline-flex items-end text-ink-gray-5">
+      {{ community?.title }}
       <div class="h-4 grid place-content-center mx-1">
         <span class="lucide-chevron-right size-3 text-ink-gray-5" />
       </div>
@@ -13,7 +13,7 @@
 </template>
 <script setup lang="ts">
 import { useSpace } from '@/data/spaces'
-import { useTeam } from '@/data/teams'
+import { useCommunity } from '@/data/communities'
 import SpaceIcon from '@/components/SpaceIcon.vue'
 const props = defineProps({
   item: {
@@ -23,5 +23,5 @@ const props = defineProps({
 })
 
 const space = useSpace(() => props.item.name)
-const category = useTeam(() => space.value?.team)
+const community = useCommunity(() => space.value?.team)
 </script>

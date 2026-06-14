@@ -142,7 +142,7 @@ import IconPicker from '@/components/IconPicker.vue'
 import SpaceIcon from '@/components/SpaceIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import { getSpace, joinedSpaces, spaces } from '@/data/spaces'
-import { teams } from '@/data/teams'
+import { communities } from '@/data/communities'
 
 const space = reactive({
   title: '',
@@ -184,11 +184,11 @@ const onboarding = useCall<string, OnboardingParams>({
     }
   },
   onSuccess(spaceId) {
-    teams.reload()
+    communities.reload()
     spaces.reload().then(() => {
       router.replace({
         name: 'Space',
-        params: { teamId: getSpace(spaceId)?.team, spaceId },
+        params: { communityId: getSpace(spaceId)?.team, spaceId },
       })
     })
     joinedSpaces.reload()

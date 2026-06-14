@@ -280,7 +280,7 @@ import { useSessionUser } from '@/data/users'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { getSpace } from '@/data/spaces'
-import { activeTeams } from '@/data/teams'
+import { activeCommunities } from '@/data/communities'
 import { activeUsers } from '@/data/users'
 import { vFocus } from '@/directives'
 
@@ -440,10 +440,10 @@ const teamsFilterOptions = computed(() => {
     })
   }
 
-  return activeTeams.value.map((team) => ({
-    value: team.name,
-    label: team.title,
-    count: teamCounts.get(team.name) || 0,
+  return activeCommunities.value.map((community) => ({
+    value: community.name,
+    label: community.title,
+    count: teamCounts.get(community.name) || 0,
   }))
 })
 
@@ -674,7 +674,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'Discussion',
         params: {
-          teamId: item.team || getSpace(item.project)?.team,
+          communityId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           postId: item.name,
         },
@@ -686,7 +686,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'SpaceTask',
         params: {
-          teamId: item.team || getSpace(item.project)?.team,
+          communityId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           taskId: item.name,
         },
@@ -695,7 +695,7 @@ function getItemRoute(item: SearchResultItem) {
       return {
         name: 'SpacePage',
         params: {
-          teamId: item.team || getSpace(item.project)?.team,
+          communityId: item.team || getSpace(item.project)?.team,
           spaceId: item.project,
           pageId: item.name,
         },
@@ -705,7 +705,7 @@ function getItemRoute(item: SearchResultItem) {
         return {
           name: 'Discussion',
           params: {
-            teamId: item.team || getSpace(item.project)?.team,
+            communityId: item.team || getSpace(item.project)?.team,
             spaceId: item.project,
             postId: item.reference_name,
           },
@@ -716,7 +716,7 @@ function getItemRoute(item: SearchResultItem) {
         return {
           name: 'SpaceTask',
           params: {
-            teamId: item.team || getSpace(item.project)?.team,
+            communityId: item.team || getSpace(item.project)?.team,
             spaceId: item.project,
             taskId: item.reference_name,
           },

@@ -66,7 +66,7 @@ import { useNewDoc } from 'frappe-ui'
 import { GPProject, GPTeam } from '@/types/doctypes'
 import { spaces } from '@/data/spaces'
 import { computed, h, ref, watch } from 'vue'
-import { activeTeams, teams } from '@/data/teams'
+import { activeCommunities, communities } from '@/data/communities'
 import { until } from '@vueuse/core'
 
 const props = defineProps<{
@@ -93,9 +93,9 @@ watch(show, (value: boolean) => {
 })
 
 const categoryOptions = computed((): ComboboxOption[] => {
-  let categories = activeTeams.value.map((team) => ({
-    label: team.title,
-    value: team.name,
+  let categories = activeCommunities.value.map((community) => ({
+    label: community.title,
+    value: community.name,
   }))
 
   const createNewOption = {
@@ -107,13 +107,16 @@ const categoryOptions = computed((): ComboboxOption[] => {
       label: ({ query }) => `Create New: ${query}`,
     },
     condition: ({ query }) =>
-      query.length > 0 && !activeTeams.value.map((team) => team.title).includes(query),
+      query.length > 0 &&
+      !activeCommunities.value.map((community) => community.title).includes(query),
     onClick: async ({ query }) => {
-      let currentActiveTeamsCount = activeTeams.value.length
-      const team = (await teams.insert.submit({ title: query })) as unknown as GPTeam
-      if (team) {
-        await until(() => activeTeams.value.length > currentActiveTeamsCount).toBeTruthy()
-        selectCategory(team.name)
+      let currentActiveCommunitiesCount = activeCommunities.value.length
+      const community = (await communities.insert.submit({ title: query })) as unknown as GPTeam
+      if (community) {
+        await until(
+          () => activeCommunities.value.length > currentActiveCommunitiesCount,
+        ).toBeTruthy()
+        selectCategory(community.name)
       }
     },
   } as ComboboxOption

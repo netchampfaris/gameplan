@@ -5,7 +5,7 @@
     class="relative rounded-md flex flex-col focus:outline-none focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 hover:bg-surface-gray-2 group transition-colors"
     :to="
       space.team
-        ? { name: 'Space', params: { teamId: space.team, spaceId: space.name } }
+        ? { name: 'Space', params: { communityId: space.team, spaceId: space.name } }
         : undefined
     "
   >

@@ -7,43 +7,48 @@
 
       <div class="space-y-0.5">
         <div
-          v-for="team in availableTeams"
-          :key="team.name"
+          v-for="community in availableCommunities"
+          :key="community.name"
           class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition hover:bg-surface-gray-1"
-          @click="toggleTeam(team.name)"
+          @click="toggleCommunity(community.name)"
         >
           <span
             class="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-surface-gray-1"
           >
             <img
-              v-if="team.image"
-              :src="team.image"
-              :alt="team.title"
+              v-if="community.image"
+              :src="community.image"
+              :alt="community.title"
               class="size-full object-cover"
             />
-            <span v-else-if="team.icon" class="text-base leading-none">{{ team.icon }}</span>
+            <span v-else-if="community.icon" class="text-base leading-none">{{
+              community.icon
+            }}</span>
             <span v-else class="text-xs font-medium uppercase text-ink-gray-7">
-              {{ team.title?.[0] }}
+              {{ community.title?.[0] }}
             </span>
           </span>
           <span class="min-w-0 flex-1">
             <span class="flex items-center gap-1.5 text-base text-ink-gray-8">
-              <span class="truncate">{{ team.title }}</span>
-              <span v-if="team.is_private" class="lucide-lock size-3.5 shrink-0 text-ink-gray-5" />
+              <span class="truncate">{{ community.title }}</span>
+              <span
+                v-if="community.is_private"
+                class="lucide-lock size-3.5 shrink-0 text-ink-gray-5"
+              />
             </span>
           </span>
           <Switch
             size="sm"
-            :label="team.title"
-            :model-value="isSelected(team.name)"
+            :label="community.title"
+            :model-value="isSelected(community.name)"
             class="shrink-0 [&_label]:sr-only"
             @click.stop
-            @update:model-value="setTeamSelected(team.name, $event)"
+            @update:model-value="setCommunitySelected(community.name, $event)"
           />
         </div>
 
         <div
-          v-if="availableTeams.length === 0"
+          v-if="availableCommunities.length === 0"
           class="px-3 py-6 text-center text-p-sm text-ink-gray-5"
         >
           No communities found
@@ -56,7 +61,7 @@
         <Button variant="ghost" @click="show = false">Cancel</Button>
         <Button
           variant="solid"
-          :disabled="selectedTeamNames.length === 0"
+          :disabled="selectedCommunityNames.length === 0"
           :loading="updateJoinedTeams.loading"
           @click="save"
         >
@@ -71,8 +76,8 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button, Dialog, Switch, toast, useCall } from 'frappe-ui'
-import { activeCategory } from '@/data/activeCategory'
-import { activeTeams, availableTeams, isTeamJoined, teams } from '@/data/teams'
+import { communityState } from '@/data/communityState'
+import { activeCommunities, availableCommunities, communities } from '@/data/communities'
 
 const props = defineProps<{
   modelValue: boolean
@@ -84,7 +89,7 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const router = useRouter()
-const selectedTeamNames = ref<string[]>([])
+const selectedCommunityNames = ref<string[]>([])
 
 const show = computed({
   get: () => props.modelValue,
@@ -101,48 +106,50 @@ watch(
   () => props.modelValue,
   (open) => {
     if (open) {
-      selectedTeamNames.value = activeTeams.value.map((team) => team.name)
+      selectedCommunityNames.value = activeCommunities.value.map((community) => community.name)
     }
   },
 )
 
-function isSelected(teamName: string) {
-  return selectedTeamNames.value.includes(teamName)
+function isSelected(communityName: string) {
+  return selectedCommunityNames.value.includes(communityName)
 }
 
-function toggleTeam(teamName: string) {
-  if (isSelected(teamName)) {
-    selectedTeamNames.value = selectedTeamNames.value.filter((name) => name !== teamName)
+function toggleCommunity(communityName: string) {
+  if (isSelected(communityName)) {
+    selectedCommunityNames.value = selectedCommunityNames.value.filter(
+      (name) => name !== communityName,
+    )
   } else {
-    selectedTeamNames.value = [...selectedTeamNames.value, teamName]
+    selectedCommunityNames.value = [...selectedCommunityNames.value, communityName]
   }
 }
 
-function setTeamSelected(teamName: string, selected: boolean) {
-  if (selected === isSelected(teamName)) return
-  toggleTeam(teamName)
+function setCommunitySelected(communityName: string, selected: boolean) {
+  if (selected === isSelected(communityName)) return
+  toggleCommunity(communityName)
 }
 
 async function save() {
-  if (selectedTeamNames.value.length === 0) {
+  if (selectedCommunityNames.value.length === 0) {
     toast.error('Select at least one community')
     return
   }
 
-  let previousActiveTeam = activeCategory.id
+  let previousCommunityId = communityState.id
 
   try {
-    await updateJoinedTeams.submit({ teams: selectedTeamNames.value })
-    await teams.reload()
+    await updateJoinedTeams.submit({ teams: selectedCommunityNames.value })
+    await communities.reload()
 
-    if (previousActiveTeam && !selectedTeamNames.value.includes(previousActiveTeam)) {
-      let nextTeam = activeTeams.value[0]
-      activeCategory.change(nextTeam?.name ?? null)
+    if (previousCommunityId && !selectedCommunityNames.value.includes(previousCommunityId)) {
+      let nextCommunity = activeCommunities.value[0]
+      communityState.change(nextCommunity?.name ?? null)
 
-      if (route.matched.some((record) => record.meta?.categoryScope)) {
+      if (route.matched.some((record) => record.meta?.communityScope)) {
         router.push(
-          nextTeam
-            ? { name: 'Discussions', params: { teamId: nextTeam.name } }
+          nextCommunity
+            ? { name: 'Discussions', params: { communityId: nextCommunity.name } }
             : { name: 'PersonalHome' },
         )
       }

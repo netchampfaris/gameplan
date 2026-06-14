@@ -199,7 +199,7 @@
               <div>
                 <div class="text-base-medium text-ink-gray-9 mb-1">Pin to Community</div>
                 <div class="text-sm text-ink-gray-5" v-if="pinDialog.pinToCategory">
-                  Show in all {{ categoryTitle }} discussions
+                  Show in all {{ communityTitle }} discussions
                 </div>
                 <div class="text-sm text-ink-gray-5" v-else>Show in {{ space?.title }} only</div>
               </div>
@@ -274,7 +274,7 @@ import RevisionsDialog from './RevisionsDialog.vue'
 import { vFocus } from '@/directives'
 import { copyToClipboard } from '@/utils'
 import { getSpace, useSpace } from '@/data/spaces'
-import { useTeam } from '@/data/teams'
+import { useCommunity } from '@/data/communities'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDiscussion } from '@/data/discussions'
 import { tags } from '@/data/tags'
@@ -386,12 +386,14 @@ function moveToSpace() {
           discussionMoveDialog.show = false
           discussionMoveDialog.project = null
 
-          const teamId = discussion.doc?.project ? getSpace(discussion.doc.project)?.team : null
+          const communityId = discussion.doc?.project
+            ? getSpace(discussion.doc.project)?.team
+            : null
 
           router.replace({
             name: 'Discussion',
             params: {
-              teamId,
+              communityId,
               spaceId: discussion.doc?.project,
               postId: discussion.doc?.name,
             },
@@ -431,8 +433,8 @@ function updateUrlSlug() {
 }
 
 const space = useSpace(() => discussion.doc?.project)
-const category = useTeam(() => discussion.doc?.team)
-const categoryTitle = computed(() => category.value?.title ?? '')
+const community = useCommunity(() => discussion.doc?.team)
+const communityTitle = computed(() => community.value?.title ?? '')
 
 const spaceOptions = useGroupedSpaceOptions({
   filterFn: (space) => !space.archived_at && space.name !== discussion.doc?.project,
@@ -491,7 +493,7 @@ const actions = computed(() => [
         pinScope === 'Global'
           ? 'This discussion is pinned globally across all spaces.'
           : pinScope === 'Category'
-            ? `This discussion is pinned across the ${categoryTitle.value} community.`
+            ? `This discussion is pinned across the ${communityTitle.value} community.`
             : `This discussion is pinned in ${space.value?.title} only.`
 
       dialog.confirm({
@@ -558,7 +560,7 @@ const actions = computed(() => [
           router.replace({
             name: 'Space',
             params: {
-              teamId: route.params.teamId,
+              communityId: route.params.communityId,
               spaceId: route.params.spaceId,
             },
           })

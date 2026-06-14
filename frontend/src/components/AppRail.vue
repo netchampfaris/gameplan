@@ -16,39 +16,39 @@
       </div>
 
       <div
-        v-if="activeTeams.length"
+        v-if="activeCommunities.length"
         class="flex w-full flex-col items-center gap-3 border-t border-outline-gray-2 pt-3"
       >
-        <TooltipRoot v-for="team in visibleCommunities" :key="team.name">
+        <TooltipRoot v-for="community in visibleCommunities" :key="community.name">
           <TooltipTrigger as-child>
             <button
               type="button"
               class="relative flex h-7 w-full items-center justify-center text-base"
-              :aria-label="team.title"
-              @click="goToCommunity(team)"
+              :aria-label="community.title"
+              @click="goToCommunity(community)"
             >
               <span
-                v-if="team.name === activeCategory.id"
+                v-if="community.name === communityState.id"
                 class="absolute -left-[11px] top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-surface-gray-8"
               />
               <span
                 class="flex size-7 items-center justify-center overflow-hidden rounded-[7px] transition"
-                :class="communityIconClass(team.name)"
+                :class="communityIconClass(community.name)"
               >
                 <img
-                  v-if="team.image"
-                  :src="team.image"
-                  :alt="team.title"
+                  v-if="community.image"
+                  :src="community.image"
+                  :alt="community.title"
                   class="size-full object-cover"
                 />
-                <span v-else-if="team.icon" class="leading-none">{{ team.icon }}</span>
-                <span v-else class="text-xs font-medium uppercase">{{ team.title?.[0] }}</span>
+                <span v-else-if="community.icon" class="leading-none">{{ community.icon }}</span>
+                <span v-else class="text-xs font-medium uppercase">{{ community.title?.[0] }}</span>
               </span>
             </button>
           </TooltipTrigger>
           <TooltipBubble side="right">
             <template #content>
-              <div class="text-base">{{ team.title }}</div>
+              <div class="text-base">{{ community.title }}</div>
             </template>
           </TooltipBubble>
         </TooltipRoot>
@@ -56,7 +56,7 @@
         <TooltipRoot>
           <TooltipTrigger as-child>
             <div class="flex">
-              <CategorySwitcherCombobox>
+              <CommunitySwitcherCombobox>
                 <template #default="{ open }">
                   <button
                     type="button"
@@ -67,7 +67,7 @@
                     <span class="lucide-more-horizontal size-4" />
                   </button>
                 </template>
-              </CategorySwitcherCombobox>
+              </CommunitySwitcherCombobox>
             </div>
           </TooltipTrigger>
           <TooltipBubble side="right">
@@ -126,11 +126,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { TooltipProvider, TooltipRoot, TooltipTrigger } from 'reka-ui'
 import { TooltipBubble } from 'frappe-ui'
 import type { RouteLocationRaw } from 'vue-router'
-import { activeCategory } from '@/data/activeCategory'
-import { activeTeams } from '@/data/teams'
-import type { Team } from '@/data/teams'
+import { communityState } from '@/data/communityState'
+import { activeCommunities } from '@/data/communities'
+import type { Community } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
-import CategorySwitcherCombobox from './CategorySwitcherCombobox.vue'
+import CommunitySwitcherCombobox from './CommunitySwitcherCombobox.vue'
 import GameplanLogo from './GameplanLogo.vue'
 import RailIcon from './AppRail/RailIcon.vue'
 import UserAvatar from './UserAvatar.vue'
@@ -152,18 +152,18 @@ const communitySlotCount = 5
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 
 const visibleCommunities = computed(() => {
-  return activeTeams.value.slice(0, communitySlotCount)
+  return activeCommunities.value.slice(0, communitySlotCount)
 })
 
 const homeRoute = computed<RouteLocationRaw>(() => {
-  if (activeCategory.id) {
-    return { name: 'Discussions', params: { teamId: activeCategory.id } }
+  if (communityState.id) {
+    return { name: 'Discussions', params: { communityId: communityState.id } }
   }
   return { name: 'Home' }
 })
 
-function communityIconClass(teamId: string): string {
-  if (teamId === activeCategory.id) return ''
+function communityIconClass(communityId: string): string {
+  if (communityId === communityState.id) return ''
   return 'grayscale opacity-50'
 }
 
@@ -240,9 +240,9 @@ function goTo(item: RailItem) {
   router.push(item.route)
 }
 
-function goToCommunity(team: Team) {
-  activeCategory.change(team.name)
-  router.push({ name: 'Discussions', params: { teamId: team.name } })
+function goToCommunity(community: Community) {
+  communityState.change(community.name)
+  router.push({ name: 'Discussions', params: { communityId: community.name } })
 }
 
 function goHome() {

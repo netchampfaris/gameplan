@@ -33,13 +33,13 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { activeCategory } from '@/data/activeCategory'
+import { communityState } from '@/data/communityState'
 import { useScreenSize } from '@/composables/useScreenSize'
 
 const screenSize = useScreenSize()
 const discussionsRoute = computed(() => {
-  return activeCategory.id
-    ? { name: 'Discussions', params: { teamId: activeCategory.id } }
+  return communityState.id
+    ? { name: 'Discussions', params: { communityId: communityState.id } }
     : { name: 'Home' }
 })
 const pageLength = computed(() => {

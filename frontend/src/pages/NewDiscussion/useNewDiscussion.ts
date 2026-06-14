@@ -88,10 +88,10 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
     const doc = await draft.submit()
     persistedDraftData.value = getDraftData(doc)
 
-    if (currentRoute.params.teamId) {
+    if (currentRoute.params.communityId) {
       router.replace({
         name: 'NewDiscussion',
-        params: { teamId: currentRoute.params.teamId },
+        params: { communityId: currentRoute.params.communityId },
         query: { draft: doc.name },
       })
     } else {
@@ -267,14 +267,15 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
         .then((discussionId: any) => {
           if (discussionId) {
             const spaceId = draftData.value.project
-            const teamId = currentRoute.params.teamId || (spaceId ? getSpace(spaceId)?.team : null)
+            const communityId =
+              currentRoute.params.communityId || (spaceId ? getSpace(spaceId)?.team : null)
 
             resetValues()
             router
               .replace({
                 name: 'Discussion',
                 params: {
-                  teamId,
+                  communityId,
                   spaceId: spaceId,
                   postId: discussionId,
                 },
@@ -298,7 +299,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
       })
       .then((doc) => {
         if (doc) {
-          const teamId = currentRoute.params.teamId || getSpace(doc.project)?.team
+          const communityId = currentRoute.params.communityId || getSpace(doc.project)?.team
 
           isPublishingSuccessfully.value = true
           resetValues()
@@ -306,7 +307,7 @@ export function useNewDiscussion(textEditorRef?: TextEditorRef) {
             .replace({
               name: 'Discussion',
               params: {
-                teamId,
+                communityId,
                 spaceId: doc.project,
                 postId: doc.name,
               },

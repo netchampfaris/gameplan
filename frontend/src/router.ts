@@ -8,10 +8,10 @@ import {
 import { until } from '@vueuse/core'
 import { session } from './data/session'
 import { users } from './data/users'
-import { teams, getActiveTeam } from './data/teams'
+import { communities, getActiveCommunity } from './data/communities'
 import { spaces, getSpace } from './data/spaces'
 import type { Space } from './data/spaces'
-import { activeCategory } from './data/activeCategory'
+import { communityState } from './data/communityState'
 import { getScrollContainer, scrollTo } from './utils/scrollContainer'
 
 declare const __FRONTEND_ROUTE__: string
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
       alias: '',
       component: RouteGuard,
       async beforeEnter() {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
         return getHomeRoute()
       },
     },
@@ -53,7 +53,7 @@ const routes: RouteRecordRaw[] = [
       name: 'Home',
       component: RouteGuard,
       async beforeEnter() {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
         return getHomeRoute()
       },
     },
@@ -61,7 +61,7 @@ const routes: RouteRecordRaw[] = [
       path: '/community',
       component: RouteGuard,
       async beforeEnter() {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
         return getHomeRoute()
       },
     },
@@ -71,25 +71,25 @@ const routes: RouteRecordRaw[] = [
       component: () => import('@/pages/PersonalHome.vue'),
     },
     {
-      path: '/community/:teamId',
+      path: '/community/:communityId',
       redirect: (to) => ({
         name: 'Discussions',
-        params: { teamId: routeParam(to.params.teamId) },
+        params: { communityId: routeParam(to.params.communityId) },
       }),
     },
     {
       name: 'Discussions',
-      path: '/community/:teamId/discussions',
+      path: '/community/:communityId/discussions',
       component: () => import('@/pages/Discussions.vue'),
       props: true,
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
     },
     {
       name: 'DiscussionsTab',
-      path: '/community/:teamId/discussions/:feedType',
+      path: '/community/:communityId/discussions/:feedType',
       component: () => import('@/pages/Discussions.vue'),
       props: true,
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
       beforeEnter(to) {
         const feedType = routeParam(to.params.feedType)
 
@@ -103,7 +103,7 @@ const routes: RouteRecordRaw[] = [
 
         return {
           name: 'DiscussionsTab',
-          params: { teamId: routeParam(to.params.teamId), feedType: 'recent' },
+          params: { communityId: routeParam(to.params.communityId), feedType: 'recent' },
           replace: true,
         }
       },
@@ -112,16 +112,16 @@ const routes: RouteRecordRaw[] = [
       path: '/discussions',
       component: RouteGuard,
       async beforeEnter() {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
 
         // `/discussions` stays as a compatibility entry point, but there is no global feed anymore.
-        if (!activeCategory.id) {
+        if (!communityState.id) {
           return getHomeRoute()
         }
 
         return {
           name: 'Discussions',
-          params: { teamId: activeCategory.id },
+          params: { communityId: communityState.id },
         }
       },
     },
@@ -129,21 +129,21 @@ const routes: RouteRecordRaw[] = [
       path: '/discussions/:feedType',
       component: RouteGuard,
       async beforeEnter(to) {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
 
         const feedType = routeParam(to.params.feedType)
         if (feedType === 'bookmarks') {
           return { name: 'Bookmarks' }
         }
 
-        if (!activeCategory.id) {
+        if (!communityState.id) {
           return getHomeRoute()
         }
 
         return {
           name: 'DiscussionsTab',
           params: {
-            teamId: activeCategory.id,
+            communityId: communityState.id,
             feedType: discussionFeeds.includes(feedType) ? feedType : 'recent',
           },
         }
@@ -196,7 +196,7 @@ const routes: RouteRecordRaw[] = [
       name: 'Onboarding',
       component: () => import('@/pages/Onboarding.vue'),
       async beforeEnter() {
-        await ensureCategoryDataLoaded()
+        await ensureCommunityDataLoaded()
 
         if (hasAnyData()) {
           return getHomeRoute()
@@ -204,9 +204,9 @@ const routes: RouteRecordRaw[] = [
       },
     },
     {
-      path: '/no-categories',
-      name: 'NoCategories',
-      component: () => import('@/pages/NoCategories.vue'),
+      path: '/no-communities',
+      name: 'NoCommunities',
+      component: () => import('@/pages/NoCommunities.vue'),
     },
     {
       path: '/404',
@@ -225,61 +225,61 @@ const routes: RouteRecordRaw[] = [
     },
     {
       name: 'Space',
-      path: '/community/:teamId/space/:spaceId',
+      path: '/community/:communityId/space/:spaceId',
       component: () => import('@/pages/Space.vue'),
       redirect: { name: 'SpaceDiscussions' },
       props: true,
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
       children: [
         {
           name: 'SpaceDiscussions',
           path: 'discussions',
           component: () => import('@/pages/SpaceDiscussions.vue'),
           props: true,
-          meta: { categoryScope: true },
+          meta: { communityScope: true },
         },
         {
           name: 'SpacePages',
           path: 'pages',
           component: () => import('@/pages/SpacePages.vue'),
           props: true,
-          meta: { categoryScope: true },
+          meta: { communityScope: true },
         },
         {
           name: 'SpacePage',
           path: 'pages/:pageId/:slug?',
           component: () => import('@/pages/Page.vue'),
           props: true,
-          meta: { hideHeader: true, categoryScope: true },
+          meta: { hideHeader: true, communityScope: true },
         },
         {
           name: 'SpaceTasks',
           path: 'tasks',
           component: () => import('@/pages/SpaceTasks.vue'),
           props: true,
-          meta: { categoryScope: true },
+          meta: { communityScope: true },
         },
         {
           name: 'SpaceTask',
           path: 'tasks/:taskId',
           component: () => import('@/pages/Task.vue'),
           props: true,
-          meta: { hideHeader: true, categoryScope: true },
+          meta: { hideHeader: true, communityScope: true },
         },
       ],
     },
     {
       name: 'Discussion',
-      path: '/community/:teamId/space/:spaceId/discussion/:postId/:slug?',
+      path: '/community/:communityId/space/:spaceId/discussion/:postId/:slug?',
       component: () => import('@/pages/SpaceDiscussion.vue'),
       props: true,
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
     },
     {
       name: 'NewDiscussion',
-      path: '/community/:teamId/new-discussion',
+      path: '/community/:communityId/new-discussion',
       component: () => import('@/pages/NewDiscussion/NewDiscussion.vue'),
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
     },
     {
       name: 'LegacyNewDiscussion',
@@ -288,9 +288,9 @@ const routes: RouteRecordRaw[] = [
     },
     {
       name: 'NewSpace',
-      path: '/community/:teamId/new-space',
+      path: '/community/:communityId/new-space',
       component: () => import('@/pages/ComingSoon.vue'),
-      meta: { categoryScope: true },
+      meta: { communityScope: true },
     },
     {
       path: '/people/:personId',
@@ -331,7 +331,7 @@ const routes: RouteRecordRaw[] = [
       name: 'More',
       component: () => import('@/pages/MoreMenu.vue'),
     },
-    // Keep old shared space links working while moving canonical URLs under `/community/:teamId/...`.
+    // Keep old shared space links working while moving canonical URLs under `/community/:communityId/...`.
     {
       path: '/space/:spaceId',
       component: RouteGuard,
@@ -345,7 +345,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'Space',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
           },
         }
@@ -364,7 +364,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'SpaceDiscussions',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
           },
         }
@@ -383,7 +383,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'SpacePages',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
           },
           hash: to.hash,
@@ -403,7 +403,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'SpacePage',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
             pageId: routeParam(to.params.pageId),
             slug: optionalRouteParam(to.params.slug),
@@ -426,7 +426,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'SpaceTasks',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
           },
         }
@@ -445,7 +445,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'SpaceTask',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
             taskId: routeParam(to.params.taskId),
           },
@@ -466,7 +466,7 @@ const routes: RouteRecordRaw[] = [
         return {
           name: 'Discussion',
           params: {
-            teamId: space.team,
+            communityId: space.team,
             spaceId: space.name,
             postId: routeParam(to.params.postId),
             slug: optionalRouteParam(to.params.slug),
@@ -489,7 +489,7 @@ const routes: RouteRecordRaw[] = [
           component: () => import('@/pages/Team.vue'),
           redirect: (to) => ({
             name: 'Discussions',
-            params: { teamId: routeParam(to.params.teamId) },
+            params: { communityId: routeParam(to.params.teamId) },
           }),
           props: true,
           children: [
@@ -498,7 +498,7 @@ const routes: RouteRecordRaw[] = [
               path: '',
               redirect: (to) => ({
                 name: 'Discussions',
-                params: { teamId: routeParam(to.params.teamId) },
+                params: { communityId: routeParam(to.params.teamId) },
               }),
             },
             {
@@ -506,7 +506,7 @@ const routes: RouteRecordRaw[] = [
               path: 'discussions',
               redirect: (to) => ({
                 name: 'Discussions',
-                params: { teamId: routeParam(to.params.teamId) },
+                params: { communityId: routeParam(to.params.teamId) },
               }),
             },
           ],
@@ -531,7 +531,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'Space',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                     },
                   }),
@@ -542,7 +542,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'SpaceDiscussions',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                     },
                   }),
@@ -553,7 +553,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'Discussion',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                       postId: routeParam(to.params.postId),
                       slug: optionalRouteParam(to.params.slug),
@@ -568,7 +568,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'NewDiscussion',
                     params: {
-                        teamId: routeParam(to.params.teamId),
+                        communityId: routeParam(to.params.teamId),
                     },
                     query: {
                       ...to.query,
@@ -582,7 +582,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'SpaceTasks',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                     },
                   }),
@@ -594,7 +594,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'SpaceTask',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                       taskId: routeParam(to.params.taskId),
                     },
@@ -607,7 +607,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'SpacePages',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                     },
                     hash: to.hash,
@@ -620,7 +620,7 @@ const routes: RouteRecordRaw[] = [
                   redirect: (to) => ({
                     name: 'SpacePage',
                     params: {
-                      teamId: routeParam(to.params.teamId),
+                      communityId: routeParam(to.params.teamId),
                       spaceId: routeParam(to.params.projectId),
                       pageId: routeParam(to.params.pageId),
                       slug: optionalRouteParam(to.params.slug),
@@ -683,20 +683,20 @@ router.beforeEach(async (to, from) => {
     }
   }
 
-  await ensureCategoryDataLoaded()
+  await ensureCommunityDataLoaded()
 
   if (['/', '/home', '/community'].includes(to.path)) {
     return getHomeRoute()
   }
 
-  if (!to.matched.some((route) => route.meta?.categoryScope)) {
+  if (!to.matched.some((route) => route.meta?.communityScope)) {
     return
   }
 
-  let teamId = routeParam(to.params.teamId)
+  let communityId = routeParam(to.params.communityId)
 
   // Invalid community URLs should fail loudly instead of silently switching shell state.
-  if (!getActiveTeam(teamId)) {
+  if (!getActiveCommunity(communityId)) {
     return { name: 'NotFound' }
   }
 
@@ -707,28 +707,15 @@ router.beforeEach(async (to, from) => {
   let space = getSpace(routeParam(to.params.spaceId))
 
   // A scoped space URL is only valid inside the community that owns that space.
-  if (!space || space.team !== teamId) {
+  if (!space || space.team !== communityId) {
     return { name: 'NotFound' }
-  }
-})
-
-router.afterEach((to) => {
-  if (!to.matched.some((route) => route.meta?.categoryScope)) {
-    return
-  }
-
-  let teamId = routeParam(to.params.teamId)
-
-  // Deep links should update shell state so shared links open in the matching community.
-  if (getActiveTeam(teamId)) {
-    activeCategory.change(teamId)
   }
 })
 
 export default router
 
-async function ensureCategoryDataLoaded() {
-  await Promise.all([waitForResource(teams), waitForResource(spaces)])
+async function ensureCommunityDataLoaded() {
+  await Promise.all([waitForResource(communities), waitForResource(spaces)])
 }
 
 async function waitForResource(resource: ResourceLike) {
@@ -741,10 +728,10 @@ async function waitForResource(resource: ResourceLike) {
 
 function getHomeRoute(): RouteLocationRaw {
   // Home resolves to the active community when possible; onboarding stays only for truly empty sites.
-  if (activeCategory.id) {
+  if (communityState.id) {
     return {
       name: 'Discussions',
-      params: { teamId: activeCategory.id },
+      params: { communityId: communityState.id },
     }
   }
 
@@ -756,10 +743,10 @@ function getHomeRoute(): RouteLocationRaw {
 }
 
 function hasAnyData(): boolean {
-  return (teams.data?.length ?? 0) > 0 || (spaces.data?.length ?? 0) > 0
+  return (communities.data?.length ?? 0) > 0 || (spaces.data?.length ?? 0) > 0
 }
 
 async function findSpace(spaceId: string): Promise<Space | null> {
-  await ensureCategoryDataLoaded()
+  await ensureCommunityDataLoaded()
   return getSpace(spaceId)
 }

@@ -66,13 +66,13 @@ const {
 
 const route = useRoute()
 const discussionRoute = computed(() => {
-  if (!route.params.teamId) {
+  if (!route.params.communityId) {
     return { name: 'LegacyNewDiscussion' }
   }
 
   return {
     name: 'NewDiscussion',
-    params: { teamId: route.params.teamId },
+    params: { communityId: route.params.communityId },
   }
 })
 </script>

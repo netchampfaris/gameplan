@@ -1,9 +1,9 @@
 import { computed, Ref } from 'vue'
 import { spaces, Space } from './spaces'
-import { teams, Team } from './teams'
+import { communities, Community } from './communities'
 
 type FilterFunction = (project: Space) => boolean | undefined
-export type GroupedSpaceItem = Team & { spaces: Space[] }
+export type GroupedSpaceItem = Community & { spaces: Space[] }
 type Options = { filterFn?: FilterFunction }
 
 export function useGroupedSpaces({ filterFn = (_p: Space) => true }: Options = {}): Ref<
@@ -12,13 +12,13 @@ export function useGroupedSpaces({ filterFn = (_p: Space) => true }: Options = {
   return computed(() => {
     let groups: GroupedSpaceItem[] = []
 
-    for (let team of teams.data || []) {
+    for (let community of communities.data || []) {
       let filteredSpaces = (spaces.data || []).filter((space: Space) => {
-        return space.team === team.name && Boolean(filterFn(space))
+        return space.team === community.name && Boolean(filterFn(space))
       })
       if (filteredSpaces.length) {
         groups.push({
-          ...team,
+          ...community,
           spaces: filteredSpaces,
         })
       }

@@ -280,7 +280,7 @@ import Links from '@/components/Links.vue'
 import Tabs from '@/components/Tabs.vue'
 import InviteGuestDialog from '@/components/InviteGuestDialog.vue'
 import { projects } from '@/data/projects'
-import { activeTeams, teams } from '@/data/teams'
+import { activeCommunities, communities } from '@/data/communities'
 import { isMobile as useMobile } from '@/composables/isMobile'
 
 export default {
@@ -316,7 +316,7 @@ export default {
   },
   computed: {
     moveToTeamsList() {
-      return activeTeams.value
+      return activeCommunities.value
         .filter((d) => d.name != this.team.name)
         .map((d) => ({
           label: d.title,
@@ -473,7 +473,7 @@ export default {
     onProjectMove() {
       this.projectMoveDialog.show = false
       projects.reload()
-      for (let team of teams.data || []) {
+      for (let team of communities.data || []) {
         if ([this.team.doc.name, this.projectMoveDialog.team].includes(team.name)) {
           if (this.projectMoveDialog.team === team.name) {
             team.open = true

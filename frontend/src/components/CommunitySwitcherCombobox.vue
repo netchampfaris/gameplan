@@ -1,7 +1,7 @@
 <template>
   <Combobox
-    :options="categoryOptions"
-    :model-value="activeCategory.id"
+    :options="communityOptions"
+    :model-value="communityState.id"
     placeholder="Search communities"
     align="start"
     @update:selectedOption="onSelect"
@@ -57,27 +57,27 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button, Combobox } from 'frappe-ui'
-import { activeCategory } from '@/data/activeCategory'
-import { activeTeams } from '@/data/teams'
+import { communityState } from '@/data/communityState'
+import { activeCommunities } from '@/data/communities'
 import ManageCommunitiesDialog from './ManageCommunitiesDialog.vue'
 
 const router = useRouter()
 const showManageCommunities = ref(false)
 
-const categoryOptions = computed(() => {
-  return activeTeams.value.map((team) => ({
-    label: team.title,
-    value: team.name,
-    icon: team.icon,
-    image: team.image,
+const communityOptions = computed(() => {
+  return activeCommunities.value.map((community) => ({
+    label: community.title,
+    value: community.name,
+    icon: community.icon,
+    image: community.image,
   }))
 })
 
 function onSelect(option: { value: string } | null) {
-  if (!option || option.value === activeCategory.id) return
+  if (!option || option.value === communityState.id) return
 
-  activeCategory.change(option.value)
-  router.push({ name: 'Discussions', params: { teamId: option.value } })
+  communityState.change(option.value)
+  router.push({ name: 'Discussions', params: { communityId: option.value } })
 }
 
 function openManageCommunities(setOpen: (value: boolean) => void) {

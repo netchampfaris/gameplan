@@ -2,7 +2,7 @@ import 'vue-router'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    categoryScope?: boolean
+    communityScope?: boolean
     fullWidth?: boolean
     hideHeader?: boolean
   }

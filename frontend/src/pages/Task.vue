@@ -7,13 +7,16 @@
         :items="[
           {
             label: 'Tasks',
-            route: { name: 'SpaceTasks', params: { teamId: space?.team, spaceId: space?.name } },
+            route: {
+              name: 'SpaceTasks',
+              params: { communityId: space?.team, spaceId: space?.name },
+            },
           },
           {
             label: task.doc ? task.doc.title : route.params.taskId.toString(),
             route: {
               name: 'SpaceTask',
-              params: { teamId: space?.team, spaceId: space?.name, taskId: props.taskId },
+              params: { communityId: space?.team, spaceId: space?.name, taskId: props.taskId },
             },
           },
         ]"

@@ -152,7 +152,7 @@ const linkTo = computed(() => {
   return {
     name: 'Discussion',
     params: {
-      teamId: getSpace(props.discussion.project)?.team,
+      communityId: getSpace(props.discussion.project)?.team,
       spaceId: props.discussion.project,
       postId: props.discussion.name,
       slug: props.discussion.slug,

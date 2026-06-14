@@ -16,14 +16,14 @@
         ]"
         v-model="newTeam.is_private"
       />
-      <ErrorMessage :message="teams.insert.error?.messages" />
+      <ErrorMessage :message="communities.insert.error?.messages" />
     </div>
     <template #actions>
       <Button
         variant="solid"
         class="w-full"
         @click="createTeam(teamName)"
-        :loading="teams.insert.loading"
+        :loading="communities.insert.loading"
       >
         Create Community
       </Button>
@@ -32,7 +32,7 @@
 </template>
 <script>
 import { Select, TextInput } from 'frappe-ui'
-import { teams } from '@/data/teams'
+import { communities } from '@/data/communities'
 
 export default {
   name: 'AddTeamDialog',
@@ -42,12 +42,12 @@ export default {
   data() {
     return {
       newTeam: { title: '', is_private: 0 },
-      teams,
+      communities,
     }
   },
   methods: {
     createTeam() {
-      teams.insert.submit(this.newTeam, {
+      communities.insert.submit(this.newTeam, {
         onSuccess: (team) => {
           this.$resetData('newTeam')
           this.showDialog = false

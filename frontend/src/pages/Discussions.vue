@@ -1,20 +1,20 @@
 <template>
   <PageHeader>
     <button
-      v-if="activeCategory.team"
+      v-if="communityState.doc"
       class="flex sm:hidden min-w-0 items-center gap-2 rounded-md text-left transition hover:opacity-80"
-      @click="showCategorySpacesSheet = true"
+      @click="showCommunitySpacesSheet = true"
     >
-      <span class="text-xl">{{ activeCategory.team.icon }}</span>
+      <span class="text-xl">{{ communityState.doc.icon }}</span>
       <span class="ml-1 truncate text-xl-semibold text-ink-gray-9">{{
-        activeCategory.team.title
+        communityState.doc.title
       }}</span>
       <LucideChevronsUpDown class="ml-2 size-4 shrink-0 text-ink-gray-5" />
     </button>
     <Breadcrumbs
       class="hidden h-7 sm:flex"
       :items="[
-        { label: feedTitle, route: { name: 'DiscussionsTab', params: { teamId, feedType } } },
+        { label: feedTitle, route: { name: 'DiscussionsTab', params: { communityId, feedType } } },
       ]"
     />
     <div class="flex items-center gap-2">
@@ -22,7 +22,7 @@
       <Button
         variant="solid"
         icon-left="lucide-plus"
-        :route="{ name: 'NewDiscussion', params: { teamId } }"
+        :route="{ name: 'NewDiscussion', params: { communityId } }"
       >
         Add new
       </Button>
@@ -37,7 +37,7 @@
         ref="discussionListRef"
         :filters="filters"
         :orderBy="() => orderBy"
-        :cacheKey="`Discussions-${teamId}-${feedType}`"
+        :cacheKey="`Discussions-${communityId}-${feedType}`"
         :key="JSON.stringify(filters)"
       />
     </KeepAlive>
@@ -51,14 +51,14 @@ import type { OrderBy } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import LastPostReminder from '@/components/LastPostReminder.vue'
-import { activeCategory } from '@/data/activeCategory'
-import { showCategorySpacesSheet } from '@/data/categorySpacesSheet'
+import { communityState } from '@/data/communityState'
+import { showCommunitySpacesSheet } from '@/data/communitySpacesSheet'
 import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'
 
 type FeedType = 'recent' | 'unread' | 'participating'
 
 interface Props {
-  teamId: string
+  communityId: string
   feedType?: FeedType
 }
 
@@ -70,7 +70,7 @@ const orderBy = ref<OrderBy>('last_post_at desc')
 const discussionListRef = useTemplateRef('discussionListRef')
 
 const filters = computed(() => ({
-  team: props.teamId,
+  team: props.communityId,
   feed_type: props.feedType,
 }))
 

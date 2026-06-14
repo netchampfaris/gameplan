@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Combobox } from 'frappe-ui'
-import { activeTeams } from '@/data/teams'
+import { activeCommunities } from '@/data/communities'
 import { useSpace } from '@/data/spaces'
 import { useDoctype } from 'frappe-ui'
 import { GPProject } from '@/types/doctypes'
@@ -39,7 +39,7 @@ const space = useSpace(() => props.spaceId)
 const spaces = useDoctype<GPProject>('GP Project')
 
 const teamOptions = computed(() => {
-  return activeTeams.value.map((team) => ({
+  return activeCommunities.value.map((team) => ({
     label: team.title,
     value: team.name,
   }))

@@ -16,16 +16,18 @@
           </span>
         </div>
         <Button
-          :loading="teams.runDocMethod.loading && teams.runDocMethod.params?.dn === team.name"
+          :loading="
+            communities.runDocMethod.loading && communities.runDocMethod.params?.dn === team.name
+          "
           @click="
-            teams.runDocMethod.submit(
+            communities.runDocMethod.submit(
               {
                 name: team.name,
                 method: 'unarchive',
               },
               {
                 onSuccess: () => {
-                  teams.reload()
+                  communities.reload()
                   $router.push({
                     name: 'Team',
                     params: { teamId: team.name },
@@ -39,13 +41,13 @@
           Unarchive
         </Button>
       </div>
-      <ErrorMessage class="pt-2" :message="teams.runDocMethod.error" />
+      <ErrorMessage class="pt-2" :message="communities.runDocMethod.error" />
     </div>
     <div v-else class="text-sm text-ink-gray-5">No archived communities</div>
   </div>
 </template>
 <script>
-import { teams } from '@/data/teams'
+import { communities } from '@/data/communities'
 
 export default {
   name: 'ArchivedTeamsDialog',
@@ -53,12 +55,12 @@ export default {
   emits: ['update:modelValue'],
   data() {
     return {
-      teams,
+      communities,
     }
   },
   computed: {
     archivedTeams() {
-      return teams.data.filter((team) => team.archived_at)
+      return communities.data.filter((team) => team.archived_at)
     },
     show: {
       get() {

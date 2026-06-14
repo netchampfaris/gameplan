@@ -78,7 +78,7 @@ function submit() {
         return router.replace({
           name: 'Space',
           params: {
-            teamId: getSpace(selectedSpace.value)?.team,
+            communityId: getSpace(selectedSpace.value)?.team,
             spaceId: selectedSpace.value,
           },
         })

@@ -18,7 +18,7 @@
           @click="
             router.push({
               name: 'NewDiscussion',
-              params: { teamId: route.params.teamId },
+              params: { communityId: route.params.communityId },
               query: { spaceId: spaceId },
             })
           "

@@ -109,7 +109,7 @@ import ItemProject from './ItemProject.vue'
 import Item from './Item.vue'
 import UserAvatar from '../UserAvatar.vue'
 import { getSpace, spaces, useSpace } from '@/data/spaces'
-import { activeCategory } from '@/data/activeCategory'
+import { communityState } from '@/data/communityState'
 import { hideCommandPalette, show, toggleCommandPalette } from './commandPalette'
 import KeyboardShortcut from '../KeyboardShortcut.vue'
 
@@ -185,7 +185,7 @@ const transformedSearchResults = computed(() => {
         baseItem.route = {
           name: 'Discussion',
           params: {
-            teamId: item.team || getSpace(item.project)?.team,
+            communityId: item.team || getSpace(item.project)?.team,
             postId: item.name,
             spaceId: item.project,
           },
@@ -195,7 +195,7 @@ const transformedSearchResults = computed(() => {
           name: item.project ? 'SpaceTask' : 'Task',
           params: item.project
             ? {
-                teamId: item.team || getSpace(item.project)?.team,
+                communityId: item.team || getSpace(item.project)?.team,
                 taskId: item.name,
                 spaceId: item.project,
               }
@@ -207,7 +207,7 @@ const transformedSearchResults = computed(() => {
         baseItem.route = {
           name: 'SpacePage',
           params: {
-            teamId: item.team || getSpace(item.project)?.team,
+            communityId: item.team || getSpace(item.project)?.team,
             pageId: item.name,
             spaceId: item.project,
           },
@@ -277,14 +277,14 @@ const shortcuts = computed((): CommandPaletteGroup[] => [
         icon: 'lucide-message-square-plus',
         onClick() {
           let spaceId = router.currentRoute.value.params?.spaceId ?? null
-          let teamId = router.currentRoute.value.params?.teamId ?? activeCategory.id
+          let communityId = router.currentRoute.value.params?.communityId ?? communityState.id
 
-          if (!teamId) {
+          if (!communityId) {
             router.push({ name: 'LegacyNewDiscussion', query: { spaceId } })
             return
           }
 
-          router.push({ name: 'NewDiscussion', params: { teamId }, query: { spaceId } })
+          router.push({ name: 'NewDiscussion', params: { communityId }, query: { spaceId } })
         },
       },
       {
@@ -304,7 +304,7 @@ const shortcuts = computed((): CommandPaletteGroup[] => [
                 router.push({
                   name: 'SpaceTask',
                   params: {
-                    teamId: getSpace(doc.project)?.team,
+                    communityId: getSpace(doc.project)?.team,
                     taskId: doc.name,
                     spaceId: doc.project,
                   },
@@ -338,7 +338,7 @@ const shortcuts = computed((): CommandPaletteGroup[] => [
               name: doc.project ? 'SpacePage' : 'Page',
               params: doc.project
                 ? {
-                    teamId: getSpace(doc.project)?.team,
+                    communityId: getSpace(doc.project)?.team,
                     pageId: doc.name,
                     slug: doc.slug,
                     spaceId: doc.project,
@@ -433,7 +433,7 @@ const searchList = computed(() => {
       search: `${project.title} ${project.team}`,
       route: {
         name: 'Space',
-        params: { teamId: project.team, spaceId: project.name },
+        params: { communityId: project.team, spaceId: project.name },
       },
     })
   }

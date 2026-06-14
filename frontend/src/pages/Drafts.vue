@@ -13,11 +13,7 @@
             },
           ]"
         />
-        <Button
-          icon-left="lucide-plus"
-          variant="solid"
-          @click="router.push(newDiscussionRoute)"
-        >
+        <Button icon-left="lucide-plus" variant="solid" @click="router.push(newDiscussionRoute)">
           Add new
         </Button>
       </template>
@@ -156,7 +152,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion, AnimatePresence } from 'motion-v'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
-import { activeCategory } from '@/data/activeCategory'
+import { communityState } from '@/data/communityState'
 
 interface Draft extends GPDraft {
   project_title: string
@@ -176,13 +172,13 @@ const showDeleteConfirm = ref(false)
 const router = useRouter()
 
 const newDiscussionRoute = computed(() => {
-  if (!activeCategory.id) {
+  if (!communityState.id) {
     return { name: 'LegacyNewDiscussion' }
   }
 
   return {
     name: 'NewDiscussion',
-    params: { teamId: activeCategory.id },
+    params: { communityId: communityState.id },
   }
 })
 

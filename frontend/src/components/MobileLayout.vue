@@ -3,18 +3,18 @@
     <div v-if="showHomeTopBar" class="shrink-0 border-b border-outline-gray-2 bg-surface-base">
       <div class="flex items-center gap-2 px-4 py-2">
         <button
-          v-if="activeCategory.team"
+          v-if="communityState.doc"
           class="flex min-w-0 flex-1 items-center rounded-md px-3 py-2 text-left text-sm text-ink-gray-7 transition active:bg-surface-gray-2"
-          @click="showCategorySpacesSheet = true"
+          @click="showCommunitySpacesSheet = true"
         >
           <span class="grid h-5 w-6 place-items-center text-base text-ink-gray-6">
-            {{ activeCategory.team.icon || activeCategory.team.title?.[0] }}
+            {{ communityState.doc.icon || communityState.doc.title?.[0] }}
           </span>
           <span class="truncate text-base-medium text-ink-gray-9">
-            {{ activeCategory.team.title }}
+            {{ communityState.doc.title }}
           </span>
           <LucideChevronsUpDown
-            v-if="activeTeams.length > 1"
+            v-if="activeCommunities.length > 1"
             class="ml-auto size-4 text-ink-gray-5"
           />
         </button>
@@ -49,7 +49,7 @@
     </div>
   </div>
 
-  <MobileCategorySpacesSheet v-model="showCategorySpacesSheet" />
+  <MobileCommunitySpacesSheet v-model="showCommunitySpacesSheet" />
 </template>
 
 <script setup lang="ts">
@@ -59,12 +59,12 @@ defineOptions({
 
 import { computed } from 'vue'
 import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
-import { activeCategory } from '@/data/activeCategory'
+import { communityState } from '@/data/communityState'
 import { isNewCommentOpen } from '@/data/newComment'
-import { showCategorySpacesSheet } from '@/data/categorySpacesSheet'
-import { activeTeams } from '@/data/teams'
+import { showCommunitySpacesSheet } from '@/data/communitySpacesSheet'
+import { activeCommunities } from '@/data/communities'
 import { scrollTo } from '@/utils/scrollContainer'
-import MobileCategorySpacesSheet from './MobileCategorySpacesSheet.vue'
+import MobileCommunitySpacesSheet from './MobileCommunitySpacesSheet.vue'
 import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'
 
 interface MobileTab {
@@ -77,18 +77,18 @@ interface MobileTab {
 const route = useRoute()
 const router = useRouter()
 
-const onCategoryRoute = computed(() => route.matched.some((record) => record.meta?.categoryScope))
+const onCommunityRoute = computed(() => route.matched.some((record) => record.meta?.communityScope))
 
-const showHomeTopBar = computed(() => onCategoryRoute.value && Boolean(activeCategory.team))
+const showHomeTopBar = computed(() => onCommunityRoute.value && Boolean(communityState.doc))
 
 const tabs = computed<MobileTab[]>(() => [
   {
     name: 'Home',
     icon: 'lucide-home',
-    route: activeCategory.id
-      ? { name: 'Discussions', params: { teamId: activeCategory.id } }
+    route: communityState.id
+      ? { name: 'Discussions', params: { communityId: communityState.id } }
       : { name: 'Home' },
-    isActive: onCategoryRoute.value,
+    isActive: onCommunityRoute.value,
   },
   {
     name: 'Inbox',

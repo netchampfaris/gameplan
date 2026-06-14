@@ -3,7 +3,7 @@
     <div class="h-full flex-1 standalone:border-t">
       <div class="flex h-full">
         <AppRail />
-        <AppSidebar v-if="onCategoryRoute" />
+        <AppSidebar v-if="onCommunityRoute" />
         <div class="flex min-w-0 flex-1 py-1 pr-1">
           <div class="flex min-w-0 flex-1 overflow-hidden rounded-lg bg-surface-base shadow-sm">
             <div class="flex flex-1 min-w-0 flex-col">
@@ -41,7 +41,7 @@ import { users } from '@/data/users'
 
 const route = useRoute()
 
-const onCategoryRoute = computed(() => {
-  return route.matched.some((record) => record.meta?.categoryScope)
+const onCommunityRoute = computed(() => {
+  return route.matched.some((record) => record.meta?.communityScope)
 })
 </script>

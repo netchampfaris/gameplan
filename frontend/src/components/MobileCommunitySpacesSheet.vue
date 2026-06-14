@@ -5,24 +5,26 @@
     title="Choose space"
   >
     <div class="pb-10">
-      <!-- Categories (only when multiple exist) -->
-      <template v-if="activeTeams.length > 1">
+      <!-- Communities (only when multiple exist) -->
+      <template v-if="activeCommunities.length > 1">
         <button
-          v-for="team in activeTeams"
-          :key="team.name"
+          v-for="community in activeCommunities"
+          :key="community.name"
           class="flex w-full items-baseline gap-3 px-4 py-3 text-left transition"
-          :class="team.name === activeCategory.id ? 'bg-surface-gray-2' : 'hover:bg-surface-gray-1'"
-          @click="changeCategory(team.name)"
+          :class="
+            community.name === communityState.id ? 'bg-surface-gray-2' : 'hover:bg-surface-gray-1'
+          "
+          @click="changeCommunity(community.name)"
         >
-          <span class="w-6 text-center text-xl leading-none">{{ team.icon }}</span>
+          <span class="w-6 text-center text-xl leading-none">{{ community.icon }}</span>
           <span
             class="flex-1 truncate text-lg text-ink-gray-8"
-            :class="team.name === activeCategory.id ? 'font-semibold' : ''"
+            :class="community.name === communityState.id ? 'font-semibold' : ''"
           >
-            {{ team.title }}
+            {{ community.title }}
           </span>
           <LucideCheck
-            v-if="team.name === activeCategory.id"
+            v-if="community.name === communityState.id"
             class="size-5 shrink-0 text-ink-gray-5"
           />
         </button>
@@ -32,18 +34,18 @@
 
       <!-- Spaces -->
       <div class="mt-6 px-4 pb-1.5 text-center text-3xl-semibold text-ink-gray-9">
-        <template v-if="activeTeams.length <= 1 && activeCategory.team">
-          {{ activeCategory.team.icon }} {{ activeCategory.team.title }}
+        <template v-if="activeCommunities.length <= 1 && communityState.doc">
+          {{ communityState.doc.icon }} {{ communityState.doc.title }}
         </template>
         <template v-else>Choose space</template>
       </div>
 
-      <div v-if="categorySpaces.list.length === 0" class="px-4 py-4 text-sm text-ink-gray-4">
+      <div v-if="communitySpaces.list.length === 0" class="px-4 py-4 text-sm text-ink-gray-4">
         No spaces yet
       </div>
 
       <button
-        v-for="space in categorySpaces.list"
+        v-for="space in communitySpaces.list"
         :key="space.name"
         class="flex w-full items-center gap-3 px-4 py-2.5 text-left transition"
         :class="isActive(space.name) ? 'bg-surface-gray-2' : 'hover:bg-surface-gray-1'"
@@ -64,11 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { activeCategory } from '@/data/activeCategory'
-import { categorySpaces } from '@/data/categorySpaces'
-import { activeTeams } from '@/data/teams'
+import { communityState } from '@/data/communityState'
+import { communitySpaces } from '@/data/communitySpaces'
+import { activeCommunities } from '@/data/communities'
 import BottomSheet from './BottomSheet.vue'
 import SpaceIcon from './SpaceIcon.vue'
 import LucideCheck from '~icons/lucide/check'
@@ -90,27 +91,30 @@ function isActive(spaceId: string) {
   return route.params.spaceId?.toString() === spaceId && routeName.startsWith('Space')
 }
 
-function changeCategory(teamId: string) {
-  if (!teamId) return
+function changeCommunity(communityId: string) {
+  if (!communityId) return
 
   if (
-    teamId === activeCategory.id &&
+    communityId === communityState.id &&
     route.name === 'Discussions' &&
-    route.params.teamId === teamId
+    route.params.communityId === communityId
   ) {
     emit('update:modelValue', false)
     return
   }
 
-  activeCategory.change(teamId)
+  communityState.change(communityId)
   emit('update:modelValue', false)
-  router.push({ name: 'Discussions', params: { teamId } })
+  router.push({ name: 'Discussions', params: { communityId } })
 }
 
 function openSpace(spaceId: string) {
-  if (!activeCategory.id) return
+  if (!communityState.id) return
 
-  if (route.params.spaceId?.toString() === spaceId && route.params.teamId === activeCategory.id) {
+  if (
+    route.params.spaceId?.toString() === spaceId &&
+    route.params.communityId === communityState.id
+  ) {
     emit('update:modelValue', false)
     return
   }
@@ -118,7 +122,7 @@ function openSpace(spaceId: string) {
   emit('update:modelValue', false)
   router.push({
     name: 'Space',
-    params: { teamId: activeCategory.id, spaceId },
+    params: { communityId: communityState.id, spaceId },
   })
 }
 </script>
