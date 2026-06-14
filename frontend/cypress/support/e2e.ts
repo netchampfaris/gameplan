@@ -15,3 +15,12 @@
 
 // Import commands using ES2015 syntax:
 import './commands'
+
+// "ResizeObserver loop completed with undelivered notifications" is a benign
+// browser warning emitted while layout settles (e.g. after dialogs/menus open).
+// It is not an app error, so don't let it fail otherwise-passing tests.
+Cypress.on('uncaught:exception', (err) => {
+  if (err.message.includes('ResizeObserver loop')) {
+    return false
+  }
+})

@@ -30,3 +30,5 @@ gameplan.gameplan.doctype.gp_unread_record.patches.migrate_to_unread_records
 gameplan.gameplan.doctype.gp_pinned_project.patches.delete_pinned_projects_for_archived_spaces
 gameplan.gameplan.doctype.gp_discussion.patches.set_default_pin_scope
 gameplan.gameplan.doctype.gp_comment.patches.backfill_gp_comment_edited_at
+gameplan.gameplan.doctype.gp_project.patches.assign_default_team_to_uncategorized_spaces
+gameplan.gameplan.doctype.gp_discussion.patches.rename_global_pin_scope_to_category

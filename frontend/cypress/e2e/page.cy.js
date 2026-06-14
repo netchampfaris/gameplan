@@ -21,12 +21,19 @@ describe('Page', () => {
       .its('body.message')
       .then((data) => {
         let space = data[1]
+        // Scoped routes only resolve a joined community, so join Engineering first.
+        cy.request('POST', '/api/v2/method/GP Team/update_joined_teams', {
+          teams: ['engineering'],
+        })
         cy.visit(`/g/space/${space}/pages`)
         cy.button('Add new').click()
-        cy.url().should('include', `/g/space/${space}/pages/`)
+        cy.url().should('include', `/g/community/engineering/space/${space}/pages/`)
         cy.get('input[placeholder="Title"]').should('have.value', 'Untitled')
         cy.get('header').contains('a', 'Pages').click()
-        cy.url().should('eq', `${Cypress.config().baseUrl}/g/space/${space}/pages`)
+        cy.url().should(
+          'eq',
+          `${Cypress.config().baseUrl}/g/community/engineering/space/${space}/pages`,
+        )
         cy.contains('a', 'Untitled').should('exist')
       })
   })

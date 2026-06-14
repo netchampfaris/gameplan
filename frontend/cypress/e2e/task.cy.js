@@ -8,18 +8,28 @@ describe('Task', () => {
     cy.request('POST', '/api/method/frappe.client.insert_many', {
       docs: [
         {
+          doctype: 'GP Team',
+          title: 'Engineering',
+        },
+        {
           doctype: 'GP Project',
           title: 'Gameplan',
+          team: 'engineering',
         },
         {
           doctype: 'GP Project',
           title: 'ERPNext',
+          team: 'engineering',
         },
       ],
     })
       .its('body.message')
       .as('data')
       .then((data) => {
+        // Scoped routes only resolve a joined community, so join Engineering first.
+        cy.request('POST', '/api/v2/method/GP Team/update_joined_teams', {
+          teams: ['engineering'],
+        })
         cy.visit(`/g/space/${data[1]}/tasks`)
         cy.get('[role=radio][aria-checked="true"]').contains('Tasks').should('exist')
       })

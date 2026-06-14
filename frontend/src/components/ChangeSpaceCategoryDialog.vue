@@ -26,7 +26,7 @@
 import { computed, ref } from 'vue'
 import { Combobox } from 'frappe-ui'
 import { activeCommunities } from '@/data/communities'
-import { useSpace } from '@/data/spaces'
+import { spaces as spacesList, useSpace } from '@/data/spaces'
 import { useDoctype } from 'frappe-ui'
 import { GPProject } from '@/types/doctypes'
 
@@ -69,6 +69,9 @@ function submit() {
       },
     })
     .then(() => {
+      // Refresh the cached spaces so denormalized fields like team_title (shown in
+      // the space breadcrumb) reflect the new community.
+      spacesList.reload()
       if (selectedTeam.value) {
         show.value = false
       }

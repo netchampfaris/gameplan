@@ -26,6 +26,10 @@ describe('Discussion', () => {
       .its('body.message')
       .as('data')
       .then((data) => {
+        // Scoped routes only resolve a joined community, so join Engineering first.
+        cy.request('POST', '/api/v2/method/GP Team/update_joined_teams', {
+          teams: ['engineering'],
+        })
         cy.visit(`/g/space/${data[1]}`)
       })
 
@@ -95,7 +99,10 @@ describe('Discussion', () => {
       cy.get('@discussionId')
         .its('response.body.data')
         .then((discussionId) => {
-          cy.url().should('include', `/g/space/${erpnextProject}/discussion/${discussionId}`)
+          cy.url().should(
+            'include',
+            `/g/community/engineering/space/${erpnextProject}/discussion/${discussionId}`,
+          )
         })
     })
 

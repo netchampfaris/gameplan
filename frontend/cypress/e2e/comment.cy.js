@@ -22,6 +22,10 @@ describe('Comment', () => {
       .as('data')
       .then((data) => {
         let project = data[1]
+        // Scoped routes (and legacy redirects into them) only resolve a joined community.
+        cy.request('POST', '/api/v2/method/GP Team/update_joined_teams', {
+          teams: ['engineering'],
+        })
         cy.request('POST', '/api/method/frappe.client.insert', {
           doc: {
             doctype: 'GP Discussion',

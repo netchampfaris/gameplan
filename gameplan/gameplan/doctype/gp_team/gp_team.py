@@ -50,6 +50,25 @@ class GPTeam(Archivable, Document):
 			slug = frappe.scrub(self.title).replace("_", "-")
 			self.name = append_number_if_name_exists("GP Team", slug)
 
+	def after_insert(self):
+		self.create_general_space()
+
+	def create_general_space(self):
+		# The migration that creates `Default` suppresses this so orphaned spaces can be
+		# reassigned into it without a stray General being created first.
+		if self.flags.skip_general_space:
+			return
+
+		# Guarantee every community has at least one public landing space.
+		# Skip if any space already exists in this team (covers the migration path
+		# where Default may inherit pre-existing orphaned spaces).
+		if frappe.db.exists("GP Project", {"team": self.name}):
+			return
+
+		frappe.get_doc(doctype="GP Project", title="General", team=self.name, is_private=0).insert(
+			ignore_permissions=True
+		)
+
 	def add_member(self, email):
 		if email not in [member.user for member in self.members]:
 			self.append("members", {"email": email, "user": email, "status": "Accepted"})

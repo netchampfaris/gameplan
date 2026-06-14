@@ -333,11 +333,25 @@ def active_projects():
 
 
 @frappe.whitelist()
-def onboarding(space, icon, emails):
+def onboarding(community, space, icon, emails, is_private=0):
 	emails = frappe.parse_json(emails)
-	project = frappe.get_doc(doctype="GP Project", title=space, icon=icon).insert()
+
+	# Create the community. The GP Team after_insert hook auto-creates a public
+	# "General" space inside it.
+	team = frappe.get_doc(doctype="GP Team", title=community).insert()
+
+	# Join the creator — a freshly inserted GP Team does not add its creator as a
+	# member, and the scoped-route guard only sees joined communities.
+	team.add_member(frappe.session.user)
+	team.save()
+
+	# Create the user-named first space in addition to "General".
+	project = frappe.get_doc(
+		doctype="GP Project", title=space, icon=icon, team=team.name, is_private=is_private
+	).insert()
+
 	invite_by_email(", ".join(emails), role="Gameplan Member")
-	return project.name
+	return {"team": team.name, "space": project.name}
 
 
 @frappe.whitelist(allow_guest=True)

@@ -139,11 +139,11 @@
    "options": "GP Tag Link"
   },
   {
-   "default": "Global",
+   "default": "Category",
    "fieldname": "pin_scope",
    "fieldtype": "Select",
    "label": "Pin Scope",
-   "options": "Global\nSpace"
+   "options": "Category\nSpace"
   }
  ],
  "grid_page_length": 50,

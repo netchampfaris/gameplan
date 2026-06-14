@@ -162,7 +162,7 @@ class GPDiscussion(HasActivity, HasAttachments, HasMentions, HasReactions, HasTa
 		self.save()
 
 	@frappe.whitelist()
-	def pin_discussion(self, pin_scope="Global"):
+	def pin_discussion(self, pin_scope="Category"):
 		if self.pinned_at:
 			return
 		self.pinned_at = frappe.utils.now()
