@@ -7,7 +7,7 @@ import {
 } from 'vue-router'
 import { until } from '@vueuse/core'
 import { session } from './data/session'
-import { users } from './data/users'
+import { users, useSessionUser } from './data/users'
 import { communities, getActiveCommunity } from './data/communities'
 import { spaces, getSpace } from './data/spaces'
 import type { Space } from './data/spaces'
@@ -222,6 +222,14 @@ const routes: RouteRecordRaw[] = [
       path: '/spaces',
       name: 'Spaces',
       component: () => import('@/pages/Spaces/Spaces.vue'),
+      // `/spaces` is an admin-only global housekeeping page; non-admins never reach it.
+      async beforeEnter() {
+        await ensureCommunityDataLoaded()
+
+        if (useSessionUser().role !== 'Gameplan Admin') {
+          return getHomeRoute()
+        }
+      },
     },
     {
       name: 'Space',
@@ -289,7 +297,8 @@ const routes: RouteRecordRaw[] = [
     {
       name: 'NewSpace',
       path: '/community/:communityId/new-space',
-      component: () => import('@/pages/ComingSoon.vue'),
+      component: () => import('@/pages/NewSpace.vue'),
+      props: true,
       meta: { communityScope: true },
     },
     {

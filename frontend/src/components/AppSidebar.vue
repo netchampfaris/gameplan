@@ -53,7 +53,7 @@
                 variant="ghost"
                 size="sm"
                 icon="lucide-plus text-ink-gray-5"
-                aria-label="New space"
+                label="New space"
                 @click="openNewSpaceDialog"
               />
             </div>
@@ -106,7 +106,10 @@
     </template>
   </div>
 
-  <NewSpaceDialog v-model="showNewSpaceDialog" :category="communityState.id ?? undefined" />
+  <NewSpaceDialog
+    v-model="showNewSpaceDialog"
+    :lockedCommunityId="communityState.id ?? undefined"
+  />
 </template>
 
 <script setup lang="ts">

@@ -5,7 +5,7 @@
       icon-left="lucide-plus"
       @click="
         () => {
-          categoryForNewSpace = ''
+          lockedCommunityForNewSpace = ''
           newSpaceDialog = true
         }
       "
@@ -13,7 +13,7 @@
       Add new
     </Button>
   </PageHeader>
-  <NewSpaceDialog v-model="newSpaceDialog" :category="categoryForNewSpace" />
+  <NewSpaceDialog v-model="newSpaceDialog" :lockedCommunityId="lockedCommunityForNewSpace" />
   <div class="body-container">
     <div class="mt-6 mb-3 flex items-center justify-between gap-2.5">
       <TextInput
@@ -59,8 +59,8 @@
           :group="item"
           class="scroll-mt-12"
           @new-space="
-            (categoryName) => {
-              categoryForNewSpace = categoryName
+            (communityName) => {
+              lockedCommunityForNewSpace = communityName
               newSpaceDialog = true
             }
           "
@@ -86,7 +86,7 @@ import { pinnedSpaces } from '@/data/pinnedSpaces'
 import { useSpace } from '@/data/spaces'
 
 const currentTab = ref('Public')
-const categoryForNewSpace = ref('')
+const lockedCommunityForNewSpace = ref('')
 const query = ref('')
 const route = useRoute()
 const scroller = ref(null)

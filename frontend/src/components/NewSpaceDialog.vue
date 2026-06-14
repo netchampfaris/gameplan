@@ -22,10 +22,14 @@
           autofocus
         />
       </div>
-      <div v-if="!props.category" class="flex gap-2">
+      <div v-if="!isCommunityLocked" class="flex gap-2">
         <div class="size-7 shrink-0"></div>
         <div class="w-full">
-          <Combobox placeholder="Community" :options="categoryOptions" v-model="selectedCategory" />
+          <Combobox
+            placeholder="Community"
+            :options="communityOptions"
+            v-model="selectedCommunity"
+          />
         </div>
       </div>
       <div class="flex items-center space-x-2">
@@ -70,7 +74,8 @@ import { activeCommunities, communities } from '@/data/communities'
 import { until } from '@vueuse/core'
 
 const props = defineProps<{
-  category?: string
+  // When set, the dialog always creates in this community and hides the community picker.
+  lockedCommunityId?: string
 }>()
 
 const show = defineModel<boolean>()
@@ -80,20 +85,22 @@ const newSpace = useNewDoc<GPProject>('GP Project', {
   team: '',
   is_private: 0,
 })
-const selectedCategory = ref<string | null>(null)
+const selectedCommunity = ref<string | null>(null)
+
+const isCommunityLocked = computed(() => Boolean(props.lockedCommunityId))
 
 watch(show, (value: boolean) => {
   if (value) {
-    if (props.category) {
-      selectCategory(props.category)
+    if (props.lockedCommunityId) {
+      selectCommunity(props.lockedCommunityId)
     } else {
-      selectedCategory.value = null
+      selectedCommunity.value = null
     }
   }
 })
 
-const categoryOptions = computed((): ComboboxOption[] => {
-  let categories = activeCommunities.value.map((community) => ({
+const communityOptions = computed((): ComboboxOption[] => {
+  let options = activeCommunities.value.map((community) => ({
     label: community.title,
     value: community.name,
   }))
@@ -116,27 +123,27 @@ const categoryOptions = computed((): ComboboxOption[] => {
         await until(
           () => activeCommunities.value.length > currentActiveCommunitiesCount,
         ).toBeTruthy()
-        selectCategory(community.name)
+        selectCommunity(community.name)
       }
     },
   } as ComboboxOption
 
-  return [...categories, createNewOption]
+  return [...options, createNewOption]
 })
 
-function selectCategory(categoryId: string) {
-  let categoryOption = categoryOptions.value.find((option) =>
-    option.type === 'custom' ? option.key === categoryId : option.value === categoryId,
+function selectCommunity(communityId: string) {
+  let option = communityOptions.value.find((option) =>
+    option.type === 'custom' ? option.key === communityId : option.value === communityId,
   )
-  if (categoryOption && categoryOption.type !== 'custom') {
-    selectedCategory.value = categoryOption.value
+  if (option && option.type !== 'custom') {
+    selectedCommunity.value = option.value
   }
 }
 
 function submit() {
-  const category = props.category || selectedCategory.value
-  if (category) {
-    newSpace.doc.team = category
+  const community = props.lockedCommunityId || selectedCommunity.value
+  if (community) {
+    newSpace.doc.team = community
   }
   newSpace.submit().then(() => {
     // TODO: useNewDoc should automatically reload related resources
