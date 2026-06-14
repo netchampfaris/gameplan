@@ -1,10 +1,11 @@
 # Phase 01 — Current community and routing
 
-Status: completed
+Status: done
 Commit checkpoint: pending
 Notes:
-- Refactored community state into `frontend/src/data/activeCategory.ts` using a session-style semantic module.
-- Tightened canonical routes to strict `/community/:teamId/...` paths and added explicit `NotFound` handling.
+- Initial implementation used `frontend/src/data/activeCategory.ts` and `/community/:teamId/...`.
+- Phase 04 renames active app-layer code to `communityState` and canonical route params to `communityId`.
+- Tightened canonical routes to strict scoped paths and added explicit `NotFound` handling.
 - Replaced generic redirect helpers with smaller inline redirects and route-specific checks.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
@@ -16,8 +17,8 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 Create the new routing foundation for community scope.
 
 This phase should establish:
-- current-community resolution
-- canonical `/community/:teamId/...` route structure
+- selected/default community resolution
+- canonical `/community/:communityId/...` route structure
 - `/bookmarks`
 - compatibility redirects from `/`, `/home`, and `/discussions`
 
@@ -28,13 +29,13 @@ Do **not** change sidebar UX or discussion page behavior deeply yet beyond what 
 ## Files
 
 ### Create
-- `frontend/src/data/activeCategory.ts`
+- `frontend/src/data/communityState.ts` *(renamed from the initial `activeCategory.ts` in Phase 04)*
 - `frontend/src/pages/NotFound.vue`
 
 ### Edit
-- `frontend/src/router.js`
+- `frontend/src/router.ts`
 - `frontend/src/data/spaces.ts`
-- `frontend/src/data/teams.ts` if small helper exports are needed
+- `frontend/src/data/communities.ts` if small helper exports are needed
 - route call sites touched as needed to keep strict scoped routes working
 
 ---
@@ -42,17 +43,16 @@ Do **not** change sidebar UX or discussion page behavior deeply yet beyond what 
 ## Tasks
 
 ### 1. Add current-community helpers
-In `frontend/src/data/activeCategory.ts` implement:
+In `frontend/src/data/communityState.ts` implement:
 - persisted last selected community id
 - helper to get first accessible active community from `teams.data`
 - helper to get resolved default community id
 - helper to persist selected community
 - helper to generate community home route
 - helper to switch community by routing to community discussions
-- `useCurrentCategory()` derived from route params when present
 
 Key rules:
-- route param `teamId` is source of truth on scoped routes
+- route param `communityId` is source of truth on scoped routes
 - for global routes, current community comes from persisted / fallback resolution
 - ignore archived or inaccessible communities
 - when all communities are archived (no active communities):
@@ -61,11 +61,11 @@ Key rules:
   - do not show onboarding (onboarding is only for sites with zero data)
 
 ### 2. Replace primary community-scoped routes with scoped paths
-In `frontend/src/router.js`:
+In `frontend/src/router.ts`:
 - keep existing route names where possible
-- move canonical community-scoped paths under `/community/:teamId/...`
-- make `/community/:teamId` redirect to `/community/:teamId/discussions`
-- add `/community/:teamId/discussions` (recent), `/community/:teamId/discussions/unread`, `/community/:teamId/discussions/participating` as distinct routes (no tab strip — the sidebar drives the active feed)
+- move canonical community-scoped paths under `/community/:communityId/...`
+- make `/community/:communityId` redirect to `/community/:communityId/discussions`
+- add `/community/:communityId/discussions` (recent), `/community/:communityId/discussions/unread`, `/community/:communityId/discussions/participating` as distinct routes (no tab strip — the sidebar drives the active feed)
 - any other `/discussions/:feedType` value 404s
 - add scoped space paths
 - add scoped `NewDiscussion`
@@ -91,8 +91,8 @@ Behavior:
 - `/discussions` -> current selected community discussions or first accessible community
 - unsupported old feed types should fall back to `recent`
 - `/new-discussion` is handled by `LegacyNewDiscussion` (not a redirect)
-- `/space/:spaceId` -> resolve `teamId` from space data and redirect to `/community/:teamId/space/:spaceId`
-- `/space/:spaceId/discussion/:postId/:slug?` -> resolve `teamId` and redirect to canonical scoped route
+- `/space/:spaceId` -> resolve community id from `space.team` and redirect to `/community/:communityId/space/:spaceId`
+- `/space/:spaceId/discussion/:postId/:slug?` -> resolve community id from `space.team` and redirect to canonical scoped route
 
 Important: old `/space/:spaceId/...` URLs are widely bookmarked and shared. They must continue working as redirects.
 
@@ -100,11 +100,11 @@ Important: old `/space/:spaceId/...` URLs are widely bookmarked and shared. They
 Do not delete old team/project route handling yet.
 Instead:
 - redirect old project/team URLs to canonical scoped routes
-- when redirecting, include correct `teamId`
+- when redirecting, include correct `communityId`
 
-### 5b. Handle inaccessible or invalid `teamId` in routes
-In `activeCategory.ts` or as a router guard:
-- if `teamId` in the URL is invalid, archived, or inaccessible -> redirect to first accessible community
+### 5b. Handle inaccessible or invalid `communityId` in routes
+In `communityState.ts` or as a router guard:
+- if `communityId` in the URL is invalid, archived, or inaccessible -> redirect to first accessible community
 - if no accessible communities exist at all (all archived or none created):
   - admin (`Gameplan Admin` role) -> redirect to `/spaces` so they can manage/unarchive
   - non-admin -> render an inline empty state inside the shell on `/` ("No communities available. Ask an admin to set things up."). Not a dedicated route or page component.
@@ -115,7 +115,7 @@ In `activeCategory.ts` or as a router guard:
 **Do not** auto-update persisted community from `router.afterEach`. Persistence updates only when the user takes a deliberate switch action:
 - clicking a community in the rail switcher combobox
 - clicking the community-name dropdown trigger that switches community
-- explicit calls to `activeCategory.change(teamId)`
+- explicit calls to `communityState.change(communityId)`
 
 Following a deep link to another community navigates the route but leaves the persisted "home" community unchanged. This avoids notification-click side-effects rewriting the user's default landing.
 
@@ -138,11 +138,11 @@ Send them to resolved community discussions.
 
 - `/` resolves correctly
 - `/home` resolves correctly
-- `/community/:teamId` redirects correctly
+- `/community/:communityId` redirects correctly
 - `/discussions` redirects correctly
 - old project/team URLs still land somewhere valid
 - old `/space/:spaceId/...` URLs redirect to canonical scoped routes
-- navigating to an invalid `teamId` redirects gracefully
+- navigating to an invalid `communityId` redirects gracefully
 - navigating to a different community's route leaves persisted community unchanged unless the switch was deliberate
 - app boot does not crash due to route-name mismatches
 

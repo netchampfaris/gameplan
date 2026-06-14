@@ -8,15 +8,15 @@ For active implementation, use the phase files listed in `./PLAN.md`.
 
 ## 1. Product decisions
 
-Product language: the top-level user-facing entity is **Community**. The nested entity is **Space**.
-Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categorySpaces`, and
-`pin_scope: 'Category'` remain as-is when they refer to current code or persisted values.
+Product and active frontend app language: the top-level entity is **Community**. The nested entity is **Space**.
+Backend/schema identifiers such as `GP Team`, document fields named `team`, and `pin_scope: 'Category'`
+remain as-is until a separate schema/API rename is explicitly planned.
 
 ### Collaboration model
 - There is **no global discussions feed** anymore.
 - `GP Team` becomes the required top-level collaboration scope and is called **Community** in the UI.
 - The app shell always has a **current Community**.
-- The selected Community is explicit in canonical collaboration URLs.
+- The selected Community is explicit in canonical collaboration URLs as `communityId`.
 
 ### Community-scoped surfaces
 - Community discussions
@@ -32,14 +32,14 @@ Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categ
 
 ### Route behavior
 - `/` and `/home` resolve to last selected accessible community, else first accessible community, else onboarding.
-- `/community/:teamId` redirects to `/community/:teamId/discussions`.
+- `/community/:communityId` redirects to `/community/:communityId/discussions`.
 - Deep links navigate to the target community but **do not** silently overwrite the persisted current community. Persistence updates only on deliberate switches (rail switcher click, sidebar click, explicit community nav). This avoids notification clicks rewriting "home" for the user.
 - `/discussions` redirects to the current selected community, or first accessible community.
 
 ### Feed types
 - Keep only: `recent`, `unread`, `participating`.
 - These are surfaced as **rows in the community sidebar** ("All discussions", "Unread", "Participating"), not as a tab strip on the discussions page. The discussions page renders the list for whichever feed type the route specifies.
-- Routes: a single `DiscussionsTab` named route at `/community/:teamId/discussions/:feedType` plus the canonical `Discussions` route at `/community/:teamId/discussions` (treated as `feedType: 'recent'`). `feedType` is a filter param, not a separate route name.
+- Routes: a single `DiscussionsTab` named route at `/community/:communityId/discussions/:feedType` plus the canonical `Discussions` route at `/community/:communityId/discussions` (treated as `feedType: 'recent'`). `feedType` is a filter param, not a separate route name.
 - `following` removed from the frontend (URL allow-list and `FeedType` union); backend handler kept intact for backward compatibility. Any incoming `:feedType` outside the allow-list redirects to `recent`.
 
 ### Bookmarks
@@ -64,9 +64,21 @@ Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categ
 - Migration is a no-op on sites that already have all spaces assigned to communities.
 
 ### Pin scope
-- Frontend `pin_scope` union widens to `'Global' | 'Category' | 'Space'`. New writes use `'Category'` for community-level pins; `'Space'` is unchanged.
-- Read path keeps the `=== 'Global'` branch so legacy pinned rows still render until Phase 07's migration flips `'Global'` → `'Category'` in the database. After Phase 07, the `'Global'` branch can be dropped (Phase 08 cleanup).
+- Frontend `pin_scope` union widens to `'Global' | 'Category' | 'Space'`. New writes use persisted value `'Category'` for community-level pins; `'Space'` is unchanged.
+- Read path keeps the `=== 'Global'` branch so legacy pinned rows still render until Phase 08's migration flips `'Global'` → `'Category'` in the database. After Phase 08, the `'Global'` read branch **and** the widened type union can be dropped in Phase 09 cleanup.
 - Community discussions show `Category` pins (and any remaining legacy `Global` pins). Space discussions show `Space` pins.
+
+### Discussion team field
+- `GP Discussion.team` is a denormalized copy of `project.team`. It currently has no `fetch_from` and is only set in `move_discussion`, so legacy rows may carry null `team`.
+- Phase 08 adds `fetch_from: "project.team"` (auto-populates new/edited rows) and backfills existing rows. The community discussions feed filters on `team`, so this is load-bearing — an empty `team` means the discussion is invisible in every community feed.
+
+### Active frontend naming
+- Active app-layer code uses Community naming: `communityState`, `communities`, `activeCommunities`, `getCommunity`, `getActiveCommunity`, `communitySpaces`, and canonical route param `communityId`.
+- `communityState` stores only the deliberately selected/default community. It is not updated by deep links.
+- Scoped routes display the community from `route.params.communityId`. This route-effective community may differ from the persisted default community.
+- Do not add app-layer compatibility shims for old names (`activeCategory`, `categorySpaces`, old localStorage keys). This branch has not shipped.
+- Rename active components/modules on the current community path. Do not rename legacy Team/Project route pages retained only for compatibility.
+- Delete unused stale `Category*` files if they have zero imports and are not legacy compatibility pages.
 
 ### Community switcher
 - Triggered by clicking the community icon at the top of the narrow rail.
@@ -92,22 +104,22 @@ Implementation identifiers such as `GP Team`, `teamId`, `activeCategory`, `categ
   - Group 2: Drafts, Bookmarks, Tasks, Pages.
   - Group 3: People, Spaces *(Spaces icon shown only to admins — `Gameplan Admin` role)*.
   - Bottom: user avatar (`UserDropdown`).
-- **Community sidebar** (`w-56`, white bg). Top row = community name (text), opens `CategoryDropdown` for community-level actions. Aligned horizontally with the rail's community icon to read as one composite header. Below in order:
-  - "All discussions" row → `/community/:teamId/discussions`
-  - "Unread" row → `/community/:teamId/discussions/unread`
-  - "Participating" row → `/community/:teamId/discussions/participating`
+- **Community sidebar** (`w-56`, white bg). Top row = community name (text), opens the app/community menu for community-level actions. Aligned horizontally with the rail's community icon to read as one composite header. Below in order:
+  - "All discussions" row → `/community/:communityId/discussions`
+  - "Unread" row → `/community/:communityId/discussions/unread`
+  - "Participating" row → `/community/:communityId/discussions/participating`
   - "Spaces" header with a hover/focus-revealed `+` (admin only) opening the new-space flow
   - Spaces list
   - No persistent footer.
 - **Content area** fills the remaining width.
 
 #### Sidebar visibility
-- Community sidebar visible only on `/community/:teamId/*` routes.
+- Community sidebar visible only on `/community/:communityId/*` routes.
 - Hidden on global routes (`/search`, `/people`, `/pages`, `/tasks`, `/bookmarks`, `/notifications`, `/drafts`, `/spaces`); content area expands. Width transition animated (~150ms).
 
 #### Active-state semantics
 - Active = "this is the destination the user is currently on", not "this destination is in the user's context".
-- Rail community icon: active only on `/community/:teamId/*` routes.
+- Rail community icon: active only on `/community/:communityId/*` routes.
 - Rail destination icons: active only when on the route they target.
 - Sidebar "All discussions" / space rows: active only on the exact destination.
 
@@ -140,7 +152,7 @@ Canonical names to keep: `Discussions`, `DiscussionsTab`, `Space`, `SpaceDiscuss
 New names: `Bookmarks`, `LegacyNewDiscussion`
 
 ### Do not repurpose global helpers for scoped use
-Keep `groupedSpaces.ts` for global UIs (`/spaces`, search filters, task/page dialogs). Add new `categorySpaces.ts` for community-scoped use.
+Keep global helper modules for global UIs (`/spaces`, search filters, task/page dialogs) unless they are on an active community code path. Use `communitySpaces` naming for community-scoped space filtering.
 
 ### Avoid deleting old files in the first pass
 Old Team/Project pages: stop routing to them, keep as redirect compatibility, delete later after routing is stable.
@@ -163,8 +175,8 @@ Do not over-scope global pages just because the shell now has a selected communi
 
 ### Safe first milestone
 If splitting work, land these first:
-1. `activeCategory.ts`
-2. Router changes for `/community/:teamId/...`
+1. `communityState.ts`
+2. Router changes for `/community/:communityId/...`
 3. AppSidebar rewrite
 4. Community discussions page changes
 5. `/bookmarks`

@@ -5,7 +5,8 @@ Commit checkpoint: `8881be6a`
 Notes:
 - Initial pass added `CategorySwitcher`, `categorySpaces`, and a basic two-column shell.
 - Rebuild landed against the updated design in `./DECISIONS.md` → "Shell information architecture": `AppRail`, `CategorySwitcherCombobox`, rewritten `AppSidebar`, mobile 4-tab bottom bar (Home/Inbox/Search/More), `MoreMenu`/`MobileMoreMenu`, and `shellPreferences` for the rail-top icon toggle.
-- `CategorySidebar.vue`, `CategorySwitcher.vue`, and `MobileCategoryBar.vue` removed. `PersonalHome.vue` deletion deferred to Phase 08.
+- `CategorySidebar.vue`, `CategorySwitcher.vue`, and `MobileCategoryBar.vue` removed. `PersonalHome.vue` deletion deferred to Phase 09.
+- Phase 04 renames active `Category*`/`category*` frontend shell code to `Community*`/`community*`.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 
@@ -22,22 +23,21 @@ Authoritative design lives in `./DECISIONS.md` under "Shell information architec
 ## Files
 
 ### Create
-- `frontend/src/data/categorySpaces.ts` *(already created in initial pass)*
+- `frontend/src/data/communitySpaces.ts` *(renamed from initial `categorySpaces.ts` in Phase 04)*
 - `frontend/src/components/AppRail.vue` — narrow rail (rename of current `CategorySidebar.vue`, or new file)
-- `frontend/src/components/CategorySwitcherCombobox.vue` — combobox-with-custom-trigger for switching communities
-- `frontend/src/components/MobileCategoryBar.vue` *(recommended)*
-- `frontend/src/components/MobileCategorySpacesSheet.vue` *(recommended)*
+- `frontend/src/components/CommunitySwitcherCombobox.vue` — combobox-with-custom-trigger for switching communities
+- `frontend/src/components/MobileCommunitySpacesSheet.vue` *(recommended)*
 - `frontend/src/components/MobileMoreMenu.vue` *(recommended)*
 
 ### Edit
 - `frontend/src/components/AppSidebar.vue` — becomes the community sidebar
-- `frontend/src/components/CategoryDropdown.vue` — keeps role as community-actions menu (Settings, Members, Invite, Leave); drop the icon, keep name + carat
+- `frontend/src/components/AppDropdown.vue` — broader app/community menu in the sidebar header
 - `frontend/src/components/DesktopLayout.vue` — sidebar visibility + width transition
 - `frontend/src/components/MobileLayout.vue` — 4-tab bottom nav + drill-down per tab
 - `frontend/src/components/UserDropdown.vue` — wired into the rail bottom on desktop and into the More tab on mobile
 
-### Delete (in this phase or queued for Phase 08)
-- `frontend/src/components/CategorySwitcher.vue` — role moved to the rail-icon combobox; remove once no call sites remain
+### Delete (in this phase or queued for Phase 09)
+- unused stale `Category*` shell components — remove once no call sites remain
 - `frontend/src/pages/PersonalHome.vue` — supersedes Home semantics; rail Home goes to current community discussions
 
 ---
@@ -49,8 +49,8 @@ Width: 28px icon buttons inside `px-3` (≈52px total). Gray background (`bg-sur
 
 Vertical structure (top → bottom):
 1. **Community icon** (28px). Renders `team.icon` emoji or first-letter fallback. Container is a rounded square sized to allow swapping in an `<img>` later without layout change.
-   - Multi-community: clicking opens `CategorySwitcherCombobox`.
-   - Single-community: static badge — no click handler, no chevron, no hover affordance. Active highlight only on `/community/:teamId/*` routes.
+   - Multi-community: clicking opens `CommunitySwitcherCombobox`.
+   - Single-community: static badge — no click handler, no chevron, no hover affordance. Active highlight only on `/community/:communityId/*` routes.
 2. **Group 1** (divider above and below): Home, Inbox, Search.
 3. **Group 2**: Drafts, Bookmarks, Tasks, Pages.
 4. **Group 3**: People, **Spaces** *(rendered only when `user.roles.includes('Gameplan Admin')`)*.
@@ -66,35 +66,35 @@ Per-icon requirements:
 Width: `w-56` (224px). White background.
 
 Top-row composite header (must align horizontally with the rail's community icon):
-- Community name (text label) acting as the trigger for `CategoryDropdown` — opens menu of community-level actions. Keep `▾` carat to signal interactivity.
-- Drop the icon from `CategoryDropdown` (it's covered by the rail icon to the left).
+- Community name (text label) acting as the trigger for the app/community menu. Keep `▾` carat to signal interactivity.
+- Drop duplicate community icon from the menu trigger (it's covered by the rail icon to the left).
 
 Below the header:
-- Row: "All discussions" → `{ name: 'Discussions', params: { teamId: activeCategory.id } }`. Active only on the canonical `Discussions` route (recent feed).
-- Row: "Unread" → `{ name: 'DiscussionsUnread', params: { teamId } }` (or equivalent named route for `/community/:teamId/discussions/unread`). Optional trailing unread count badge.
-- Row: "Participating" → `{ name: 'DiscussionsParticipating', params: { teamId } }`.
+- Row: "All discussions" → `{ name: 'Discussions', params: { communityId } }`. Active only on the canonical `Discussions` route (recent feed).
+- Row: "Unread" → `{ name: 'DiscussionsTab', params: { communityId, feedType: 'unread' } }`. Optional trailing unread count badge.
+- Row: "Participating" → `{ name: 'DiscussionsTab', params: { communityId, feedType: 'participating' } }`.
 - These three rows replace the old tab strip on the discussions page. The discussions page reads the active feed type from the route name and renders accordingly.
-- Section header: "Spaces" with a `+` revealed on hover and on focus-within (admin only). Click `+` opens the new-space flow with community locked (Phase 06 — `lockedCategoryId: activeCategory.id`).
-- Spaces list: `categorySpaces.list`. Each row:
+- Section header: "Spaces" with a `+` revealed on hover and on focus-within (admin only). Click `+` opens the new-space flow with community locked to the displayed route community (Phase 07).
+- Spaces list: current community spaces. Each row:
   - Leading: `<LucideGlobe />` if public, `<LucideLock />` if private. (Removes the existing emoji on the left and the trailing lock on the right.)
   - Title.
   - Trailing unread count if `> 0`.
   - Active state when on the exact `Space` (or nested `Space*`) route for this `spaceId`.
 - No persistent footer.
 
-Empty state (if `categorySpaces.list.length === 0`):
+Empty state (if current community spaces are empty):
 - "No spaces in this community yet."
 - Admin (`Gameplan Admin`) only: "Create a space" button → opens the locked-community new-space flow.
-- This case should be rare — Phase 07 auto-creates a `General` space on community creation.
+- This case should be rare — Phase 08 auto-creates a `General` space on community creation.
 
-### 3. Build the community-switcher combobox (`CategorySwitcherCombobox.vue`)
+### 3. Build the community-switcher combobox (`CommunitySwitcherCombobox.vue`)
 - Use frappe-ui's `Combobox` (or `Autocomplete`) with a custom trigger slot. The trigger is rendered by the rail icon.
-- Popover: search input at top, scrollable list of `activeTeams`, current community marked with a check.
-- Selecting a community: persist via `activeCategory.change(teamId)`, then `router.push({ name: 'Discussions', params: { teamId } })`.
+- Popover: search input at top, scrollable list of `activeCommunities`, displayed community marked with a check.
+- Selecting a community: persist via `communityState.change(communityId)`, then `router.push({ name: 'Discussions', params: { communityId } })`.
 - Hide / no-op when only one active community exists (rail-top icon becomes a static badge in that case).
 
 ### 4. Sidebar visibility + width transition in `DesktopLayout.vue`
-- Render the community sidebar only when the current route matches `/community/:teamId/*`.
+- Render the community sidebar only when the current route matches `/community/:communityId/*`.
 - Use a width-animated wrapper around the sidebar (e.g. `<div class="transition-all duration-150 overflow-hidden" :class="onCategoryRoute ? 'w-56' : 'w-0'">`) so navigation between community and global routes slides instead of snaps.
 - The rail itself is always visible.
 
@@ -103,7 +103,7 @@ Empty state (if `categorySpaces.list.length === 0`):
 - Each tab maintains its own navigation stack (drill-down). Tab bar persists when drilled in.
 
 **Home tab:**
-- Top bar: community name + switcher trigger (reuse `CategorySwitcherCombobox` or a mobile-friendly variant).
+- Top bar: community name + switcher trigger (reuse `CommunitySwitcherCombobox` or a mobile-friendly variant).
 - Body: "All discussions" row + spaces list (same data as desktop sidebar, rendered as full-width tappable rows). Each space row uses the same globe/lock leading icon.
 - Tap a space → drill into that space's discussions.
 
@@ -117,7 +117,7 @@ Empty state (if `categorySpaces.list.length === 0`):
 ### 6. Retire preferred-home and `PersonalHome` from active code
 - Remove `usePreferredHomePage()` references from shell code.
 - Remove `HomePageSettingsDialog` from current shell flow.
-- Mark `PersonalHome.vue` for deletion (Phase 08). Rail Home now targets `Discussions` directly.
+- Mark `PersonalHome.vue` for deletion (Phase 09). Rail Home now targets `Discussions` directly.
 
 ---
 
@@ -134,7 +134,7 @@ Empty state (if `categorySpaces.list.length === 0`):
 
 - Rail visible on every route.
 - Community icon at top of rail acts as switcher when multiple communities exist; static badge when only one.
-- Community sidebar visible only on `/community/:teamId/*` routes; transitions out smoothly on global routes.
+- Community sidebar visible only on `/community/:communityId/*` routes; transitions out smoothly on global routes.
 - Composite header reads as one continuous element across rail + sidebar.
 - Spaces list shows globe/lock leading icons; no emoji on space rows.
 - `+` next to "Spaces" header is visible on hover and on keyboard focus (admin only).

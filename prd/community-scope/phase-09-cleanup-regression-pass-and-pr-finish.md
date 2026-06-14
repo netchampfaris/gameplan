@@ -1,4 +1,4 @@
-# Phase 08 — Cleanup, regression pass, and PR finish
+# Phase 09 — Cleanup, regression pass, and PR finish
 
 Status: not started
 Commit checkpoint:
@@ -24,7 +24,7 @@ This phase should remove obsolete active references, verify regressions, and pre
 - `frontend/src/components/HomePageSettingsDialog.vue`
 - `frontend/src/pages/Home.vue`
 - `frontend/src/pages/PersonalHome.vue` — superseded by rail Home → community discussions (see `./DECISIONS.md` "Shell information architecture")
-- `frontend/src/components/CategorySwitcher.vue` — role moved to `CategorySwitcherCombobox` triggered by the rail-top icon. Delete once no call sites remain.
+- stale unused `Category*` components — delete if they are not legacy compatibility code and have zero imports.
 - old Team / Project pages if they are truly unused after redirect migration
 - any stale imports created during previous phases
 - PRD files in this directory to mark statuses and commit checkpoints
@@ -41,8 +41,12 @@ Delete or fully orphan after verifying no imports remain:
 - old sidebar preference logic
 
 ### 1a. Decommission superseded shell components
-- Verify `CategorySwitcher.vue` has zero call sites (its role moved to `CategorySwitcherCombobox` invoked from the rail). Delete if so.
+- Verify stale `Category*` components have zero call sites. Delete if they are not legacy compatibility code.
 - Verify any old single-column-sidebar variants are unreferenced. Delete if so.
+
+### 1b. Remove the legacy `'Global'` pin read path
+- Delete the `=== 'Global'` pin read branch in `frontend/src/components/DiscussionView.vue` and `frontend/src/components/DiscussionList.vue` — after the Phase 08 migration, no `'Global'` rows remain.
+- Narrow the `pin_scope` union in `frontend/src/types/doctypes.ts` and `frontend/src/data/discussions.ts` from `'Global' | 'Category' | 'Space'` to `'Category' | 'Space'`.
 
 ### 2. Old Team / Project pages — leave in place
 Per the agreed plan, **do not delete** old Team / Project page files in this branch even if they are unreferenced. They stay as redirect compatibility for the first release window. A follow-up PR removes them once route stability is confirmed in production.
@@ -64,6 +68,7 @@ Verify:
 - mobile bottom tabs (Home, Inbox, Search, More) with persistent tab bar on drill-down
 - mobile Home tab shows community context; other tabs do not
 - empty-spaces state renders only in the rare case (`General` auto-create should make this unreachable in normal flows)
+- focused automated tests added during this branch still pass
 
 ### 4. Update PRD status markers
 In each phase file and `PLAN.md`:
@@ -83,7 +88,7 @@ The PR description should summarize:
 
 **Explicitly call out follow-ups deferred from this branch:**
 - Command palette "Add discussion" entry point
-- Automated tests (router resolution, migration idempotency)
+- Comprehensive automated tests beyond the focused coverage added in this branch
 - Rollback / reverse-migration patches
 - Deletion of legacy Team / Project page files
 
@@ -97,13 +102,24 @@ The PR description should summarize:
 
 ---
 
+## Cypress coverage (required)
+
+This is the regression phase. Run the **full** suite (`cd frontend && yarn test`) and add a short smoke spec (`cypress/e2e/community-smoke.cy.ts`) asserting the end state:
+- no global discussions feed; `/` and `/home` resolve to community discussions (or the no-communities empty state)
+- the community sidebar is visible on `/community/:communityId/*` and hidden on global routes
+- `/bookmarks` is global
+
+All specs added in phases 04–08 must pass. See `./AGENT_RUNBOOK.md`.
+
+---
+
 ## Verify before final commit
 
 ### Core behavior
 - no global discussions feed remains
 - `/` and `/home` resolve correctly
 - community switcher (combobox) accessible from rail-top icon when multiple communities exist
-- community sidebar visible only on `/community/:teamId/*` routes; hidden on global routes with width transition
+- community sidebar visible only on `/community/:communityId/*` routes; hidden on global routes with width transition
 - sidebar only shows current-community spaces
 
 ### Global surfaces
@@ -123,6 +139,7 @@ The PR description should summarize:
 ### Data
 - uncategorized spaces migrate to `Default`
 - `Global` pin scope migrates to `Category`
+- no `=== 'Global'` pin read branch remains in the frontend; `pin_scope` union is `'Category' | 'Space'`
 
 ---
 

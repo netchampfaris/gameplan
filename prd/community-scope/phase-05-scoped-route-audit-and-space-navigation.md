@@ -1,4 +1,4 @@
-# Phase 04 — Scoped route audit and space navigation
+# Phase 05 — Scoped route audit and space navigation
 
 Status: not started
 Commit checkpoint:
@@ -11,7 +11,7 @@ Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session
 
 ## Goal
 
-Audit and fix all routes that now require `teamId`, especially links from global surfaces into scoped community routes.
+Audit and fix all routes that now require `communityId`, especially links from global surfaces into scoped community routes.
 
 This phase should make route usage internally consistent across the app.
 
@@ -43,8 +43,8 @@ This phase should make route usage internally consistent across the app.
 
 ### 1. Make Space page canonical and self-healing
 In `frontend/src/pages/Space.vue`:
-- accept `teamId`
-- if route `teamId` does not match `space.team`, redirect to canonical scoped route
+- accept `communityId`
+- if route `communityId` does not match `space.team`, redirect to canonical scoped route
 - timing note: the space data may not be loaded when the component mounts. Two valid approaches:
   - **Option A (preferred)**: use `spaces.data` from the global spaces list (already loaded at app boot) to resolve `space.team` synchronously and redirect in a `watch` or `beforeRouteEnter` guard
   - **Option B**: accept a brief render, then redirect once `useSpace()` resolves the mismatch
@@ -57,7 +57,7 @@ In:
 - `frontend/src/pages/Spaces/SpaceCard.vue`
 - `frontend/src/pages/Spaces/PinnedSpaceCard.vue`
 
-Ensure all space routes include `teamId`.
+Ensure all space routes include `communityId`.
 
 Important breadcrumb rule:
 - breadcrumb root should point to community discussions, not global `/spaces`
@@ -73,7 +73,7 @@ In:
 - `frontend/src/components/Activity.vue`
 - `frontend/src/components/CommandPalette/CommandPalette.vue`
 
-Ensure all links into discussion/space/task/page routes include `teamId`.
+Ensure all links into discussion/space/task/page routes include `communityId`.
 
 ### 4. Keep `/spaces` global
 In `frontend/src/pages/Spaces/Spaces.vue`:
@@ -86,7 +86,7 @@ Use:
 rg -n "name: 'Discussion'|name: 'Space'|name: 'SpaceTask'|name: 'SpacePage'|name: 'NewDiscussion'|name: 'Discussions'|name: 'DiscussionsTab'" frontend/src
 ```
 
-Review every match and ensure `teamId` is included where needed.
+Review every match and ensure `communityId` is included where needed.
 
 ---
 
@@ -95,6 +95,17 @@ Review every match and ensure `teamId` is included where needed.
 - Global surfaces must remain global in content.
 - Do not introduce community filtering to Search/Tasks/Pages/People/Notifications.
 - `/spaces` remains a global housekeeping page.
+
+---
+
+## Cypress coverage (required)
+
+Add a simple spec (`cypress/e2e/community-scoped-links.cy.ts`) asserting links from global surfaces resolve into canonical scoped routes:
+- opening a space from `/spaces` lands on `/community/:communityId/space/:spaceId`
+- opening a discussion from search or bookmarks lands on a URL containing `/community/<id>/`
+- a space breadcrumb's root points at community discussions, not `/spaces`
+
+See `./AGENT_RUNBOOK.md` for run commands and conventions.
 
 ---
 

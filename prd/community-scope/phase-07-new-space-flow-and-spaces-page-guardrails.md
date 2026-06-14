@@ -1,4 +1,4 @@
-# Phase 06 — New space flow and `/spaces` page guardrails
+# Phase 07 — New space flow and `/spaces` page guardrails
 
 Status: not started
 Commit checkpoint:
@@ -26,7 +26,7 @@ This phase should deliver:
 - `frontend/src/components/NewSpaceDialog.vue`
 - `frontend/src/pages/Spaces/Spaces.vue`
 - `frontend/src/components/AppSidebar.vue`
-- `frontend/src/router.js`
+- `frontend/src/router.ts`
 - optional new wrapper page `frontend/src/pages/NewSpace.vue`
 
 ---
@@ -35,7 +35,7 @@ This phase should deliver:
 
 ### 1. Add locked community mode to NewSpaceDialog
 In `frontend/src/components/NewSpaceDialog.vue`:
-- add prop like `lockedCategoryId?: string`
+- add prop like `lockedCommunityId?: string`
 - when locked:
   - hide community picker
   - force `newSpace.doc.team`
@@ -43,8 +43,8 @@ In `frontend/src/components/NewSpaceDialog.vue`:
   - keep current behavior for global `/spaces` flows
 
 ### 2. Add canonical scoped new-space route
-In `frontend/src/router.js`:
-- add `/community/:teamId/new-space`
+In `frontend/src/router.ts`:
+- add `/community/:communityId/new-space`
 - route may render a small wrapper page or a full page component
 
 If needed, create:
@@ -57,7 +57,7 @@ From current-community shell entry points (per the design in `./DECISIONS.md` "S
 - the mobile Home tab's "+ New space" affordance (admin only)
 
 In all three cases:
-- open the locked-community new-space flow with `lockedCategoryId: activeCategory.id`
+- open the locked-community new-space flow with the current route `communityId`
 - do not offer community selection there
 
 ### 4. Keep `/spaces` page global and intact
@@ -67,7 +67,7 @@ In `frontend/src/pages/Spaces/Spaces.vue`:
 - only update any route links as needed for scoped navigation
 
 ### 5. Restrict `/spaces` to admins only
-In `frontend/src/router.js` (route guard) and `frontend/src/pages/Spaces/Spaces.vue`:
+In `frontend/src/router.ts` (route guard) and `frontend/src/pages/Spaces/Spaces.vue`:
 - detect admin via `user.roles.includes('Gameplan Admin')` from `useSessionUser()` in `frontend/src/data/users.ts`
 - non-admins navigating to `/spaces` should be redirected away (e.g. to current community discussions). The `/spaces` rail icon is also hidden for non-admins (handled in Phase 02).
 - admin users keep current management actions (create, move, merge, archive, etc.) unchanged
@@ -81,6 +81,16 @@ No read-only mode is required because non-admins never reach the page.
 - Do not change move-space implementation.
 - Do not remove or expand `/spaces` admin actions.
 - Do not convert `/spaces` into a scoped community page.
+
+---
+
+## Cypress coverage (required)
+
+Add a spec (`cypress/e2e/community-spaces-guardrails.cy.ts`):
+- as admin, the sidebar "Spaces" `+` opens the new-space flow with the community **locked** (no community picker) and creates a space in the current community
+- as a non-admin, visiting `/spaces` redirects away and the rail `/spaces` icon is absent
+
+See `./AGENT_RUNBOOK.md` for run commands and conventions.
 
 ---
 

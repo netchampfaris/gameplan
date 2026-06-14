@@ -1,4 +1,4 @@
-# Phase 05 — Scoped composer and drafts
+# Phase 06 — Scoped composer and drafts
 
 Status: not started
 Commit checkpoint:
@@ -37,13 +37,13 @@ This phase should deliver:
 
 ### 1. Update composer state logic
 In `frontend/src/pages/NewDiscussion/useNewDiscussion.ts`:
-- treat `/community/:teamId/new-discussion` as canonical route
+- treat `/community/:communityId/new-discussion` as canonical route
 - derive current community from route params in scoped mode
 - restrict space options to current community in scoped mode
 - do not auto-create a brand-new draft until a space is selected
 - when a draft already has a project, normalize/open it under scoped route
 - when a draft has no project/community, allow legacy `/new-discussion?draft=...`
-- when publishing, route to `Discussion` with `teamId` and `spaceId`
+- when publishing, route to `Discussion` with `communityId` and `spaceId`
 
 ### 2. Update composer wrapper and metadata
 In:
@@ -76,9 +76,21 @@ The command palette "Add Discussion" entry point is **out of scope** for this br
 
 ---
 
+## Cypress coverage (required)
+
+Add a spec (`cypress/e2e/community-composer.cy.ts`):
+- the only "+ New discussion" entry point is inside the community discussions list, and it opens the scoped composer (`/community/:communityId/new-discussion`)
+- publishing a discussion lands on the scoped `Discussion` route
+- the Drafts page shows **no** "+ New" button
+- a legacy draft without a project still opens via `/new-discussion?draft=...`
+
+See `./AGENT_RUNBOOK.md` for run commands and conventions.
+
+---
+
 ## Verify before commit
 
-- Add new from Drafts opens scoped composer
+- Drafts page shows no "+ New" button; new-discussion creation lives only in the community discussions list
 - selecting no space does not create a new draft automatically
 - draft with project opens in scoped composer
 - legacy draft without project opens in legacy route
