@@ -55,7 +55,7 @@ remain as-is until a separate schema/API rename is explicitly planned.
 ### Spaces
 - All spaces must belong to a community.
 - `/spaces` stays as an **admin-only** global page for housekeeping. Non-admins are redirected away (route guard) and the rail icon is hidden for them.
-- Admins (`Gameplan Admin` role) keep existing actions. Do not expand or reduce. Admin check uses `user.roles.includes('Gameplan Admin')`.
+- Admins (`Gameplan Admin` role) keep existing actions. Do not expand or reduce. Admin check uses the codebase convention `useSessionUser().role === 'Gameplan Admin'` (the `UserInfo` model has a singular `role` field, not a `roles` array), matching `AppRail.vue` / `AppSidebar.vue` / `MobileMoreMenu.vue`.
 - Do not change move-space implementation.
 
 ### Migration of uncategorized spaces (existing sites only)

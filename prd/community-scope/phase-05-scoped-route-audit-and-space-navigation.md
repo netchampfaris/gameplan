@@ -1,9 +1,15 @@
 # Phase 05 — Scoped route audit and space navigation
 
-Status: not started
-Commit checkpoint:
+Status: done
+Commit checkpoint: `e81fd6cc` — refactor(community): normalize scoped route params across global and space flows
 Notes:
-- 
+- Most scoped links were already correct at HEAD (Phase 04 wired the router and the heavy-traffic surfaces). The audit grep confirmed `Search.vue`, `Activity.vue`, `MergeSpaceDialog.vue`, `CommandPalette.vue`, `DiscussionRow.vue`, `DiscussionView.vue`, `DiscussionBreadcrumbs.vue`, `SpaceDiscussions.vue`, `SpaceCard.vue`, `PinnedSpaceCard.vue`, `Task.vue`, `Page.vue` breadcrumbs, and `useNewDiscussion.ts` all already pass `communityId`. No re-rename was needed.
+- Real `communityId` gaps found and fixed (these would have failed route resolution, since canonical scoped routes require `communityId`): `TaskList.vue` (`SpaceTask` link), `PageGrid.vue` (`SpacePage` link), `SpacePages.vue#createNewPage` (`SpacePage` push), `TaskDetail.vue#updateRoute` (`SpaceTask` push after moving a task), and `Page.vue#updateUrlSlug` (now sets `communityId` from the resolved space for the project-page case). Resolution pattern matches `Search.vue`: prefer the row's denormalized `team`, else `getSpace(project)?.team`.
+- `Notifications.vue` was still linking through the **legacy** `ProjectDiscussion`/`ProjectTaskDetail` routes (which only redirect). Switched to canonical `Discussion`/`SpaceTask` with `communityId: d.team` (notification rows carry `team`/`project`).
+- Task 1 (Space.vue self-healing): implemented Option A. `Space.vue` now accepts `communityId` and a `watch` on the boot-loaded `useSpace()` redirects to the canonical route when the URL's community is stale but the space still resolves. The router guard already 404s a true mismatch; this heals the recoverable case (e.g. after a move) instead of 404ing.
+- Task 2 breadcrumb rule: `SpaceBreadcrumbs.vue` had **no** root crumb at all (only the space title). Added a leading crumb = community name (`space.team_title`) linking to `{ name: 'Discussions', params: { communityId: space.team } }`, satisfying "root points at community discussions, not /spaces".
+- `/spaces` left global (Task 4): `Spaces.vue` / `SpaceCard.vue` / `PinnedSpaceCard.vue` already opened spaces via canonical `Space` route with `communityId: space.team`; no content re-scoping. Global pages (Search/Tasks/Pages/People/Notifications) keep cross-community content — only their outbound links were normalized.
+- Cypress: new `cypress/e2e/community-scoped-links.cy.ts` (3 it()s) is green headless. Seeds one joined community + space + a bookmarked discussion. Note `add_bookmark` is a whitelisted `GP Discussion` doc method reachable at `/api/v2/document/GP Discussion/<name>/method/add_bookmark`. `frappe.client.insert_many` returns the new names in `body.message` (index order matches `docs`). Phase 04's `community-naming.cy.ts` still green (no regression).
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 

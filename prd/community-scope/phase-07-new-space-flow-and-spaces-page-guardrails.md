@@ -1,9 +1,15 @@
 # Phase 07 — New space flow and `/spaces` page guardrails
 
-Status: not started
-Commit checkpoint:
+Status: done
+Commit checkpoint: `9afb2f07` — feat(community): add scoped new space flow and guardrails for spaces page
 Notes:
-- 
+- `NewSpaceDialog.vue` already existed and used a `category` prop (Phase 04 had not renamed its internals). Renamed the prop to `lockedCommunityId` and its internal helpers (`selectedCategory`→`selectedCommunity`, `categoryOptions`→`communityOptions`, `selectCategory`→`selectCommunity`) to match Community naming. The prop's behavior is unchanged: when set, it hides the community picker and forces `newSpace.doc.team`. Updated both callers (`AppSidebar.vue`, `Spaces/Spaces.vue` — the latter's `categoryForNewSpace`→`lockedCommunityForNewSpace` and the `@new-space` handler arg `categoryName`→`communityName`).
+- The `/community/:communityId/new-space` route already existed but pointed at the `ComingSoon.vue` placeholder. Replaced it with a real wrapper page `frontend/src/pages/NewSpace.vue` (added `props: true`) that opens `NewSpaceDialog` in locked mode for the route `communityId` and navigates back to that community's discussions on close. `ComingSoon.vue` is now unreferenced but left in place (it is not a `Category*` file and not in scope to delete).
+- Admin gate for `/spaces`: added a `beforeEnter` guard on the `Spaces` route in `router.ts`. The project uses a singular `UserInfo.role` field, not a `roles` array, so the actual admin check is `useSessionUser().role !== 'Gameplan Admin'` (the phase text said `user.roles.includes('Gameplan Admin')`; the existing codebase convention is `sessionUser.role === 'Gameplan Admin'`, used in AppRail/AppSidebar/MobileMoreMenu). Non-admins are redirected via `getHomeRoute()`. The rail `/spaces` icon was already admin-gated in Phase 02 (`AppRail.vue` `adminShortcuts`).
+- Mobile "+ New space" affordance lives in `MobileCommunitySpacesSheet.vue` (the Home-tab bottom sheet is where the mobile spaces list renders). Added an admin-only "New space" row that closes the sheet and opens the locked `NewSpaceDialog` for `communityState.id`.
+- frappe-ui `Button` hardcodes `aria-label: props.label` and spreads `$attrs` BEFORE it, so a plain `aria-label="..."` attribute on a `<Button icon=...>` is overridden by the (empty) `label` and never reaches the DOM. The AppSidebar `+` button therefore had no usable `aria-label` (a latent Phase 02 issue). Fixed by passing `label="New space"` instead of `aria-label="New space"`; since `icon` is set, frappe-ui renders the icon (not the label text) but still emits `aria-label="New space"`. Required for `cy.iconButton('New space')`.
+- Cypress non-admin login: `clear_data` creates `john@example.com` (Gameplan Member) with no password. The spec sets one via `frappe.client.set_value` on the `new_password` field (Frappe hashes it on save) as Administrator, then `cy.login('john@example.com', ...)`. Verified working against the demo site.
+- Spec `community-spaces-guardrails.cy.ts`: 2/2 green. Regression-checked `community-naming`, `community-scoped-links`, `community-composer` — all still green (the scoped-links "opens a space from /spaces" case confirms admins are not blocked by the new guard). Build (`yarn --cwd frontend build`) passes.
 
 Implementation style: Follow `./CODE_STYLE.md`. Match `frontend/src/data/session.ts` style where relevant: semantic state modules, VueUse to reduce boilerplate, strict scoped routes, explicit 404s, and minimal abstractions.
 
