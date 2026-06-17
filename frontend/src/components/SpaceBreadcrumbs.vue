@@ -3,10 +3,6 @@
     class="space-breadcrumbs"
     :items="[
       {
-        label: space?.team_title || space?.team,
-        route: { name: 'Discussions', params: { communityId: space?.team } },
-      },
-      {
         label: space?.title,
         prefix: h(SpaceIcon, { icon: space?.icon }),
         suffix: space?.is_private ? 'lucide-lock' : null,
