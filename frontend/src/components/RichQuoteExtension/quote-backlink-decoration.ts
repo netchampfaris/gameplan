@@ -2,8 +2,10 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { Node as PMNode } from '@tiptap/pm/model'
+import { createApp, h, type App } from 'vue'
+import { Button } from 'frappe-ui'
 import { buildDocTextIndex, findDocRange } from './quoteTextSearch'
-import type { QuoteBacklink } from './useQuoteBacklinks'
+import type { QuoteBacklink } from './useRichQuotes'
 
 export const quoteBacklinksPluginKey = new PluginKey<DecorationSet>('quoteBacklinks')
 
@@ -59,10 +61,14 @@ export const QuoteBacklinkDecoration = Extension.create<QuoteBacklinkDecorationO
         // passage may have been edited away since it was quoted — skip silently
         if (!range) continue
 
+        // anchor at the passage start and float into the right lane (absolutely
+        // positioned, so it never enters the text flow); side:-1 keeps it out of
+        // the way of edits at the boundary
         decorations.push(
-          Decoration.widget(range.to, () => createBadge(items, ext.options.onBacklinkClick), {
-            side: 1,
-            key: `quote-backlink:${range.to}:${items.length}:${quotedText.length}`,
+          Decoration.widget(range.from, () => createBadge(items, ext.options.onBacklinkClick), {
+            side: -1,
+            key: `quote-backlink:${range.from}:${items.length}:${quotedText.length}`,
+            destroy: unmountBadge,
           }),
         )
       }
@@ -91,28 +97,46 @@ export const QuoteBacklinkDecoration = Extension.create<QuoteBacklinkDecorationO
   },
 })
 
+// The widget DOM hosts a mounted frappe-ui Button; remember its app so the
+// widget's `destroy` hook can unmount it.
+const badgeApps = new WeakMap<Node, App>()
+
 function createBadge(
   items: QuoteBacklink[],
   onClick: QuoteBacklinkDecorationOptions['onBacklinkClick'],
 ): HTMLElement {
-  const button = document.createElement('button')
-  button.type = 'button'
-  button.setAttribute('data-quote-backlink-widget', '')
-  button.contentEditable = 'false'
-  button.className = [
-    'mx-1 align-baseline select-none rounded px-0.5 text-sm font-medium',
-    'text-ink-gray-5 hover:text-ink-gray-8 hover:bg-surface-gray-2',
-    'focus:outline-none focus-visible:ring focus-visible:ring-outline-gray-3',
-  ].join(' ')
-  button.textContent = items.length > 1 ? `❝ ${items.length}` : '❝'
-  button.title =
-    items.length > 1 ? `Quoted by ${items.length} comments` : 'Quoted by 1 comment'
-  button.addEventListener('click', (event) => {
-    event.preventDefault()
-    event.stopPropagation()
-    onClick({ anchorEl: button, items })
-  })
-  return button
+  const container = document.createElement('span')
+  container.setAttribute('data-quote-backlink-widget', '')
+  container.contentEditable = 'false'
+  // Absolutely positioned at the passage start (see widget anchor) and pushed
+  // past the content column into the right lane, so it floats alongside the
+  // quoted text without disturbing the flow. Hidden on mobile (< sm), where the
+  // content fills the width and there is no lane.
+  container.className = 'absolute left-full ml-3 hidden sm:block'
+  container.title = items.length > 1 ? `Quoted by ${items.length} comments` : 'Quoted by 1 comment'
+
+  const multiple = items.length > 1
+  const app = createApp(() =>
+    h(Button, {
+      variant: 'ghost',
+      label: multiple ? String(items.length) : undefined,
+      icon: multiple ? undefined : 'lucide-message-square-quote',
+      iconLeft: multiple ? 'lucide-message-square-quote' : undefined,
+      onClick: (event: MouseEvent) => {
+        event.preventDefault()
+        event.stopPropagation()
+        onClick({ anchorEl: container, items })
+      },
+    }),
+  )
+  app.mount(container)
+  badgeApps.set(container, app)
+  return container
+}
+
+function unmountBadge(node: Node) {
+  badgeApps.get(node)?.unmount()
+  badgeApps.delete(node)
 }
 
 export default QuoteBacklinkDecoration
