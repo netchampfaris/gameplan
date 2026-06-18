@@ -1,10 +1,6 @@
 import { CommentKit, SlashCommands } from 'frappe-ui/editor'
-import {
-  gameplanHeadingLevels,
-  suggestionConfig,
-  richQuoteExtensions,
-  type RichQuoteHandlers,
-} from './config'
+import { gameplanHeadingLevels, suggestionConfig, richQuoteExtensions } from './config'
+import type { RichQuoteController } from '@/components/RichQuoteExtension/useRichQuotes'
 
 /**
  * The lighter comment stack: CommentKit (no toc / iframe) + tables +
@@ -21,7 +17,9 @@ import {
  * Kept in its own module (not config.ts) so CommentKit only loads in the comment
  * box chunk, never in the rich-editor or shared GPEditor chunks.
  */
-export function commentExtensions(opts: RichQuoteHandlers = {}) {
+export function commentExtensions(
+  opts: { controller?: RichQuoteController | null; sourceId?: string } = {},
+) {
   return [
     CommentKit.configure({
       heading: { levels: [...gameplanHeadingLevels] },
@@ -29,6 +27,6 @@ export function commentExtensions(opts: RichQuoteHandlers = {}) {
       ...suggestionConfig(true),
     }),
     SlashCommands.configure({}),
-    ...richQuoteExtensions(opts),
+    ...richQuoteExtensions(opts.controller, opts.sourceId),
   ]
 }

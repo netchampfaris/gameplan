@@ -61,6 +61,7 @@
           <CommentEditor
             v-if="comment.deleted_at == null"
             :quote-source-id="`comment:${comment.name}`"
+            :author="comment.owner"
             :value="isEditing ? draftContent : comment.content"
             @change="
               (value: string) => {
@@ -77,8 +78,6 @@
             :discardButtonProps="{
               onClick: () => discardEdit(),
             }"
-            @rich-quote="$emit('rich-quote', $event)"
-            @rich-quote-click="$emit('rich-quote-click', $event)"
           />
           <span class="text-base italic text-ink-gray-5" v-else> This message is deleted </span>
           <div class="mt-3" v-if="!comment.deleted_at && !isEditing && comment.reactions">

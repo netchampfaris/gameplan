@@ -52,7 +52,7 @@ html {
 }
 
 /* Flash on the source passage when navigating from a rich quote back to it.
-   Duration matches the 2.5s class-removal timeout in useRichQuoteHandler. */
+   Duration matches the 2.5s class-removal timeout in useRichQuotes. */
 .highlighted-quote-target {
   border-radius: 0.25rem;
   animation: quote-target-flash 2.5s ease-out;

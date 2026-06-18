@@ -42,10 +42,6 @@
           "
           :readOnlyMode="readOnlyMode"
           :comments="comments"
-          @rich-quote="
-            $emit('rich-quote', $event, { id: `comment:${item.name}`, author: item.owner })
-          "
-          @rich-quote-click="$emit('rich-quote-click', $event)"
         />
         <Activity
           :class="[
@@ -71,7 +67,7 @@
 
     <!-- Comment Box -->
     <div
-      v-if="!readOnlyMode && !disableNewComment"
+      v-if="!readOnlyMode && !disableNewComment && !hideNewComment"
       class="fixed z-[2] left-0 right-0 mt-2 w-full print:hidden"
       :class="[
         isNewCommentOpen
@@ -172,7 +168,7 @@ import { GPActivity, GPComment, GPPoll } from '@/types/doctypes'
 import type { Editor } from '@tiptap/vue-3'
 import { tags } from '@/data/tags'
 import { isNewCommentOpen } from '@/data/newComment'
-import { injectQuoteBacklinks } from '@/components/RichQuoteExtension/useQuoteBacklinks'
+import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 
 interface Props {
   doctype: string
@@ -180,6 +176,8 @@ interface Props {
   newCommentsFrom?: string
   readOnlyMode?: boolean
   disableNewComment?: boolean
+  // transient: hide the fixed comment bar while the post itself is being edited
+  hideNewComment?: boolean
 }
 
 interface NewPoll {
@@ -194,16 +192,8 @@ interface NewPoll {
 const props = withDefaults(defineProps<Props>(), {
   readOnlyMode: false,
   disableNewComment: false,
+  hideNewComment: false,
 })
-
-defineEmits<{
-  (
-    e: 'rich-quote',
-    quote: { html: string; occurrence: number },
-    source: { id: string; author: string },
-  ): void
-  (e: 'rich-quote-click', payload: object): void
-}>()
 
 const router = useRouter()
 const route = useRoute()
@@ -229,7 +219,7 @@ const addComment = ref(null)
 let mutationObserver: MutationObserver | undefined
 const commentEditorKey = ref(0)
 
-const quoteBacklinks = injectQuoteBacklinks()
+const richQuotes = useRichQuotes()
 
 const comments = useList<GPComment>({
   doctype: 'GP Comment',
@@ -316,8 +306,8 @@ const polls = useList<GPPoll>({
 })
 
 watchEffect(() => {
-  if (quoteBacklinks) {
-    quoteBacklinks.commentsData.value = comments.data ?? null
+  if (richQuotes) {
+    richQuotes.commentsData.value = comments.data ?? null
   }
 })
 
@@ -537,6 +527,17 @@ onMounted(() => {
   if (!commentEmpty.value) {
     showCommentBox.value = true
   }
+  // Announce this area's reply box (quote insert target) and its comments (scroll
+  // targets) to the rich-quote controller, instead of being reached into.
+  richQuotes?.setReplyTarget({
+    open: openCommentBox,
+    getEditor: () => editorObject.value,
+  })
+  richQuotes?.setCommentNavigator({
+    getCommentEl: getCommentContentElement,
+    scrollToComment: scrollToCommentById,
+    highlightComment,
+  })
   socket.on('new_activity', (data) => {
     if (data.reference_doctype === props.doctype && data.reference_name === props.name) {
       activities.reload()
@@ -546,6 +547,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  richQuotes?.setReplyTarget(null)
+  richQuotes?.setCommentNavigator(null)
   socket.off('new_activity')
   mutationObserver?.disconnect()
   isNewCommentOpen.value = false

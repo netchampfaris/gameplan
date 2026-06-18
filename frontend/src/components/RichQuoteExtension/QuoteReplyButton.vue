@@ -25,9 +25,13 @@ import { DOMSerializer } from '@tiptap/pm/model'
 import { Button } from 'frappe-ui'
 import LucideTextQuote from '~icons/lucide/text-quote'
 import { buildDocTextIndex, extractQuotedText, occurrenceAt } from './quoteTextSearch'
+import { useRichQuotes } from './useRichQuotes'
 
-const props = defineProps<{ editor: Editor }>()
-const emit = defineEmits<{ quote: [payload: { html: string; occurrence: number }] }>()
+// sourceId/author identify the passage being quoted; the controller inserts the
+// quote into the discussion's reply editor.
+const props = defineProps<{ editor: Editor; sourceId: string; author: string }>()
+
+const richQuotes = useRichQuotes()
 
 const visible = ref(false)
 const position = ref({ x: 0, y: 0 })
@@ -130,7 +134,12 @@ function handleQuote() {
   // record which occurrence of this text in the source was selected, so it can
   // be re-located unambiguously even when the same passage appears more than once
   const occurrence = occurrenceAt(buildDocTextIndex(state.doc), extractQuotedText(div), from)
-  emit('quote', { html: div.innerHTML, occurrence })
+  richQuotes?.requestQuote({
+    sourceId: props.sourceId,
+    author: props.author,
+    html: div.innerHTML,
+    occurrence,
+  })
   visible.value = false
 }
 </script>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { Button } from 'frappe-ui'
 import { EditorFixedMenu } from 'frappe-ui/editor'
 import GPEditor from './GPEditor.vue'
 import QuoteReplyButton from '@/components/RichQuoteExtension/QuoteReplyButton.vue'
-import { injectQuoteBacklinks } from '@/components/RichQuoteExtension/useQuoteBacklinks'
-import { quoteBacklinksPluginKey } from '@/components/RichQuoteExtension/quote-backlink-decoration'
+import { useRichQuotes, useBacklinkRefresh } from '@/components/RichQuoteExtension/useRichQuotes'
 import { gameplanToolbar } from './toolbars'
 import { commentExtensions } from './commentExtensions'
 
@@ -20,51 +19,25 @@ const props = withDefaults(
     editable?: boolean
     submitButtonProps?: Record<string, any>
     discardButtonProps?: Record<string, any>
-    // 'comment:<id>' | 'discussion:<id>' — enables "quoted by" badges on this
-    // document when it's rendered inside a discussion
+    // 'comment:<id>' — enables "quoted by" badges + Reply-to-quote on this comment
+    // when it's rendered inside a discussion
     quoteSourceId?: string
+    // comment owner — stamped on quotes created from this comment's selection
+    author?: string
   }>(),
   { value: '', placeholder: null, editable: true },
 )
 
-const emit = defineEmits<{
-  change: [value: string]
-  'rich-quote': [payload: { html: string; occurrence: number }]
-  'rich-quote-click': [
-    payload: { quoteId: string; author: string; content: string; occurrence: number },
-  ]
-}>()
+const emit = defineEmits<{ change: [value: string] }>()
 
-const backlinksStore = injectQuoteBacklinks()
-const sourceId = props.quoteSourceId
+const controller = useRichQuotes()
 
-const extensions = commentExtensions({
-  onQuoteClick: (payload) => emit('rich-quote-click', payload),
-  backlinks:
-    backlinksStore && sourceId
-      ? {
-          getBacklinks: () => backlinksStore.getFor(sourceId),
-          onBacklinkClick: ({ anchorEl, items }) => backlinksStore.openPopover(anchorEl, items),
-        }
-      : undefined,
-})
+const extensions = commentExtensions({ controller, sourceId: props.quoteSourceId })
 
 const gp = useTemplateRef<InstanceType<typeof GPEditor>>('gp')
 const editor = computed(() => gp.value?.editor ?? null)
 
-if (backlinksStore && sourceId) {
-  // extension options aren't reactive — nudge the decoration plugin whenever
-  // the backlinks for this document or the editable state change
-  watch(
-    [() => backlinksStore.getFor(sourceId), () => props.editable, editor],
-    () => {
-      const e = editor.value
-      if (!e) return
-      e.view.dispatch(e.state.tr.setMeta(quoteBacklinksPluginKey, 'refresh'))
-    },
-    { flush: 'post' },
-  )
-}
+useBacklinkRefresh(editor, props.quoteSourceId, () => props.editable ?? false)
 
 defineExpose({ editor })
 </script>
@@ -76,12 +49,12 @@ defineExpose({ editor })
     :content="value"
     :placeholder="placeholder ?? undefined"
     :editable="editable"
-    :editor-class="['prose-v3 max-w-none', editable && 'min-h-[4rem]']"
+    :editor-class="['prose-v3 max-w-none relative', editable && 'min-h-[4rem]']"
     :max-height="editable ? '50vh' : undefined"
     @change="editable ? emit('change', $event) : null"
   >
-    <template v-if="!editable" #top="{ editor: e }">
-      <QuoteReplyButton v-if="e" :editor="e" @quote="emit('rich-quote', $event)" />
+    <template v-if="!editable && quoteSourceId" #top="{ editor: e }">
+      <QuoteReplyButton v-if="e" :editor="e" :source-id="quoteSourceId" :author="author ?? ''" />
     </template>
     <template v-if="editable" #bottom="{ editor: e }">
       <div class="mt-2 flex flex-col justify-between sm:flex-row sm:items-center">

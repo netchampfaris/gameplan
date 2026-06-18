@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, useTemplateRef, type CSSProperties } from 'vue'
-import type { Extension } from '@tiptap/core'
+import type { AnyExtension } from '@tiptap/core'
 import {
   Editor as FrappeEditor,
   EditorContent,
@@ -20,7 +20,7 @@ import { uploadFile } from './config'
 // chunks instead of forcing both into every editor's bundle.
 const props = withDefaults(
   defineProps<{
-    extensions: Extension[]
+    extensions: AnyExtension[]
     content?: string | null
     placeholder?: string
     editable?: boolean

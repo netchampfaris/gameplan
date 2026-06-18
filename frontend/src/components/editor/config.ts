@@ -3,9 +3,8 @@ import type { AnyExtension } from '@tiptap/core'
 import { useFileUpload } from 'frappe-ui'
 import type { MediaUploadRequestOptions, UploadedFile } from 'frappe-ui/editor'
 import RichQuoteNodeExtension from '@/components/RichQuoteExtension/rich-quote-node-extension'
-import QuoteBacklinkDecoration, {
-  type QuoteBacklinkDecorationOptions,
-} from '@/components/RichQuoteExtension/quote-backlink-decoration'
+import QuoteBacklinkDecoration from '@/components/RichQuoteExtension/quote-backlink-decoration'
+import type { RichQuoteController } from '@/components/RichQuoteExtension/useRichQuotes'
 import TextEditorMentionComponent from '@/components/TextEditorMentionComponent.vue'
 import { activeUsers } from '@/data/users'
 import { tags as tagList } from '@/data/tags'
@@ -49,34 +48,28 @@ export function suggestionConfig(suggestions = true) {
   }
 }
 
-export interface RichQuoteClickPayload {
-  quoteId: string
-  author: string
-  content: string
-  occurrence: number
-}
-
-export interface RichQuoteHandlers {
-  onQuoteClick?: (payload: RichQuoteClickPayload) => void
-  backlinks?: QuoteBacklinkDecorationOptions
-}
-
-const noop = () => {}
-
 /**
- * gameplan-local RichQuote extensions, appended after the kit (spec §6). The
- * handler re-emits so the host component can surface `@rich-quote-click`,
- * exactly as the old wrapper did. The floating Reply button is no longer an
- * extension — CommentEditor renders QuoteReplyButton.vue (a BubbleMenu) for
- * read-only editors. `backlinks` (passed only inside discussions) adds the
- * "quoted by" badge decorations to source posts/comments.
+ * gameplan-local RichQuote extensions, appended after the kit (spec §6).
+ *
+ * Both the inserted quote's click handler and the "quoted by" badges talk to the
+ * single RichQuoteController directly — no event re-emitting. Pass the controller
+ * (and the surface's `sourceId`) inside a discussion; omit it for rich editors
+ * outside one (Pages/Tasks), where quotes still render but aren't interactive.
+ * The floating Reply button is a component (QuoteReplyButton.vue), not an extension.
  */
-export function richQuoteExtensions(handlers: RichQuoteHandlers = {}) {
+export function richQuoteExtensions(controller?: RichQuoteController | null, sourceId?: string) {
   const extensions: AnyExtension[] = [
-    RichQuoteNodeExtension.configure({ onClick: handlers.onQuoteClick ?? noop }),
+    RichQuoteNodeExtension.configure({
+      onClick: controller ? (payload) => controller.navigateToQuote(payload) : () => {},
+    }),
   ]
-  if (handlers.backlinks) {
-    extensions.push(QuoteBacklinkDecoration.configure(handlers.backlinks))
+  if (controller && sourceId) {
+    extensions.push(
+      QuoteBacklinkDecoration.configure({
+        getBacklinks: () => controller.getFor(sourceId),
+        onBacklinkClick: ({ anchorEl, items }) => controller.openPopover(anchorEl, items),
+      }),
+    )
   }
   return extensions
 }

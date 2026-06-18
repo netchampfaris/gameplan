@@ -1,10 +1,5 @@
 import { RichTextKit } from 'frappe-ui/editor'
-import {
-  gameplanHeadingLevels,
-  suggestionConfig,
-  richQuoteExtensions,
-  type RichQuoteHandlers,
-} from './config'
+import { gameplanHeadingLevels, suggestionConfig, richQuoteExtensions } from './config'
 
 /**
  * The rich extension stack (articles, pages, discussion bodies, task descriptions):
@@ -15,12 +10,12 @@ import {
  * Kept in its own module (not config.ts) so RichTextKit stays out of the kit-free
  * GPEditor chunk and only loads on routes that use a rich editor.
  */
-export function richTextExtensions(opts: { suggestions?: boolean } & RichQuoteHandlers = {}) {
+export function richTextExtensions(opts: { suggestions?: boolean } = {}) {
   return [
     RichTextKit.configure({
       heading: { levels: [...gameplanHeadingLevels] },
       ...suggestionConfig(opts.suggestions ?? true),
     }),
-    ...richQuoteExtensions(opts),
+    ...richQuoteExtensions(),
   ]
 }

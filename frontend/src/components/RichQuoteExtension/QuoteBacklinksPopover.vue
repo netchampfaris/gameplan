@@ -32,9 +32,9 @@ import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot } from 'reka-
 import { dayjsLocal } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useUser } from '@/data/users'
-import { type QuoteBacklink, type QuoteBacklinksStore } from './useQuoteBacklinks'
+import { type QuoteBacklink, type RichQuoteController } from './useRichQuotes'
 
-const props = defineProps<{ store: QuoteBacklinksStore }>()
+const props = defineProps<{ store: RichQuoteController }>()
 const emit = defineEmits<{ select: [quotingCommentId: string] }>()
 
 function fullName(author: string) {
