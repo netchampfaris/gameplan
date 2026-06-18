@@ -26,8 +26,19 @@
         </div>
       </div>
       <template v-else-if="discussion.doc">
-        <div>
-          <div class="pb-2 pt-14 flex w-full items-center sticky top-0 z-[1] bg-surface-base">
+        <div
+          :class="{
+            'rounded-lg border mt-14 py-4 px-3 sm:px-5 -mx-3 sm:-mx-5 focus-within:border-outline-gray-3':
+              editingPost,
+          }"
+          @keydown.ctrl.enter.capture.stop="updatePost"
+          @keydown.meta.enter.capture.stop="updatePost"
+          @keydown.esc="cancelEdit"
+        >
+          <div
+            class="pb-2 flex w-full items-center bg-surface-base"
+            :class="{ 'sticky top-0 z-[1] pt-14': !editingPost }"
+          >
             <UserProfileLink class="mr-3" :user="discussion.doc.owner">
               <UserAvatarWithHover size="lg" :user="discussion.doc.owner" />
             </UserProfileLink>
@@ -84,12 +95,7 @@
               </template>
             </div>
           </div>
-          <div
-            :class="{
-              'rounded-lg border p-4 focus-within:border-outline-gray-3': editingPost,
-            }"
-            ref="mainPostContentEl"
-          >
+          <div ref="mainPostContentEl">
             <div v-if="editingPost" class="w-full">
               <div class="mb-2">
                 <input
@@ -99,35 +105,23 @@
                   ref="title"
                   v-model="discussion.doc.title"
                   placeholder="Title"
-                  v-focus
                 />
               </div>
             </div>
-            <CommentEditor
-              :value="discussion.doc.content"
-              :quote-source-id="`discussion:${discussion.doc.name}`"
-              @change="discussion.doc.content = $event"
-              @rich-quote="
-                handleRichQuote($event, {
-                  id: `discussion:${discussion.doc.name}`,
-                  author: discussion.doc.owner,
-                })
-              "
-              :submitButtonProps="{
-                variant: 'solid',
-                onClick: updatePost,
-                loading: discussion.setValue.loading,
-              }"
-              :discardButtonProps="{
-                onClick: () => {
-                  editingPost = false
-                  discussion.reload()
-                },
-              }"
+            <DiscussionViewEditor
+              ref="postEditor"
+              :content="discussion.doc.content"
               :editable="editingPost"
+              :saving="discussion.setValue.loading"
+              :can-save="canSavePost"
+              :quote-source-id="`discussion:${discussion.doc.name}`"
+              :author="discussion.doc.owner"
+              @change="discussion.doc.content = $event"
+              @save="updatePost"
+              @discard="cancelEdit"
             />
           </div>
-          <div class="mt-3">
+          <div class="mt-3" v-show="!editingPost">
             <Reactions
               doctype="GP Discussion"
               :name="discussion.doc.name"
@@ -142,11 +136,10 @@
           :newCommentsFrom="discussion.doc.last_unread_comment?.toString()"
           :read-only-mode="readOnlyMode"
           :disable-new-comment="Boolean(discussion.doc.closed_at)"
-          @rich-quote="handleRichQuote"
-          @rich-quote-click="handleRichQuoteClick"
+          :hide-new-comment="editingPost"
           ref="commentsArea"
         />
-        <QuoteBacklinksPopover :store="quoteBacklinks" @select="scrollToQuotingComment" />
+        <QuoteBacklinksPopover :store="richQuotes" @select="scrollToQuotingComment" />
         <Dialog
           title="Move discussion to another space"
           @close="
@@ -237,7 +230,7 @@
       </template>
     </div>
     <div
-      v-if="!isMobile"
+      v-if="!isMobile && !editingPost"
       class="fixed bottom-3 h-9 grid place-content-center right-3 z-[2] print:hidden"
     >
       <Button variant="ghost" v-show="isScrolled" @click="scrollToTop">
@@ -265,13 +258,13 @@ import {
   dialog,
 } from 'frappe-ui'
 import { until } from '@vueuse/core'
+import type { Editor } from '@tiptap/vue-3'
 import Reactions from './Reactions.vue'
 import UserAvatarWithHover from './UserAvatarWithHover.vue'
 import CommentsArea from '@/components/CommentsArea.vue'
-import CommentEditor from './editor/CommentEditor.vue'
+import DiscussionViewEditor from './editor/DiscussionViewEditor.vue'
 import UserProfileLink from './UserProfileLink.vue'
 import RevisionsDialog from './RevisionsDialog.vue'
-import { vFocus } from '@/directives'
 import { copyToClipboard } from '@/utils'
 import { getSpace, useSpace } from '@/data/spaces'
 import { useCommunity } from '@/data/communities'
@@ -280,8 +273,7 @@ import { useDiscussion } from '@/data/discussions'
 import { tags } from '@/data/tags'
 import { useScrollPosition } from '@/utils/scrollContainer'
 import { isMobile } from '@/composables/isMobile'
-import { useRichQuoteHandler } from '@/components/RichQuoteExtension/useRichQuoteHandler'
-import { provideQuoteBacklinks } from '@/components/RichQuoteExtension/useQuoteBacklinks'
+import { provideRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import QuoteBacklinksPopover from '@/components/RichQuoteExtension/QuoteBacklinksPopover.vue'
 import { refreshUnreadCountForProjects } from '@/data/unreadCount'
 import { isSessionUser } from '@/data/session'
@@ -294,22 +286,22 @@ const props = defineProps<{
 const router = useRouter()
 const route = useRoute()
 const commentsArea = useTemplateRef('commentsArea')
+const postEditor = useTemplateRef<{ editor: Editor | null }>('postEditor')
 const mainPostContentEl = ref<HTMLElement | null>(null)
 
 const { isScrolled, scrollToTop } = useScrollPosition()
 
-const { handleRichQuote, handleRichQuoteClick } = useRichQuoteHandler(
-  commentsArea,
-  mainPostContentEl,
-)
-
-const quoteBacklinks = provideQuoteBacklinks()
+const richQuotes = provideRichQuotes()
+richQuotes.setPostContentEl(() => mainPostContentEl.value)
 
 function scrollToQuotingComment(commentId: string) {
   commentsArea.value?.scrollToCommentById(commentId)
 }
 
 const editingPost = ref(false)
+// snapshot of title/content captured when edit mode opens, so we can detect
+// unsaved changes and confirm before discarding them
+const editSnapshot = ref<{ title: string; content: string } | null>(null)
 const discussionMoveDialog = reactive<{
   show: boolean
   project: string | null
@@ -406,7 +398,61 @@ function moveToSpace() {
   }
 }
 
+const canSavePost = computed(() => Boolean(discussion.doc?.title?.trim()))
+
+// Read content from the editor's own serializer rather than discussion.doc.content:
+// the editor re-normalizes HTML on load and writes it back, so the stored value
+// drifts from the server copy without any user edit. Comparing getHTML() to
+// getHTML() keeps both sides on the same normalization.
+function currentPostContent() {
+  return postEditor.value?.editor?.getHTML() ?? discussion.doc?.content ?? ''
+}
+
+function startEditingPost() {
+  editSnapshot.value = {
+    title: discussion.doc?.title ?? '',
+    content: currentPostContent(),
+  }
+  editingPost.value = true
+  // The options dropdown restores focus to its trigger as it closes, which would
+  // otherwise swallow the editor focus (and the Esc/⌘+Enter shortcuts). Focus the
+  // editor on the next frame, after that restore has settled.
+  nextTick(() => {
+    requestAnimationFrame(() => postEditor.value?.editor?.commands.focus())
+  })
+}
+
+function isPostDirty() {
+  if (!editSnapshot.value) return false
+  return (
+    (discussion.doc?.title ?? '') !== editSnapshot.value.title ||
+    currentPostContent() !== editSnapshot.value.content
+  )
+}
+
+function closeEditor() {
+  editingPost.value = false
+  editSnapshot.value = null
+  discussion.reload()
+}
+
+function cancelEdit() {
+  if (!editingPost.value) return
+  if (isPostDirty()) {
+    dialog.danger({
+      title: 'Discard changes',
+      message: 'You have unsaved changes. Are you sure you want to discard them?',
+      confirmLabel: 'Discard changes',
+      cancelLabel: 'Keep editing',
+      onConfirm: closeEditor,
+    })
+  } else {
+    closeEditor()
+  }
+}
+
 function updatePost() {
+  if (!editingPost.value || !canSavePost.value) return
   discussion.setValue
     .submit({
       title: discussion.doc?.title,
@@ -416,6 +462,7 @@ function updatePost() {
       tags.reload()
     })
   editingPost.value = false
+  editSnapshot.value = null
 }
 
 function updateUrlSlug() {
@@ -444,9 +491,7 @@ const actions = computed(() => [
   {
     label: 'Edit',
     icon: 'lucide-edit',
-    onClick: () => {
-      editingPost.value = true
-    },
+    onClick: startEditingPost,
   },
   {
     label: 'Revisions',
