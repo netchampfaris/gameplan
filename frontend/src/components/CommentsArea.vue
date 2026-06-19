@@ -199,6 +199,7 @@ import { isNewCommentOpen } from '@/data/newComment'
 import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import { useDraftSync } from '@/data/useDraftSync'
 import { useSessionUser } from '@/data/users'
+import { htmlToText } from '@/utils'
 
 interface Props {
   doctype: string
@@ -402,7 +403,13 @@ const editorObject = computed<Editor | null>(() => {
 
 const minimizedLabel = computed(() => {
   if (newCommentType.value === 'Poll') return newPoll.value.title || 'Poll in progress'
-  return commentEmpty.value ? 'Add a comment' : 'Comment in progress'
+  return draftContentPreview.value || 'Add a comment'
+})
+
+const draftContentPreview = computed(() => {
+  return htmlToText(draftData.value.content ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
 })
 
 const composerEditorMaxHeightStyle = computed(() => `${composerEditorMaxHeight.value}px`)
