@@ -250,6 +250,12 @@ const routes: RouteRecordRaw[] = [
       beforeEnter: ensureConfigureAccess,
     },
     {
+      path: '/configure/:communityId/members',
+      name: 'CommunityMembers',
+      component: () => import('@/pages/Configure/Configure.vue'),
+      beforeEnter: ensureConfigureAccess,
+    },
+    {
       name: 'Space',
       path: '/community/:communityId/space/:spaceId',
       component: () => import('@/pages/Space.vue'),

@@ -6,7 +6,7 @@
       :alt="community.title"
       class="size-full object-cover"
     />
-    <span v-else class="text-xs-medium uppercase text-ink-gray-9">
+    <span v-else class="text-2xs-medium uppercase text-ink-gray-5">
       {{ communityInitials }}
     </span>
   </span>

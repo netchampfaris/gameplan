@@ -133,6 +133,7 @@ function isMoreRoute() {
     'Drafts',
     'Spaces',
     'CommunitySpaces',
+    'CommunityMembers',
   ].includes(name)
 }
 

@@ -6,10 +6,10 @@
     @success="saveImage"
   >
     <template #default="{ file, progress, error, uploading, openFileSelector }">
-      <div class="relative size-7">
+      <div class="relative size-6">
         <button
           type="button"
-          class="group/image relative flex size-7 items-center justify-center overflow-hidden rounded-[7px] bg-surface-gray-1 outline-none transition-[border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100"
+          class="group/image relative flex size-6 items-center justify-center overflow- rounded-[5px] bg-surface-gray-1 outline-none transition-[border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100"
           :class="getButtonBorderClass(file)"
           :aria-label="`Upload image for ${community.title}`"
           :aria-busy="uploading || saving"
@@ -18,12 +18,12 @@
         >
           <CommunityImage :community="previewCommunity(file)" class="size-full" />
           <span
-            class="absolute inset-0 rounded-[6px] bg-surface-base opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:opacity-100 group-focus/image:opacity-100"
+            class="absolute rounded-[5px] size-6 border bg-surface-base opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:opacity-100 group-focus/image:opacity-100"
             :class="{ 'opacity-100': uploading || saving }"
           >
             <span
-              class="absolute inset-1 grid place-items-center rounded-full text-ink-gray-7 opacity-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:scale-100 group-hover/image:opacity-100 group-focus/image:scale-100 group-focus/image:opacity-100"
-              :class="uploading || saving ? 'scale-100 opacity-100' : 'scale-90'"
+              class="absolute inset-0 grid place-items-center rounded-[5px] text-ink-gray-7 opacity-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:scale-100 group-hover/image:opacity-100 group-focus/image:scale-100 group-focus/image:opacity-100"
+              :class="uploading || saving ? 'scale-100 opacity-100' : 'scale-100'"
             >
               <span v-if="uploading" class="text-xs-medium">{{ progress }}%</span>
               <span v-else-if="saving" class="lucide-loader-circle size-3.5 animate-spin" />

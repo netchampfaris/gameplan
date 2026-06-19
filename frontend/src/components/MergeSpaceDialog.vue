@@ -55,7 +55,7 @@ const selectedSpace = ref(null)
 const show = defineModel<boolean>()
 
 const groupedSpaceOptions = useGroupedSpaceOptions({
-  filterFn: (s) => s.name.toString() !== props.spaceId.toString(),
+  filterFn: (s) => s.name.toString() !== props.spaceId.toString() && s.team === space.value?.team,
 })
 
 function submit() {
