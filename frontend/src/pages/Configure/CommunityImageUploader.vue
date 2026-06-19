@@ -9,21 +9,26 @@
       <div class="relative size-7">
         <button
           type="button"
-          class="group/image relative flex size-7 items-center justify-center rounded-[7px] bg-surface-gray-1 outline-none transition disabled:cursor-not-allowed"
+          class="group/image relative flex size-7 items-center justify-center overflow-hidden rounded-[7px] bg-surface-gray-1 outline-none transition-[border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100"
           :class="getButtonBorderClass(file)"
           :aria-label="`Upload image for ${community.title}`"
           :aria-busy="uploading || saving"
           :disabled="uploading || saving"
           @click="openFileSelector"
         >
-          <CommunityImage :community="previewCommunity(file)" class="size-7" />
+          <CommunityImage :community="previewCommunity(file)" class="size-full" />
           <span
-            class="absolute inset-0 flex items-center justify-center rounded-[7px] bg-surface-gray-10/60 text-ink-base opacity-0 transition-opacity group-hover/image:opacity-100 group-focus/image:opacity-100"
+            class="absolute inset-0 rounded-[7px] bg-surface-gray-10/20 opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:opacity-100 group-focus/image:opacity-100"
             :class="{ 'opacity-100': uploading || saving }"
           >
-            <span v-if="uploading" class="text-xs-medium">{{ progress }}%</span>
-            <span v-else-if="saving" class="lucide-loader-circle size-3.5 animate-spin" />
-            <span v-else class="lucide-image-up size-3.5" />
+            <span
+              class="absolute inset-1 grid place-items-center rounded-full bg-surface-base text-ink-gray-7 opacity-0 shadow-sm transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:scale-100 group-hover/image:opacity-100 group-focus/image:scale-100 group-focus/image:opacity-100"
+              :class="uploading || saving ? 'scale-100 opacity-100' : 'scale-90'"
+            >
+              <span v-if="uploading" class="text-xs-medium">{{ progress }}%</span>
+              <span v-else-if="saving" class="lucide-loader-circle size-3.5 animate-spin" />
+              <span v-else class="lucide-image-up size-3.5" />
+            </span>
           </span>
         </button>
         <ErrorMessage
