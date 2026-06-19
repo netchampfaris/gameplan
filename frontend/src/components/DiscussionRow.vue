@@ -119,9 +119,7 @@
       </div>
       <!-- Separator -->
       <div class="pl-1" v-if="index < total - 1">
-        <div
-          class="ml-16 mr-3 h-px border-t border-outline-elevation-2 transition-opacity group-hover:opacity-0"
-        />
+        <div class="ml-16 mr-3 h-px border-t transition-opacity group-hover:opacity-0" />
       </div>
     </a>
   </RouterLink>
