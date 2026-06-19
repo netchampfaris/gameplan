@@ -2,7 +2,7 @@
   <div class="relative flex h-full flex-col" v-if="users.isFinished">
     <div class="h-full flex-1 standalone:border-t">
       <div class="flex h-full">
-        <AppRail />
+        <AppRail :show-border="onCommunityRoute" :show-community-active-state="onCommunityRoute" />
         <AppSidebar v-if="onCommunityRoute" />
         <div class="flex min-w-0 flex-1 py-1 pr-1">
           <div class="flex min-w-0 flex-1 overflow-hidden rounded-lg bg-surface-base shadow-sm">

@@ -4,12 +4,37 @@
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
-from gameplan.gameplan.doctype.gp_discussion.api import clause_discussions_commented_by_user
+from gameplan.gameplan.doctype.gp_discussion.api import (
+	clause_discussions_commented_by_user,
+	get_discussions,
+)
 from gameplan.gameplan.doctype.gp_discussion.gp_discussion import has_permission
-from gameplan.tests.utils import create_guest, create_member, create_project, create_team, grant_guest_access
+from gameplan.tests.utils import (
+	create_discussion,
+	create_guest,
+	create_member,
+	create_project,
+	create_team,
+	grant_guest_access,
+)
 
 
 class TestGPDiscussion(FrappeTestCase):
+	def test_get_discussions_excludes_archived_spaces(self):
+		team = create_team("Archived Discussion Filter Team")
+		active_project = create_project("Active Discussion Filter Space", team.name)
+		archived_project = create_project("Archived Discussion Filter Space", team.name)
+		active_discussion = create_discussion("Visible discussion", active_project.name)
+		archived_discussion = create_discussion("Hidden discussion", archived_project.name)
+
+		archived_project.archive()
+
+		discussions = get_discussions(filters={"team": team.name}, limit=50)
+		discussion_names = [discussion.name for discussion in discussions]
+
+		self.assertIn(active_discussion.name, discussion_names)
+		self.assertNotIn(archived_discussion.name, discussion_names)
+
 	def test_clause_discussions_commented_by_user_with_no_comments(self):
 		"""Test that clause_discussions_commented_by_user handles users with no comments gracefully"""
 		# Create a test user who has no comments

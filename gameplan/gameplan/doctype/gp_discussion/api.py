@@ -43,6 +43,7 @@ def get_discussions(filters=None, order_by=None, start=None, limit=None):
 		)
 		.left_join(Project)
 		.on(Discussion.project == Project.name)
+		.where(Project.archived_at.isnull())
 		.where((Project.is_private == 0) | ((Project.is_private == 1) & ExistsCriterion(member_exists)))
 		.limit(limit + 1)
 		.offset(start or 0)

@@ -1,6 +1,7 @@
 <template>
   <div
-    class="flex h-full w-[50px] border-r shrink-0 flex-col items-center bg-surface-sidebar px-[11px] pb-3 pt-2.5"
+    class="flex h-full w-[50px] shrink-0 flex-col items-center bg-surface-sidebar px-[11px] pb-3 pt-2.5"
+    :class="showBorder ? 'border-r' : ''"
   >
     <TooltipProvider>
       <div class="flex shrink-0 items-center justify-center mb-3">
@@ -23,27 +24,20 @@
           <TooltipTrigger as-child>
             <button
               type="button"
-              class="relative flex h-7 w-full items-center justify-center text-base"
+              class="relative flex h-7 w-full items-center justify-center text-base rounded-[7px]"
               :aria-label="community.title"
+              :class="isActiveCommunity(community.name) ? 'bg-surface-gray-4' : 'bg-surface-gray-3'"
               @click="goToCommunity(community)"
             >
               <span
-                v-if="community.name === communityState.id"
+                v-if="isActiveCommunity(community.name)"
                 class="absolute -left-[11px] top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-surface-gray-8"
               />
-              <span
-                class="flex size-7 items-center justify-center overflow-hidden rounded-[7px] transition"
-                :class="communityIconClass(community.name)"
-              >
-                <img
-                  v-if="community.image"
-                  :src="community.image"
-                  :alt="community.title"
-                  class="size-full object-cover"
-                />
-                <span v-else-if="community.icon" class="leading-none">{{ community.icon }}</span>
-                <span v-else class="text-xs font-medium uppercase">{{ community.title?.[0] }}</span>
-              </span>
+              <CommunityImage
+                :community="community"
+                class="size-7 transition"
+                :class="!isActiveCommunity(community.name) ? 'grayscale opacity-30' : ''"
+              />
             </button>
           </TooltipTrigger>
           <TooltipBubble side="right">
@@ -130,6 +124,7 @@ import { communityState } from '@/data/communityState'
 import { activeCommunities } from '@/data/communities'
 import type { Community } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
+import CommunityImage from './CommunityImage.vue'
 import CommunitySwitcherCombobox from './CommunitySwitcherCombobox.vue'
 import GameplanLogo from './GameplanLogo.vue'
 import RailIcon from './AppRail/RailIcon.vue'
@@ -147,6 +142,11 @@ const route = useRoute()
 const router = useRouter()
 const sessionUser = useSessionUser()
 
+const props = defineProps<{
+  showBorder: boolean
+  showCommunityActiveState: boolean
+}>()
+
 const communitySlotCount = 5
 
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
@@ -161,11 +161,6 @@ const homeRoute = computed<RouteLocationRaw>(() => {
   }
   return { name: 'Home' }
 })
-
-function communityIconClass(communityId: string): string {
-  if (communityId === communityState.id) return ''
-  return 'grayscale opacity-50'
-}
 
 const primaryShortcuts = computed<RailItem[]>(() => [
   {
@@ -243,6 +238,10 @@ function goTo(item: RailItem) {
 function goToCommunity(community: Community) {
   communityState.change(community.name)
   router.push({ name: 'Discussions', params: { communityId: community.name } })
+}
+
+function isActiveCommunity(communityName: string) {
+  return props.showCommunityActiveState && communityName === communityState.id
 }
 
 function goHome() {

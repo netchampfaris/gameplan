@@ -87,9 +87,9 @@
                 v-if="spacesList.length === 0"
                 class="mt-1 px-2 text-xs leading-relaxed text-ink-gray-5"
               >
-                No spaces in this community yet.
+                {{ emptySpacesMessage }}
                 <Button
-                  v-if="isAdmin"
+                  v-if="isAdmin && archivedSpacesList.length === 0"
                   size="sm"
                   icon-left="lucide-plus"
                   class="mt-2"
@@ -138,6 +138,14 @@ const sessionUser = useSessionUser()
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 
 const spacesList = computed(() => communitySpaces.list)
+const archivedSpacesList = computed(() => communitySpaces.archived)
+const emptySpacesMessage = computed(() => {
+  if (archivedSpacesList.value.length > 0) {
+    return 'All spaces in this community are archived.'
+  }
+
+  return 'No spaces in this community yet.'
+})
 
 const feedType = computed(() => {
   if (route.name !== 'DiscussionsTab') return null

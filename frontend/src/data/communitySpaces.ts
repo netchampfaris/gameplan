@@ -12,6 +12,16 @@ const communitySpaceList = computed(() => {
   })
 })
 
+const archivedCommunitySpaceList = computed(() => {
+  if (!communityState.id) {
+    return []
+  }
+
+  return (spaces.data || []).filter((space) => {
+    return space.archived_at && space.team === communityState.id
+  })
+})
+
 const joinedCommunitySpaceList = computed(() => {
   return communitySpaceList.value.filter((space) => joinedSpaces.data?.includes(space.name))
 })
@@ -26,6 +36,7 @@ const communitySpaceOptions = computed(() => {
 
 export const communitySpaces = reactive({
   list: communitySpaceList,
+  archived: archivedCommunitySpaceList,
   joined: joinedCommunitySpaceList,
   options: communitySpaceOptions,
 })

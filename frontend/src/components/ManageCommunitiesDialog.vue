@@ -7,27 +7,12 @@
 
       <div class="space-y-0.5">
         <div
-          v-for="community in availableCommunities"
+          v-for="community in manageableCommunities"
           :key="community.name"
           class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition hover:bg-surface-gray-1"
           @click="toggleCommunity(community.name)"
         >
-          <span
-            class="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-surface-gray-1"
-          >
-            <img
-              v-if="community.image"
-              :src="community.image"
-              :alt="community.title"
-              class="size-full object-cover"
-            />
-            <span v-else-if="community.icon" class="text-base leading-none">{{
-              community.icon
-            }}</span>
-            <span v-else class="text-xs font-medium uppercase text-ink-gray-7">
-              {{ community.title?.[0] }}
-            </span>
-          </span>
+          <CommunityImage :community="community" class="size-7 shrink-0 bg-surface-gray-1" />
           <span class="min-w-0 flex-1">
             <span class="flex items-center gap-1.5 text-base text-ink-gray-8">
               <span class="truncate">{{ community.title }}</span>
@@ -48,7 +33,7 @@
         </div>
 
         <div
-          v-if="availableCommunities.length === 0"
+          v-if="manageableCommunities.length === 0"
           class="px-3 py-6 text-center text-p-sm text-ink-gray-5"
         >
           No communities found
@@ -79,6 +64,7 @@ import { Button, Dialog, Switch, toast, useCall } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { activeCommunities, availableCommunities, communities } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
+import CommunityImage from './CommunityImage.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -95,6 +81,10 @@ const selectedCommunityNames = ref<string[]>([])
 const show = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value),
+})
+
+const manageableCommunities = computed(() => {
+  return availableCommunities.value.filter((community) => !community.archived_at)
 })
 
 const updateJoinedTeams = useCall<string[], { teams: string[] }>({
