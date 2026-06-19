@@ -14,11 +14,38 @@
         v-model="selectedCommunityId"
         :options="communityOptions"
         placeholder="Select community"
-        class="w-full lg:max-w-sm"
+        trigger="button"
+        variant="outline"
+        size="lg"
+        align="start"
+        class="w-full lg:max-w-xl"
         open-on-click
       >
         <template #item-prefix="{ item }">
           <CommunityImage :community="item" class="size-5 shrink-0 bg-surface-gray-1" />
+        </template>
+
+        <template #item-suffix="{ item }">
+          <span v-if="item.archived_at" class="text-sm text-ink-gray-5">Archived</span>
+          <span v-if="item.is_private" class="lucide-lock size-3.5 text-ink-gray-5" />
+        </template>
+
+        <template #suffix="{ open }">
+          <div
+            v-if="selectedCommunity"
+            class="hidden shrink-0 items-center gap-3 text-sm text-ink-gray-5 md:flex"
+          >
+            <span>{{ activeCount }} active</span>
+            <span>{{ archivedCount }} archived</span>
+            <span>{{ publicCount }} public</span>
+            <span>{{ privateCount }} private</span>
+          </div>
+          <span
+            :class="[
+              'lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
+              open && 'rotate-180',
+            ]"
+          />
         </template>
       </Combobox>
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -27,33 +54,11 @@
       </div>
     </div>
 
-    <div
-      v-if="selectedCommunity"
-      class="mt-3 flex flex-col gap-2 border-y border-outline-gray-1 py-2 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div class="flex min-w-0 items-center gap-2">
-        <div class="min-w-0 text-base-medium text-ink-gray-8">
-          {{ selectedCommunity.title }}
-        </div>
-        <Badge v-if="selectedCommunity.archived_at">Archived community</Badge>
-        <Badge v-if="selectedCommunity.is_private">
-          <template #prefix><span class="lucide-lock size-3" /></template>
-          Private
-        </Badge>
-      </div>
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-gray-5">
-        <span>{{ activeCount }} active</span>
-        <span>{{ archivedCount }} archived</span>
-        <span>{{ publicCount }} public</span>
-        <span>{{ privateCount }} private</span>
-      </div>
-    </div>
-
     <div v-if="!selectedCommunity" class="py-12 text-center text-base text-ink-gray-5">
       No communities available
     </div>
 
-    <div v-else-if="filteredSpaces.length" class="mt-2 divide-y divide-outline-gray-1 border-b">
+    <div v-else-if="filteredSpaces.length" class="mt-3 divide-y divide-outline-gray-1 border-b">
       <div
         class="hidden grid-cols-[2rem_minmax(8rem,1fr)_6.5rem_15rem_3rem] gap-2 px-3 py-2 text-sm text-ink-gray-5 md:grid"
       >
@@ -81,15 +86,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  Badge,
-  Breadcrumbs,
-  Button,
-  Combobox,
-  TabButtons,
-  type ComboboxOption,
-  useList,
-} from 'frappe-ui'
+import { Breadcrumbs, Button, Combobox, TabButtons, type ComboboxOption, useList } from 'frappe-ui'
 import CommunityImage from '@/components/CommunityImage.vue'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -122,12 +119,14 @@ const pages = useList<PageRecord>({
 
 const communityOptions = computed((): ComboboxOption[] => {
   return (communities.data || []).map((community) => ({
-    label: community.archived_at ? `${community.title} (archived)` : community.title,
+    label: community.title,
     value: community.name,
     name: community.name,
     title: community.title,
     icon: community.icon,
     image: community.image,
+    archived_at: community.archived_at,
+    is_private: community.is_private,
   }))
 })
 
