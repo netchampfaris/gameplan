@@ -34,15 +34,6 @@
         </template>
 
         <template #suffix="{ open }">
-          <div
-            v-if="selectedCommunity"
-            class="hidden shrink-0 items-center gap-3 text-sm text-ink-gray-5 md:flex"
-          >
-            <span>{{ activeCount }} active</span>
-            <span>{{ archivedCount }} archived</span>
-            <span>{{ publicCount }} public</span>
-            <span>{{ privateCount }} private</span>
-          </div>
           <span
             :class="[
               'lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
@@ -52,8 +43,20 @@
         </template>
       </Combobox>
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <TabButtons :options="statusButtons" v-model="statusFilter" />
-        <TabButtons :options="visibilityButtons" v-model="visibilityFilter" />
+        <TabButtons :options="statusButtons" v-model="statusFilter">
+          <template #suffix="{ button }">
+            <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
+              {{ getStatusCount(button.modelValue) }}
+            </span>
+          </template>
+        </TabButtons>
+        <TabButtons :options="visibilityButtons" v-model="visibilityFilter">
+          <template #suffix="{ button }">
+            <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
+              {{ getVisibilityCount(button.modelValue) }}
+            </span>
+          </template>
+        </TabButtons>
       </div>
     </div>
 
@@ -109,8 +112,15 @@ const statusFilter = ref<StatusFilter>('Active')
 const visibilityFilter = ref<VisibilityFilter>('All')
 const newSpaceDialog = ref(false)
 
-const statusButtons = [{ label: 'Active' }, { label: 'Archived' }]
-const visibilityButtons = [{ label: 'All' }, { label: 'Public' }, { label: 'Private' }]
+const statusButtons = [
+  { label: 'Active', value: 'Active' },
+  { label: 'Archived', value: 'Archived' },
+]
+const visibilityButtons = [
+  { label: 'All', value: 'All' },
+  { label: 'Public', value: 'Public' },
+  { label: 'Private', value: 'Private' },
+]
 const pages = useList<PageRecord>({
   doctype: 'GP Page',
   fields: ['project'],
@@ -218,6 +228,16 @@ function matchesVisibilityFilter(space: Space) {
 
 function getPagesCount(spaceId: string) {
   return pagesCountBySpace.value[spaceId] || 0
+}
+
+function getStatusCount(value: unknown) {
+  return value === 'Archived' ? archivedCount.value : activeCount.value
+}
+
+function getVisibilityCount(value: unknown) {
+  if (value === 'Public') return publicCount.value
+  if (value === 'Private') return privateCount.value
+  return communitySpaces.value.length
 }
 
 function getInitialCommunityId() {
