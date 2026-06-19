@@ -1,32 +1,45 @@
 <template>
   <div :class="rowClass">
-    <Button
-      variant="ghost"
-      class="!size-8 shrink-0"
-      tooltip="Edit icon"
-      :disabled="!canEditSpace"
-      @click="emit('edit', space.name)"
-    >
-      <template #icon>
-        <SpaceIcon :icon="space.icon" class="size-4.5 text-ink-gray-6" />
+    <IconPicker :modelValue="space.icon || ''" @update:modelValue="updateIcon">
+      <template #default="{ togglePopover }">
+        <Button
+          variant="ghost"
+          class="!size-8 shrink-0"
+          tooltip="Edit icon"
+          :disabled="!canEditSpace"
+          @click="togglePopover()"
+        >
+          <template #icon>
+            <SpaceIcon :icon="space.icon" class="size-4.5 text-ink-gray-6" />
+          </template>
+        </Button>
       </template>
-    </Button>
+    </IconPicker>
 
     <div class="min-w-0">
       <div class="flex min-w-0 items-center gap-1.5">
-        <div class="truncate text-base-medium text-ink-gray-8">
-          {{ space.title }}
-        </div>
+        <TextInput
+          v-model="title"
+          variant="ghost"
+          class="-ms-2 min-w-0 flex-1 text-base-medium text-ink-gray-8"
+          :disabled="!canEditSpace"
+          @blur="saveTitle"
+          @keydown.enter.prevent="saveTitle"
+        />
         <span v-if="space.is_private" class="lucide-lock size-3.5 shrink-0 text-ink-gray-5" />
         <Badge v-if="space.archived_at" class="shrink-0">Archived</Badge>
       </div>
       <div class="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-ink-gray-5 md:hidden">
-        <span>{{ visibilityLabel }}</span>
+        <span class="inline-flex items-center gap-1">
+          <span :class="[visibilityIcon, 'size-3.5']" />
+          {{ visibilityLabel }}
+        </span>
         <span>{{ contentLabel }}</span>
       </div>
     </div>
 
-    <div class="hidden text-sm text-ink-gray-6 md:block">
+    <div class="hidden items-center gap-1 text-sm text-ink-gray-6 md:flex">
+      <span :class="[visibilityIcon, 'size-3.5']" />
       {{ visibilityLabel }}
     </div>
     <div class="hidden truncate text-sm text-ink-gray-5 md:block">
@@ -34,13 +47,6 @@
     </div>
 
     <div class="flex items-center justify-end gap-1">
-      <Button
-        variant="ghost"
-        icon="lucide-edit-2"
-        tooltip="Edit title"
-        :disabled="!canEditSpace"
-        @click="emit('edit', space.name)"
-      />
       <Button
         v-if="space.archived_at"
         variant="ghost"
@@ -55,30 +61,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Badge, Button } from 'frappe-ui'
+import { computed, ref, watch } from 'vue'
+import { Badge, Button, TextInput, useDoctype } from 'frappe-ui'
+import IconPicker from '@/components/IconPicker.vue'
 import SpaceIcon from '@/components/SpaceIcon.vue'
 import SpaceOptions from '@/components/SpaceOptions.vue'
 import { isDocMethodLoading, spaces, type Space, unarchiveSpace } from '@/data/spaces'
 import { readOnlyMode } from '@/data/readOnlyMode'
+import type { GPProject } from '@/types/doctypes'
 
 const props = defineProps<{
   space: Space
   pagesCount: number
 }>()
 
-const emit = defineEmits<{
-  edit: [spaceId: string]
-}>()
-
 const rowClass = [
-  'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2.5',
+  'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2',
   'transition-colors hover:bg-surface-gray-1',
   'md:grid-cols-[2rem_minmax(0,1fr)_7rem_8rem_8rem]',
 ]
 
+const project = useDoctype<GPProject>('GP Project')
+const title = ref(props.space.title)
+const savingTitle = ref(false)
 const canEditSpace = computed(() => !readOnlyMode && !props.space.archived_at)
 const visibilityLabel = computed(() => (props.space.is_private ? 'Private' : 'Public'))
+const visibilityIcon = computed(() => (props.space.is_private ? 'lucide-lock' : 'lucide-globe-2'))
 const contentLabel = computed(() => {
   const discussions = props.space.discussions_count ?? 0
   const pages = props.pagesCount
@@ -88,6 +96,41 @@ const contentLabel = computed(() => {
     'task',
   )}`
 })
+
+watch(
+  () => props.space.title,
+  (value) => {
+    title.value = value
+  },
+)
+
+async function updateIcon(icon: string) {
+  if (!canEditSpace.value || icon === props.space.icon) return
+  await project.setValue.submit({
+    name: props.space.name,
+    icon,
+  })
+  await spaces.reload()
+}
+
+async function saveTitle() {
+  const nextTitle = title.value.trim()
+  if (savingTitle.value || !canEditSpace.value || !nextTitle || nextTitle === props.space.title) {
+    title.value = props.space.title
+    return
+  }
+
+  savingTitle.value = true
+  try {
+    await project.setValue.submit({
+      name: props.space.name,
+      title: nextTitle,
+    })
+    await spaces.reload()
+  } finally {
+    savingTitle.value = false
+  }
+}
 
 async function restoreSpace() {
   await unarchiveSpace(props.space)

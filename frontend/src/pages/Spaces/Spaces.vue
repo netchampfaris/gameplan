@@ -7,35 +7,20 @@
   </PageHeader>
 
   <NewSpaceDialog v-model="newSpaceDialog" :lockedCommunityId="selectedCommunityId || ''" />
-  <EditSpaceDialog v-model="editSpaceDialog" :spaceId="spaceIdBeingEdited || ''" />
 
-  <div class="body-container pb-16 pt-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div class="min-w-0">
-        <h1 class="text-3xl-semibold text-ink-gray-8">Community Spaces</h1>
-        <p class="mt-1 text-base text-ink-gray-5">Manage spaces for one community at a time.</p>
-      </div>
+  <div class="body-container pb-16 pt-4">
+    <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
       <Combobox
         v-model="selectedCommunityId"
         :options="communityOptions"
         placeholder="Select community"
-        class="w-full sm:w-80"
-        open-on-click
-      />
-    </div>
-
-    <div class="mt-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-      <TextInput
-        ref="searchInputRef"
-        v-model="query"
-        :debounce="150"
-        :placeholder="$platform == 'mac' ? 'Search spaces (⌘+F)' : 'Search spaces (Ctrl+F)'"
         class="w-full lg:max-w-sm"
+        open-on-click
       >
-        <template #prefix>
-          <span class="lucide-search size-4 text-ink-gray-5" />
+        <template #item-prefix="{ item }">
+          <CommunityImage :community="item" class="size-5 shrink-0 bg-surface-gray-1" />
         </template>
-      </TextInput>
+      </Combobox>
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <TabButtons :options="statusButtons" v-model="statusFilter" />
         <TabButtons :options="visibilityButtons" v-model="visibilityFilter" />
@@ -44,7 +29,7 @@
 
     <div
       v-if="selectedCommunity"
-      class="mt-5 flex flex-col gap-3 border-y border-outline-gray-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+      class="mt-3 flex flex-col gap-2 border-y border-outline-gray-1 py-2 sm:flex-row sm:items-center sm:justify-between"
     >
       <div class="flex min-w-0 items-center gap-2">
         <div class="min-w-0 text-base-medium text-ink-gray-8">
@@ -68,7 +53,7 @@
       No communities available
     </div>
 
-    <div v-else-if="filteredSpaces.length" class="mt-3 divide-y divide-outline-gray-1 border-b">
+    <div v-else-if="filteredSpaces.length" class="mt-2 divide-y divide-outline-gray-1 border-b">
       <div
         class="hidden grid-cols-[2rem_minmax(0,1fr)_7rem_8rem_8rem] gap-3 px-3 py-2 text-sm text-ink-gray-5 md:grid"
       >
@@ -83,21 +68,18 @@
         :key="space.name"
         :space="space"
         :pages-count="getPagesCount(space.name)"
-        @edit="openEditSpaceDialog"
       />
     </div>
 
     <div v-else class="py-12 text-center">
       <div class="text-base text-ink-gray-6">No spaces match these filters</div>
-      <div class="mt-1 text-sm text-ink-gray-5">
-        Try a different status, visibility, or search term.
-      </div>
+      <div class="mt-1 text-sm text-ink-gray-5">Try a different status or visibility.</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   Badge,
@@ -105,12 +87,11 @@ import {
   Button,
   Combobox,
   TabButtons,
-  TextInput,
   type ComboboxOption,
   useList,
 } from 'frappe-ui'
+import CommunityImage from '@/components/CommunityImage.vue'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
-import EditSpaceDialog from '@/components/EditSpaceDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { communities } from '@/data/communities'
 import { communityState } from '@/data/communityState'
@@ -125,13 +106,9 @@ type PageRecord = Pick<GPPage, 'project'>
 const route = useRoute()
 const router = useRouter()
 const selectedCommunityId = ref<string | null>(null)
-const query = ref('')
 const statusFilter = ref<StatusFilter>('Active')
 const visibilityFilter = ref<VisibilityFilter>('All')
 const newSpaceDialog = ref(false)
-const editSpaceDialog = ref(false)
-const spaceIdBeingEdited = ref<string | null>(null)
-const searchInputRef = useTemplateRef<InstanceType<typeof TextInput>>('searchInputRef')
 
 const statusButtons = [{ label: 'Active' }, { label: 'Archived' }]
 const visibilityButtons = [{ label: 'All' }, { label: 'Public' }, { label: 'Private' }]
@@ -147,6 +124,10 @@ const communityOptions = computed((): ComboboxOption[] => {
   return (communities.data || []).map((community) => ({
     label: community.archived_at ? `${community.title} (archived)` : community.title,
     value: community.name,
+    name: community.name,
+    title: community.title,
+    icon: community.icon,
+    image: community.image,
   }))
 })
 
@@ -160,13 +141,8 @@ const communitySpaces = computed(() => {
 })
 
 const filteredSpaces = computed(() => {
-  const searchText = query.value.trim().toLowerCase()
   return communitySpaces.value.filter((space) => {
-    return (
-      matchesStatusFilter(space) &&
-      matchesVisibilityFilter(space) &&
-      (!searchText || space.title.toLowerCase().includes(searchText))
-    )
+    return matchesStatusFilter(space) && matchesVisibilityFilter(space)
   })
 })
 
@@ -264,28 +240,4 @@ function openNewSpaceDialog() {
   if (!canCreateSpace.value) return
   newSpaceDialog.value = true
 }
-
-function openEditSpaceDialog(spaceId: string) {
-  spaceIdBeingEdited.value = spaceId
-  editSpaceDialog.value = true
-}
-
-function handleKeyDown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-    const inputEl = searchInputRef.value?.el
-    if (inputEl && document.activeElement !== inputEl) {
-      e.preventDefault()
-      inputEl.focus()
-    }
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown)
-  nextTick(() => searchInputRef.value?.el?.focus())
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown)
-})
 </script>
