@@ -27,6 +27,7 @@ const props = withDefaults(
     autofocus?: boolean
     editorClass?: unknown
     maxHeight?: string
+    minHeight?: string
     fixedMenu?: MenuItem[] | false
     fixedMenuPosition?: 'top' | 'bottom'
     bubbleMenu?: MenuItem[] | false
@@ -57,11 +58,12 @@ const canScrollDown = ref(false)
 
 const scrollStyle = computed<CSSProperties>(() => ({
   maxHeight: props.maxHeight,
+  minHeight: props.minHeight,
   overflowY: props.maxHeight ? 'auto' : undefined,
 }))
 
 watch(
-  () => [props.content, props.maxHeight],
+  () => [props.content, props.maxHeight, props.minHeight],
   () => nextTick(updateScrollFades),
   { immediate: true },
 )

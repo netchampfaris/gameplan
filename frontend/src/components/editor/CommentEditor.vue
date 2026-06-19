@@ -20,6 +20,7 @@ const props = withDefaults(
     submitButtonProps?: Record<string, any>
     discardButtonProps?: Record<string, any>
     maxHeight?: string
+    minHeight?: string
     toolbarExpanded?: boolean
     // 'comment:<id>' — enables "quoted by" badges + Reply-to-quote on this comment
     // when it's rendered inside a discussion
@@ -59,6 +60,7 @@ defineExpose({ editor })
     :editable="editable"
     :editor-class="['prose-v3 max-w-none relative', editable && 'min-h-[4rem]']"
     :max-height="editable ? maxHeight : undefined"
+    :min-height="editable ? minHeight : undefined"
     @change="editable ? emit('change', $event) : null"
   >
     <template v-if="!editable && quoteSourceId" #top="{ editor: e }">
