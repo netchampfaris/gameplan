@@ -101,7 +101,7 @@
           </button>
           <div
             v-else
-            class="group/comment-composer relative w-full rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3 sm:p-4"
+            class="group/comment-composer relative -mx-3 rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3"
             @keydown.ctrl.enter.capture.stop="submitComment"
             @keydown.meta.enter.capture.stop="submitComment"
           >
