@@ -94,11 +94,11 @@
                   <Dropdown :options="spaceOptions(space)" align="start" side="right">
                     <template #default="{ open }">
                       <Button
-                        variant="ghost"
+                        :variant="open ? 'subtle' : 'ghost'"
                         size="xs"
                         icon="lucide-more-horizontal text-ink-gray-5"
                         :label="`${space.title} options`"
-                        class="absolute right-0 opacity-0 group-hover/space:opacity-100 group-focus-within/space:opacity-100"
+                        class="absolute right-0 opacity-0 group-hover/space:opacity-100 group-focus-within/space:opacity-100 -mr-0.5"
                         :class="open ? 'opacity-100' : ''"
                       />
                     </template>
