@@ -19,13 +19,14 @@ const props = withDefaults(
     editable?: boolean
     submitButtonProps?: Record<string, any>
     discardButtonProps?: Record<string, any>
+    maxHeight?: string
     // 'comment:<id>' — enables "quoted by" badges + Reply-to-quote on this comment
     // when it's rendered inside a discussion
     quoteSourceId?: string
     // comment owner — stamped on quotes created from this comment's selection
     author?: string
   }>(),
-  { value: '', placeholder: null, editable: true },
+  { value: '', placeholder: null, editable: true, maxHeight: '50vh' },
 )
 
 const emit = defineEmits<{ change: [value: string] }>()
@@ -50,7 +51,7 @@ defineExpose({ editor })
     :placeholder="placeholder ?? undefined"
     :editable="editable"
     :editor-class="['prose-v3 max-w-none relative', editable && 'min-h-[4rem]']"
-    :max-height="editable ? '50vh' : undefined"
+    :max-height="editable ? maxHeight : undefined"
     @change="editable ? emit('change', $event) : null"
   >
     <template v-if="!editable && quoteSourceId" #top="{ editor: e }">

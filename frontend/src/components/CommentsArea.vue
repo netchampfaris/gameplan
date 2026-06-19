@@ -65,48 +65,67 @@
       </template>
     </div>
 
-    <!-- Comment Box -->
     <div
       v-if="!readOnlyMode && !disableNewComment && !hideNewComment"
-      class="fixed z-[2] left-0 right-0 mt-2 w-full print:hidden"
+      class="pointer-events-none fixed left-0 right-0 z-[2] mt-2 w-full print:hidden"
       :class="[
-        isNewCommentOpen
+        showCommentBox && !composerMinimized
           ? 'bottom-0'
           : 'bottom-12 sm:bottom-0 standalone:bottom-16 standalone:sm:bottom-0',
       ]"
       ref="addComment"
     >
-      <div class="sm:ml-60">
-        <div class="discussion-container border-t sm:border-t-0 bg-surface-base sm:py-3">
-          <div v-show="!showCommentBox" class="py-3 sm:py-0">
+      <div class="pointer-events-auto sm:ml-60">
+        <div class="discussion-container bg-surface-base px-2 py-2 sm:bg-transparent sm:py-3">
+          <div v-if="!showCommentBox">
             <button
-              class="flex w-full items-center rounded-lg bg-surface-gray-2 px-2 py-2 text-left text-base text-ink-gray-5 hover:bg-surface-gray-3"
-              @click="showCommentBox = true"
+              type="button"
+              class="flex w-full items-center rounded-lg border bg-surface-base px-2 py-2 text-left text-base text-ink-gray-5 shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
+              @click="openCommentBox"
             >
               <UserAvatar class="mr-3" :user="$user().name" size="sm" />
               Add a comment
             </button>
           </div>
+          <button
+            v-else-if="composerMinimized"
+            type="button"
+            class="flex w-full items-center rounded-lg border bg-surface-base px-2 py-2 text-left shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
+            @click="restoreComposer"
+          >
+            <UserAvatar class="mr-3" :user="$user().name" size="sm" />
+            <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
+              {{ minimizedLabel }}
+            </span>
+            <span class="lucide-chevron-up ml-2 size-4 shrink-0 text-ink-gray-5" />
+          </button>
           <div
-            v-show="showCommentBox"
-            class="w-full sm:rounded-lg sm:border bg-surface-base py-3 sm:p-4 focus-within:border-outline-gray-3"
+            v-else
+            class="w-full rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3 sm:p-4"
             @keydown.ctrl.enter.capture.stop="submitComment"
             @keydown.meta.enter.capture.stop="submitComment"
           >
-            <div class="mb-4 flex items-center">
+            <div class="mb-3 flex items-center gap-2">
               <UserAvatar :user="$user().name" size="md" />
-              <span class="ml-2 text-base-medium text-ink-gray-8">
+              <span class="min-w-0 flex-1 truncate text-base-medium text-ink-gray-8">
                 {{ $user().full_name }}
               </span>
               <TabButtons
-                class="ml-auto"
                 :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
                 v-model="newCommentType"
               />
+              <Tooltip text="Minimize">
+                <Button
+                  variant="ghost"
+                  icon="lucide-chevron-down"
+                  aria-label="Minimize comment box"
+                  @click="minimizeComposer"
+                />
+              </Tooltip>
             </div>
             <CommentEditor
               ref="newCommentEditor"
-              v-if="showCommentBox && newCommentType == 'Comment'"
+              v-if="newCommentType == 'Comment'"
               :key="commentEditorKey"
               :value="draftData.content"
               @change="onNewCommentChange"
@@ -120,6 +139,7 @@
                 onClick: discardComment,
               }"
               :editable="true"
+              max-height="38vh"
               placeholder="Add a comment..."
             />
             <PollEditor
@@ -153,8 +173,7 @@ import {
   useTemplateRef,
 } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useList } from 'frappe-ui'
-import { TabButtons, ErrorMessage } from 'frappe-ui'
+import { useList, TabButtons, ErrorMessage, Button, Tooltip } from 'frappe-ui'
 import CommentEditor from '@/components/editor/CommentEditor.vue'
 import Comment from './Comment.vue'
 import Activity from './Activity.vue'
@@ -170,6 +189,7 @@ import { tags } from '@/data/tags'
 import { isNewCommentOpen } from '@/data/newComment'
 import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import { useDraftSync } from '@/data/useDraftSync'
+import { useSessionUser } from '@/data/users'
 
 interface Props {
   doctype: string
@@ -183,11 +203,19 @@ interface Props {
 
 interface NewPoll {
   title: string
+  anonymous: boolean
   multiple_answers: boolean
   options: Array<{
     title: string
     idx: number
   }>
+}
+
+interface ComposerUiState {
+  open?: boolean
+  minimized?: boolean
+  type?: 'Comment' | 'Poll'
+  poll?: NewPoll
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -199,8 +227,11 @@ const props = withDefaults(defineProps<Props>(), {
 const router = useRouter()
 const route = useRoute()
 const socket = useSocket()
+const sessionUser = useSessionUser()
 
 const showCommentBox = ref(false)
+const composerMinimized = ref(false)
+const composerStateLoaded = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')
 
 // The new-comment composer is an auto-saved draft, keyed to this discussion so it
@@ -228,11 +259,16 @@ const newMessagesFrom = ref(props.newCommentsFrom)
 const highlightedItem = ref<{ doctype: string; name: string } | null>(null)
 const addCommentHeight = ref(0)
 const newCommentEditor = useTemplateRef('newCommentEditor')
-const addComment = ref(null)
+const addComment = useTemplateRef('addComment')
 let mutationObserver: MutationObserver | undefined
+let resizeObserver: ResizeObserver | undefined
 const commentEditorKey = ref(0)
 
 const richQuotes = useRichQuotes()
+
+const composerStorageKey = computed(() => {
+  return ['gameplan', 'comment-composer', sessionUser.name, props.doctype, props.name].join(':')
+})
 
 const comments = useList<GPComment>({
   doctype: 'GP Comment',
@@ -347,6 +383,11 @@ const editorObject = computed<Editor | null>(() => {
   return newCommentEditor.value?.editor || null
 })
 
+const minimizedLabel = computed(() => {
+  if (newCommentType.value === 'Poll') return newPoll.value.title || 'Poll in progress'
+  return commentEmpty.value ? 'Add a comment' : 'Comment in progress'
+})
+
 defineExpose({
   editorObject,
   openCommentBox,
@@ -357,7 +398,19 @@ defineExpose({
 
 function openCommentBox() {
   showCommentBox.value = true
+  composerMinimized.value = false
   newCommentType.value = 'Comment'
+}
+
+function minimizeComposer() {
+  composerMinimized.value = true
+}
+
+function restoreComposer() {
+  composerMinimized.value = false
+  nextTick(() => {
+    editorObject.value?.commands.focus()
+  })
 }
 
 function getCommentContentElement(id) {
@@ -382,6 +435,7 @@ function highlightComment(id: string) {
 
 function resetCommentState() {
   showCommentBox.value = false
+  composerMinimized.value = false
   commentEditorKey.value++
   newCommentType.value = 'Comment'
   newPoll.value = {
@@ -523,14 +577,39 @@ async function discardComment() {
 }
 
 watch(showCommentBox, (val) => {
-  isNewCommentOpen.value = val
-  if (val) {
+  updateGlobalCommentState()
+  if (val && !composerMinimized.value) {
     nextTick(() => {
       editorObject.value?.commands.focus()
       scrollToEnd()
     })
   }
 })
+
+watch(composerMinimized, (minimized) => {
+  updateGlobalCommentState()
+  if (!minimized && showCommentBox.value) {
+    nextTick(() => {
+      editorObject.value?.commands.focus()
+    })
+  }
+})
+
+watch(
+  [showCommentBox, composerMinimized, newCommentType, newPoll],
+  () => {
+    saveComposerState()
+  },
+  { deep: true },
+)
+
+watch(
+  composerStorageKey,
+  () => {
+    loadComposerState()
+  },
+  { immediate: true },
+)
 
 // Reopen the composer if a saved draft is restored for this discussion.
 watch(
@@ -558,7 +637,7 @@ onMounted(() => {
       activities.reload()
     }
   })
-  setupMutationObserver()
+  setupComposerMeasurement()
 })
 
 onUnmounted(() => {
@@ -566,17 +645,77 @@ onUnmounted(() => {
   richQuotes?.setCommentNavigator(null)
   socket.off('new_activity')
   mutationObserver?.disconnect()
+  resizeObserver?.disconnect()
   isNewCommentOpen.value = false
 })
 
-function setupMutationObserver() {
+function setupComposerMeasurement() {
   const $el = addComment.value
   if (!$el) return
 
-  const observer = new MutationObserver(() => {
-    addCommentHeight.value = $el.clientHeight
-  })
-  observer.observe($el, { childList: true, subtree: true })
-  mutationObserver = observer
+  updateComposerHeight()
+
+  mutationObserver = new MutationObserver(updateComposerHeight)
+  mutationObserver.observe($el, { childList: true, subtree: true })
+
+  resizeObserver = new ResizeObserver(updateComposerHeight)
+  resizeObserver.observe($el)
+}
+
+function updateComposerHeight() {
+  addCommentHeight.value = addComment.value?.clientHeight ?? 0
+}
+
+function updateGlobalCommentState() {
+  isNewCommentOpen.value = showCommentBox.value && !composerMinimized.value
+}
+
+function loadComposerState() {
+  composerStateLoaded.value = false
+  const state = readComposerState()
+  showCommentBox.value = Boolean(state.open)
+  composerMinimized.value = Boolean(state.minimized)
+  newCommentType.value = state.type ?? 'Comment'
+  newPoll.value = normalizePoll(state.poll)
+  composerStateLoaded.value = true
+  updateGlobalCommentState()
+}
+
+function saveComposerState() {
+  if (!composerStateLoaded.value) return
+  localStorage.setItem(
+    composerStorageKey.value,
+    JSON.stringify({
+      open: showCommentBox.value,
+      minimized: composerMinimized.value,
+      type: newCommentType.value,
+      poll: newPoll.value,
+    } satisfies ComposerUiState),
+  )
+}
+
+function readComposerState(): ComposerUiState {
+  try {
+    return JSON.parse(localStorage.getItem(composerStorageKey.value) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+function normalizePoll(poll?: ComposerUiState['poll']): NewPoll {
+  return {
+    title: poll?.title ?? '',
+    multiple_answers: Boolean(poll?.multiple_answers),
+    anonymous: Boolean(poll?.anonymous),
+    options: poll?.options?.length
+      ? poll.options.map((option, index) => ({
+          title: option.title ?? '',
+          idx: option.idx || index + 1,
+        }))
+      : [
+          { title: '', idx: 1 },
+          { title: '', idx: 2 },
+        ],
+  }
 }
 </script>
