@@ -5,7 +5,7 @@
       class="flex sm:hidden min-w-0 items-center gap-2 rounded-md text-left transition hover:opacity-80"
       @click="showCommunitySpacesSheet = true"
     >
-      <span class="text-xl">{{ communityState.doc.icon }}</span>
+      <CommunityImage :community="communityState.doc" class="size-7 shrink-0 bg-surface-gray-1" />
       <span class="ml-1 truncate text-xl-semibold text-ink-gray-9">{{
         communityState.doc.title
       }}</span>
@@ -51,6 +51,7 @@ import type { OrderBy } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import LastPostReminder from '@/components/LastPostReminder.vue'
+import CommunityImage from '@/components/CommunityImage.vue'
 import { communityState } from '@/data/communityState'
 import { showCommunitySpacesSheet } from '@/data/communitySpacesSheet'
 import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'

@@ -8,9 +8,7 @@
         class="flex items-center justify-between py-2"
       >
         <div class="flex items-center space-x-2">
-          <span class="flex-shrink-0">
-            <span class="h-6 w-6 rounded-full">{{ team.icon }}</span>
-          </span>
+          <CommunityImage :community="team" class="size-6 shrink-0 bg-surface-gray-1" />
           <span class="text-base-medium text-ink-gray-8">
             {{ team.title }}
           </span>
@@ -48,9 +46,11 @@
 </template>
 <script>
 import { communities } from '@/data/communities'
+import CommunityImage from '@/components/CommunityImage.vue'
 
 export default {
   name: 'ArchivedTeamsDialog',
+  components: { CommunityImage },
   props: ['modelValue'],
   emits: ['update:modelValue'],
   data() {

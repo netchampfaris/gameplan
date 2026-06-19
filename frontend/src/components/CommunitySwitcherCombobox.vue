@@ -10,28 +10,8 @@
       <slot :open="open" />
     </template>
 
-    <!-- Each row's leading slot: image if uploaded, else emoji icon, else first letter as a tile fallback. -->
     <template #item-prefix="{ item }">
-      <img
-        v-if="item.image"
-        :src="item.image"
-        :alt="item.label"
-        class="size-6 shrink-0 rounded-sm object-cover"
-      />
-      <span
-        v-else-if="item.icon"
-        class="inline-flex size-6 shrink-0 items-center justify-center text-base leading-none bg-surface-gray-1"
-        aria-hidden="true"
-      >
-        {{ item.icon }}
-      </span>
-      <span
-        v-else
-        class="inline-flex size-6 shrink-0 items-center justify-center rounded text-xs font-medium uppercase text-ink-gray-7 bg-surface-gray-1"
-        aria-hidden="true"
-      >
-        {{ item.label?.[0] }}
-      </span>
+      <CommunityImage :community="item" class="size-6 shrink-0 bg-surface-gray-1" />
     </template>
 
     <template #footer="{ setOpen }">
@@ -59,6 +39,7 @@ import { useRouter } from 'vue-router'
 import { Button, Combobox } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { activeCommunities } from '@/data/communities'
+import CommunityImage from './CommunityImage.vue'
 import ManageCommunitiesDialog from './ManageCommunitiesDialog.vue'
 
 const router = useRouter()
@@ -68,6 +49,8 @@ const communityOptions = computed(() => {
   return activeCommunities.value.map((community) => ({
     label: community.title,
     value: community.name,
+    name: community.name,
+    title: community.title,
     icon: community.icon,
     image: community.image,
   }))
