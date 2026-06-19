@@ -97,7 +97,7 @@
             <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
               {{ minimizedLabel }}
             </span>
-            <span class="lucide-chevron-up ml-2 size-4 shrink-0 text-ink-gray-5" />
+            <span class="lucide-maximize-2 ml-2 size-4 shrink-0 text-ink-gray-5" />
           </button>
           <div
             v-else
@@ -117,7 +117,7 @@
               <Tooltip text="Minimize">
                 <Button
                   variant="ghost"
-                  icon="lucide-chevron-down"
+                  icon="lucide-minus"
                   aria-label="Minimize comment box"
                   @click="minimizeComposer"
                 />
@@ -139,7 +139,8 @@
                 onClick: discardComment,
               }"
               :editable="true"
-              max-height="38vh"
+              max-height="min(58vh, 560px)"
+              v-model:toolbar-expanded="composerToolbarExpanded"
               placeholder="Add a comment..."
             />
             <PollEditor
@@ -214,6 +215,7 @@ interface NewPoll {
 interface ComposerUiState {
   open?: boolean
   minimized?: boolean
+  toolbarExpanded?: boolean
   type?: 'Comment' | 'Poll'
   poll?: NewPoll
 }
@@ -231,6 +233,7 @@ const sessionUser = useSessionUser()
 
 const showCommentBox = ref(false)
 const composerMinimized = ref(false)
+const composerToolbarExpanded = ref(false)
 const composerStateLoaded = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')
 
@@ -436,6 +439,7 @@ function highlightComment(id: string) {
 function resetCommentState() {
   showCommentBox.value = false
   composerMinimized.value = false
+  composerToolbarExpanded.value = false
   commentEditorKey.value++
   newCommentType.value = 'Comment'
   newPoll.value = {
@@ -596,7 +600,7 @@ watch(composerMinimized, (minimized) => {
 })
 
 watch(
-  [showCommentBox, composerMinimized, newCommentType, newPoll],
+  [showCommentBox, composerMinimized, composerToolbarExpanded, newCommentType, newPoll],
   () => {
     saveComposerState()
   },
@@ -675,6 +679,7 @@ function loadComposerState() {
   const state = readComposerState()
   showCommentBox.value = Boolean(state.open)
   composerMinimized.value = Boolean(state.minimized)
+  composerToolbarExpanded.value = Boolean(state.toolbarExpanded)
   newCommentType.value = state.type ?? 'Comment'
   newPoll.value = normalizePoll(state.poll)
   composerStateLoaded.value = true
@@ -688,6 +693,7 @@ function saveComposerState() {
     JSON.stringify({
       open: showCommentBox.value,
       minimized: composerMinimized.value,
+      toolbarExpanded: composerToolbarExpanded.value,
       type: newCommentType.value,
       poll: newPoll.value,
     } satisfies ComposerUiState),
