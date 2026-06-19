@@ -21,7 +21,7 @@
         <input
           v-model="title"
           aria-label="Space title"
-          class="-ms-1 h-7 min-w-0 flex-1 rounded border-0 bg-transparent px-1 text-base font-medium text-ink-gray-8 outline-none ring-0 transition-colors hover:bg-surface-gray-1 focus:bg-surface-gray-1 focus:ring-0 disabled:cursor-not-allowed disabled:text-ink-gray-6"
+          class="h-7 min-w-0 flex-1 rounded border border-outline-gray-2 bg-transparent px-2 text-base text-ink-gray-8 outline-none ring-0 transition-colors focus:border-outline-gray-3 focus:ring-0 disabled:cursor-not-allowed disabled:text-ink-gray-6"
           :disabled="!canEditSpace"
           @blur="saveTitle"
           @keydown.enter.prevent="saveTitle"
@@ -78,7 +78,7 @@ const props = defineProps<{
 const rowClass = [
   'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2',
   'transition-colors hover:bg-surface-gray-1',
-  'md:grid-cols-[2rem_minmax(0,1fr)_7rem_12rem_4rem]',
+  'md:grid-cols-[2rem_minmax(8rem,1fr)_6.5rem_15rem_3rem]',
 ]
 
 const project = useDoctype<GPProject>('GP Project')
