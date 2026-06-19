@@ -77,7 +77,7 @@
     >
       <div class="pointer-events-auto">
         <div class="discussion-container bg-surface-base py-2 sm:bg-transparent sm:py-3">
-          <div v-if="!showCommentBox">
+          <div v-if="!showCommentBox" class="-mx-3">
             <button
               type="button"
               class="flex w-full items-center rounded-lg border bg-surface-base px-2 py-2 text-left text-base text-ink-gray-5 shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
@@ -87,18 +87,23 @@
               Add a comment
             </button>
           </div>
-          <button
+          <div
             v-else-if="composerMinimized"
-            type="button"
-            class="flex w-full items-center rounded-lg border bg-surface-base px-2 py-2 text-left shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
-            @click="restoreComposer"
+            class="-mx-3 flex items-center rounded-lg border bg-surface-base px-2 py-2 text-left shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
           >
             <UserAvatar class="mr-3" :user="$user().name" size="sm" />
             <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
               {{ minimizedLabel }}
             </span>
-            <span class="lucide-maximize-2 ml-2 size-4 shrink-0 text-ink-gray-5" />
-          </button>
+            <Tooltip text="Expand">
+              <Button
+                variant="ghost"
+                icon="lucide-maximize-2"
+                aria-label="Expand comment box"
+                @click="restoreComposer"
+              />
+            </Tooltip>
+          </div>
           <div
             v-else
             class="group/comment-composer relative -mx-3 rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3"
