@@ -102,7 +102,7 @@
           v-for="community in filteredCommunities"
           :key="community.name"
           :community="community"
-          :spaces-count="getCommunitySpacesCount(community.name)"
+          :spaces-count="getActiveCommunitySpacesCount(community.name)"
         />
       </div>
 
@@ -283,8 +283,10 @@ function getCommunityVisibilityCount(value: unknown) {
   return communities.data?.length || 0
 }
 
-function getCommunitySpacesCount(communityId: string) {
-  return (spaces.data || []).filter((space) => space.team === communityId).length
+function getActiveCommunitySpacesCount(communityId: string) {
+  return (spaces.data || []).filter((space) => {
+    return space.team === communityId && !space.archived_at
+  }).length
 }
 
 function openNewSpaceDialog() {
