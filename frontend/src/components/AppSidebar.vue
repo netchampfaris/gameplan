@@ -59,29 +59,50 @@
             </div>
 
             <nav class="mt-0.5 space-y-0.5">
-              <AppLink
+              <div
                 v-for="space in spacesList"
                 :key="space.name"
-                :to="{ name: 'Space', params: { communityId: space.team, spaceId: space.name } }"
-                class="flex h-7 items-center rounded px-2 transition"
-                activeClass="bg-surface-elevation-3 shadow-sm text-ink-gray-8"
-                inactiveClass="hover:bg-surface-gray-2 text-ink-gray-6"
+                class="group/space flex h-7 items-center rounded transition"
+                :class="
+                  isActiveSpace(space.name)
+                    ? 'bg-surface-elevation-3 text-ink-gray-8 shadow-sm'
+                    : 'text-ink-gray-6 hover:bg-surface-gray-2'
+                "
               >
-                <span class="flex w-full min-w-0 items-center">
-                  <SpaceIcon :icon="space.icon" class="size-4" />
-                  <span class="ml-2 flex-1 truncate text-sm">{{ space.title }}</span>
-                  <LucideLock
-                    v-if="space.is_private"
-                    class="ml-1 size-3 shrink-0 text-ink-gray-5"
-                  />
-                  <span
-                    v-if="getSpaceUnreadCount(space.name) > 0"
-                    class="ml-2 shrink-0 text-xs text-ink-gray-5"
-                  >
-                    {{ getSpaceUnreadCount(space.name) }}
+                <AppLink
+                  :to="{ name: 'Space', params: { communityId: space.team, spaceId: space.name } }"
+                  class="flex h-full min-w-0 flex-1 items-center pl-2"
+                  activeClass=""
+                  inactiveClass=""
+                >
+                  <span class="flex w-full min-w-0 items-center">
+                    <SpaceIcon :icon="space.icon" class="size-4" />
+                    <span class="ml-2 flex-1 truncate text-sm">{{ space.title }}</span>
+                    <LucideLock
+                      v-if="space.is_private"
+                      class="ml-1 size-3 shrink-0 text-ink-gray-5"
+                    />
+                    <span
+                      v-if="getSpaceUnreadCount(space.name) > 0"
+                      class="ml-2 shrink-0 text-xs text-ink-gray-5"
+                    >
+                      {{ getSpaceUnreadCount(space.name) }}
+                    </span>
                   </span>
-                </span>
-              </AppLink>
+                </AppLink>
+                <Dropdown :options="spaceOptions(space)" align="end">
+                  <template #default="{ open }">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="lucide-more-horizontal text-ink-gray-5"
+                      :label="`${space.title} options`"
+                      class="mr-1 shrink-0 opacity-0 group-hover/space:opacity-100 focus:opacity-100"
+                      :class="open ? 'opacity-100' : ''"
+                    />
+                  </template>
+                </Dropdown>
+              </div>
 
               <div
                 v-if="spacesList.length === 0"
@@ -116,10 +137,10 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui'
-import { Button } from 'frappe-ui'
+import { Button, Dropdown } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { communitySpaces } from '@/data/communitySpaces'
-import { getSpaceUnreadCount } from '@/data/spaces'
+import { getSpaceUnreadCount, markAllAsRead, type Space } from '@/data/spaces'
 import { useSessionUser } from '@/data/users'
 import AppLink from './AppLink.vue'
 import AppDropdown from './AppDropdown.vue'
@@ -153,7 +174,22 @@ function isRoute(name: string) {
   return route.name === name
 }
 
+function isActiveSpace(spaceId: string) {
+  const routeName = route.name?.toString() || ''
+  return route.params.spaceId?.toString() === spaceId && routeName.startsWith('Space')
+}
+
 function openNewSpaceDialog() {
   showNewSpaceDialog.value = true
+}
+
+function spaceOptions(space: Space) {
+  return [
+    {
+      label: 'Mark all as read',
+      icon: 'lucide-check',
+      onClick: () => markAllAsRead([space.name], space.title),
+    },
+  ]
 }
 </script>
