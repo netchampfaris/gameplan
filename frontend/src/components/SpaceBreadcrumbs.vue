@@ -6,7 +6,9 @@
         label: space?.title,
         prefix: h(SpaceIcon, { icon: space?.icon }),
         suffix: space?.is_private ? 'lucide-lock' : null,
-        onClick: canEditSpace ? () => (showSpaceEditDialog = true) : undefined,
+        route: space
+          ? { name: 'Space', params: { communityId: space.team, spaceId: space.name } }
+          : undefined,
       },
       ...(items || []),
     ]"
@@ -18,23 +20,20 @@
       <span v-if="item.suffix" :class="[item.suffix, 'ml-1.5 size-3.5 text-ink-gray-6']" />
     </template>
   </Breadcrumbs>
-  <EditSpaceDialog v-model="showSpaceEditDialog" :spaceId="spaceId" />
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { h } from 'vue'
 import { Breadcrumbs } from 'frappe-ui'
 import { useSpace } from '@/data/spaces'
-import { RouteComponent } from 'vue-router'
-import EditSpaceDialog from './EditSpaceDialog.vue'
+import type { RouteLocationRaw } from 'vue-router'
 import SpaceIcon from './SpaceIcon.vue'
-import { readOnlyMode } from '@/data/readOnlyMode'
 
 const props = defineProps<{
   spaceId: string
   items?: {
     label: string
-    route?: RouteComponent
+    route?: RouteLocationRaw
     suffix?: any
     prefix?: any
     onClick?: () => void
@@ -42,8 +41,6 @@ const props = defineProps<{
 }>()
 
 const space = useSpace(() => props.spaceId)
-const showSpaceEditDialog = ref(false)
-const canEditSpace = computed(() => !readOnlyMode && !space.value?.archived_at)
 </script>
 
 <style>
