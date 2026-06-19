@@ -4,12 +4,13 @@
       <div class="flex items-center gap-2 px-4 py-2">
         <button
           v-if="communityState.doc"
-          class="flex min-w-0 flex-1 items-center rounded-md px-3 py-2 text-left text-sm text-ink-gray-7 transition active:bg-surface-gray-2"
+          class="flex min-w-0 flex-1 items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-ink-gray-7 transition active:bg-surface-gray-2"
           @click="showCommunitySpacesSheet = true"
         >
-          <span class="grid h-5 w-6 place-items-center text-base text-ink-gray-6">
-            {{ communityState.doc.icon || communityState.doc.title?.[0] }}
-          </span>
+          <CommunityImage
+            :community="communityState.doc"
+            class="size-6 shrink-0 bg-surface-gray-1"
+          />
           <span class="truncate text-base-medium text-ink-gray-9">
             {{ communityState.doc.title }}
           </span>
@@ -27,6 +28,7 @@
       id="scrollContainer"
       class="flex-1 overflow-y-auto overscroll-auto bg-surface-base [-webkit-overflow-scrolling:touch]"
     >
+      <ReadOnlyBanner v-if="readOnlyMode" />
       <slot />
     </div>
 
@@ -64,7 +66,10 @@ import { isNewCommentOpen } from '@/data/newComment'
 import { showCommunitySpacesSheet } from '@/data/communitySpacesSheet'
 import { activeCommunities } from '@/data/communities'
 import { scrollTo } from '@/utils/scrollContainer'
+import CommunityImage from './CommunityImage.vue'
 import MobileCommunitySpacesSheet from './MobileCommunitySpacesSheet.vue'
+import ReadOnlyBanner from './ReadOnlyBanner.vue'
+import { readOnlyMode } from '@/data/readOnlyMode'
 import LucideChevronsUpDown from '~icons/lucide/chevrons-up-down'
 
 interface MobileTab {
@@ -78,6 +83,7 @@ const route = useRoute()
 const router = useRouter()
 
 const onCommunityRoute = computed(() => route.matched.some((record) => record.meta?.communityScope))
+const isHomeRoute = computed(() => ['Discussions', 'DiscussionsTab'].includes(String(route.name)))
 
 const showHomeTopBar = computed(() => onCommunityRoute.value && Boolean(communityState.doc))
 
@@ -88,7 +94,7 @@ const tabs = computed<MobileTab[]>(() => [
     route: communityState.id
       ? { name: 'Discussions', params: { communityId: communityState.id } }
       : { name: 'Home' },
-    isActive: onCommunityRoute.value,
+    isActive: isHomeRoute.value,
   },
   {
     name: 'Inbox',

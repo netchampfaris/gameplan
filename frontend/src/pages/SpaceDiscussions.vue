@@ -1,7 +1,7 @@
 <template>
   <div class="body-container mt-5">
     <SpaceHeaderActions>
-      <template v-if="!isBulkMoveMode">
+      <template v-if="canEditSpace && !isBulkMoveMode">
         <DropdownMoreOptions
           align="end"
           :options="[
@@ -26,7 +26,7 @@
           Add new
         </Button>
       </template>
-      <template v-else>
+      <template v-else-if="isBulkMoveMode">
         <Button variant="ghost" @click="cancelBulkMove">Cancel</Button>
         <Button
           variant="solid"
@@ -93,6 +93,7 @@ import SpaceTabs from '@/components/SpaceTabs.vue'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useSpace, spaces } from '@/data/spaces'
+import { readOnlyMode } from '@/data/readOnlyMode'
 
 interface BulkUpdateResponse {
   moved: string[]
@@ -113,6 +114,8 @@ const showMoveDialog = ref(false)
 const selectedSpace = ref<string | null>(null)
 const discussionListRef = useTemplateRef('discussionListRef')
 const router = useRouter()
+const currentSpace = useSpace(() => props.spaceId)
+const canEditSpace = computed(() => !readOnlyMode && !currentSpace.value?.archived_at)
 const selectedSpaceTitle = computed(() => {
   return selectedSpace.value ? useSpace(selectedSpace.value).value?.title : ''
 })

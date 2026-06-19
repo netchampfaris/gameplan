@@ -16,7 +16,7 @@
           "
           @click="changeCommunity(community.name)"
         >
-          <span class="w-6 text-center text-xl leading-none">{{ community.icon }}</span>
+          <CommunityImage :community="community" class="size-6 shrink-0 bg-surface-gray-1" />
           <span
             class="flex-1 truncate text-lg text-ink-gray-8"
             :class="community.name === communityState.id ? 'font-semibold' : ''"
@@ -35,13 +35,16 @@
       <!-- Spaces -->
       <div class="mt-6 px-4 pb-1.5 text-center text-3xl-semibold text-ink-gray-9">
         <template v-if="activeCommunities.length <= 1 && communityState.doc">
-          {{ communityState.doc.icon }} {{ communityState.doc.title }}
+          <span class="inline-flex items-center gap-2">
+            <CommunityImage :community="communityState.doc" class="size-8 bg-surface-gray-1" />
+            <span>{{ communityState.doc.title }}</span>
+          </span>
         </template>
         <template v-else>Choose space</template>
       </div>
 
       <div v-if="communitySpaces.list.length === 0" class="px-4 py-4 text-sm text-ink-gray-4">
-        No spaces yet
+        {{ communitySpaces.emptyMessage }}
       </div>
 
       <button
@@ -63,7 +66,7 @@
       </button>
 
       <button
-        v-if="isAdmin && communityState.id"
+        v-if="isAdmin && communityState.id && communitySpaces.archived.length === 0"
         class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-ink-gray-6 transition hover:bg-surface-gray-1"
         @click="openNewSpace"
       >
@@ -87,6 +90,7 @@ import { communitySpaces } from '@/data/communitySpaces'
 import { activeCommunities } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
 import BottomSheet from './BottomSheet.vue'
+import CommunityImage from './CommunityImage.vue'
 import NewSpaceDialog from './NewSpaceDialog.vue'
 import SpaceIcon from './SpaceIcon.vue'
 import LucideCheck from '~icons/lucide/check'

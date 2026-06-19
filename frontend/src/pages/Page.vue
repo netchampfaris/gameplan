@@ -41,7 +41,7 @@
           },
         ]"
       />
-      <div class="ml-2 shrink-0" v-if="page.doc">
+      <div class="ml-2 shrink-0" v-if="page.doc && canEditPage">
         <DropdownMoreOptions
           align="end"
           :options="[
@@ -83,6 +83,7 @@
             class="w-full border-0 p-0 pt-4 text-5xl-semibold focus:outline-none focus:ring-0 bg-surface-base text-ink-gray-8"
             type="text"
             v-model="title"
+            :readonly="!canEditPage"
             @input="autosave"
             @keydown.enter="textEditor?.editor?.commands.focus()"
             ref="titleInput"
@@ -92,6 +93,7 @@
         <PageEditor
           editor-class="rounded-b-lg max-w-[unset] prose-v3 pb-[50vh] md:px-[70px]"
           :content="content"
+          :editable="canEditPage"
           @change="
             (value) => {
               content = value
@@ -117,6 +119,7 @@ import { useSpace } from '@/data/spaces'
 import { GPPage } from '@/types/doctypes'
 import SpaceBreadcrumbs from '@/components/SpaceBreadcrumbs.vue'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
+import { readOnlyMode } from '@/data/readOnlyMode'
 import { relativeTimestamp } from '@/utils'
 const props = defineProps<{
   pageId: string
@@ -152,6 +155,7 @@ const isDirty = computed(() => {
 })
 
 const space = useSpace(() => page.doc?.project || props.spaceId)
+const canEditPage = computed(() => !readOnlyMode && !space.value?.archived_at)
 
 const pageTitle = computed(() => {
   return page.doc?.title || props.pageId
@@ -178,6 +182,8 @@ const isAutosaving = ref(false)
 const MIN_AUTOSAVING_DURATION = 2000 // 2 seconds
 
 const save = () => {
+  if (!canEditPage.value) return
+
   isAutosaving.value = true
   const startTime = Date.now()
 
@@ -199,7 +205,7 @@ const save = () => {
 const autosave = debounce(save, 1000)
 
 const handleKeyboardShortcuts = (e: KeyboardEvent) => {
-  if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+  if (canEditPage.value && e.key === 's' && (e.metaKey || e.ctrlKey)) {
     e.preventDefault()
     save()
   }

@@ -34,9 +34,18 @@ const communitySpaceOptions = computed(() => {
   }))
 })
 
+const communitySpacesEmptyMessage = computed(() => {
+  if (archivedCommunitySpaceList.value.length > 0) {
+    return 'All spaces in this community are archived.'
+  }
+
+  return 'No spaces in this community yet.'
+})
+
 export const communitySpaces = reactive({
   list: communitySpaceList,
   archived: archivedCommunitySpaceList,
   joined: joinedCommunitySpaceList,
   options: communitySpaceOptions,
+  emptyMessage: communitySpacesEmptyMessage,
 })

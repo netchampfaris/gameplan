@@ -9,15 +9,7 @@
             <div class="flex flex-1 min-w-0 flex-col">
               <div id="pageHeaderTarget" />
               <ScrollContainer>
-                <div
-                  v-if="$readOnlyMode"
-                  class="right-0 top-0 mb-3 bg-surface-gray-2 py-3 text-sm text-ink-gray-5"
-                >
-                  <div class="mx-auto px-10">
-                    This site is running in read-only mode. Full functionality will be restored
-                    soon.
-                  </div>
-                </div>
+                <ReadOnlyBanner v-if="readOnlyMode" class="mb-3" />
                 <slot />
               </ScrollContainer>
             </div>
@@ -36,7 +28,9 @@ import ScrollContainer from './ScrollContainer.vue'
 import AppRail from './AppRail.vue'
 import AppSidebar from './AppSidebar.vue'
 import CommandPalette from './CommandPalette/CommandPalette.vue'
+import ReadOnlyBanner from './ReadOnlyBanner.vue'
 import SettingsDialog from './Settings/SettingsDialog.vue'
+import { readOnlyMode } from '@/data/readOnlyMode'
 import { users } from '@/data/users'
 
 const route = useRoute()

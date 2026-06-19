@@ -49,7 +49,7 @@
                 <div>{{ space?.title }}</div>
               </div>
             </div>
-            <div class="shrink-0 ml-1 invisible group-hover:visible">
+            <div v-if="!readOnly" class="shrink-0 ml-1 invisible group-hover:visible">
               <Dropdown
                 :button="{
                   icon: 'lucide-more-horizontal',
@@ -79,6 +79,7 @@ const props = defineProps<{
     filters: UseListOptions<GPPage>['filters']
     orderBy?: UseListOptions<GPPage>['orderBy']
   }
+  readOnly?: boolean
 }>()
 
 interface Page

@@ -1,7 +1,14 @@
 <template>
   <div class="mt-5 body-container">
     <SpaceHeaderActions>
-      <Button variant="solid" icon-left="lucide-plus" @click="openNewTaskDialog"> Add new </Button>
+      <Button
+        v-if="canEditSpace"
+        variant="solid"
+        icon-left="lucide-plus"
+        @click="openNewTaskDialog"
+      >
+        Add new
+      </Button>
     </SpaceHeaderActions>
     <div class="mb-4 flex items-center">
       <SpaceTabs :spaceId="spaceId" />
@@ -13,18 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useUser } from '@/data/users'
 import SpaceTabs from '@/components/SpaceTabs.vue'
 import SpaceHeaderActions from '@/components/SpaceHeaderActions.vue'
 import TaskList from '@/components/TaskList.vue'
 import { showNewTaskDialog } from '@/components/NewTaskDialog'
+import { useSpace } from '@/data/spaces'
+import { readOnlyMode } from '@/data/readOnlyMode'
 
 const props = defineProps<{
   spaceId: string
 }>()
 
 const taskList = useTemplateRef<typeof TaskList>('taskList')
+const space = useSpace(() => props.spaceId)
+const canEditSpace = computed(() => !readOnlyMode && !space.value?.archived_at)
 
 const filters = () => ({
   project: props.spaceId,

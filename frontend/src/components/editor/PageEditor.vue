@@ -40,7 +40,7 @@ defineExpose({ editor })
     :editable="editable"
     :autofocus="autofocus"
     :editor-class="editorClass"
-    :bubble-menu="gameplanToolbar"
+    :bubble-menu="editable ? gameplanToolbar : undefined"
     @change="emit('change', $event)"
     @blur="emit('blur', $event)"
     @focus="emit('focus', $event)"

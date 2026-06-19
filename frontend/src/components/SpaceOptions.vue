@@ -20,6 +20,7 @@ import EditSpaceDialog from './EditSpaceDialog.vue'
 import ManageMembersDialog from './ManageMembersDialog.vue'
 import { useSpace, hasJoined, joinSpace, leaveSpace } from '@/data/spaces'
 import { markSpaceAsRead } from '@/data/unreadCount'
+import { readOnlyMode } from '@/data/readOnlyMode'
 import { GPProject } from '@/types/doctypes'
 
 defineOptions({
@@ -37,13 +38,14 @@ const showSpaceMergeDialog = ref(false)
 const showSpaceCategoryDialog = ref(false)
 const showSpaceEditDialog = ref(false)
 const inviteGuestDialog = ref(false)
+const canEditSpace = computed(() => !readOnlyMode && !space.value?.archived_at)
 
 const options = computed(() => [
   {
     label: 'Edit',
     icon: 'lucide-edit',
     onClick: () => (showSpaceEditDialog.value = true),
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Mark all as read',
@@ -57,7 +59,7 @@ const options = computed(() => [
         onConfirm: () => markSpaceAsRead(props.spaceId),
       })
     },
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: hasJoined(props.spaceId) ? 'Leave space' : 'Join space',
@@ -71,24 +73,25 @@ const options = computed(() => [
         }
       }
     },
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Manage Members',
     icon: 'lucide-user-plus',
     onClick: () => (inviteGuestDialog.value = true),
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Change Community',
     icon: 'lucide-log-out',
     onClick: () => (showSpaceCategoryDialog.value = true),
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Merge',
     icon: 'lucide-merge',
     onClick: () => (showSpaceMergeDialog.value = true),
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Archive',
@@ -102,7 +105,7 @@ const options = computed(() => [
         onConfirm: () => spaces.runDocMethod.submit({ method: 'archive', name: props.spaceId }),
       })
     },
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
   {
     label: 'Delete',
@@ -120,7 +123,7 @@ const options = computed(() => [
         onConfirm: () => spaces.delete.submit({ name: props.spaceId }),
       })
     },
-    condition: () => !space.value?.archived_at,
+    condition: () => canEditSpace.value,
   },
 ])
 </script>

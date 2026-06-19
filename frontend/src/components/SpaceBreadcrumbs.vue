@@ -6,7 +6,7 @@
         label: space?.title,
         prefix: h(SpaceIcon, { icon: space?.icon }),
         suffix: space?.is_private ? 'lucide-lock' : null,
-        onClick: () => (showSpaceEditDialog = true),
+        onClick: canEditSpace ? () => (showSpaceEditDialog = true) : undefined,
       },
       ...(items || []),
     ]"
@@ -22,12 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import { Breadcrumbs } from 'frappe-ui'
 import { useSpace } from '@/data/spaces'
 import { RouteComponent } from 'vue-router'
 import EditSpaceDialog from './EditSpaceDialog.vue'
 import SpaceIcon from './SpaceIcon.vue'
+import { readOnlyMode } from '@/data/readOnlyMode'
 
 const props = defineProps<{
   spaceId: string
@@ -42,6 +43,7 @@ const props = defineProps<{
 
 const space = useSpace(() => props.spaceId)
 const showSpaceEditDialog = ref(false)
+const canEditSpace = computed(() => !readOnlyMode && !space.value?.archived_at)
 </script>
 
 <style>
