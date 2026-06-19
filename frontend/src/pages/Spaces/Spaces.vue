@@ -16,11 +16,19 @@
         placeholder="Select community"
         trigger="button"
         variant="outline"
-        size="lg"
+        size="md"
         align="start"
         class="w-full lg:max-w-xl"
         open-on-click
       >
+        <template #prefix>
+          <CommunityImage
+            v-if="selectedCommunity"
+            :community="selectedCommunity"
+            class="size-5 shrink-0 bg-surface-gray-1"
+          />
+        </template>
+
         <template #item-prefix="{ item }">
           <CommunityImage :community="item" class="size-5 shrink-0 bg-surface-gray-1" />
         </template>
