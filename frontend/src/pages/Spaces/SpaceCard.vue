@@ -1,5 +1,6 @@
 <template>
   <component
+    v-if="space"
     :is="space.team ? 'router-link' : 'div'"
     class="relative rounded-md flex flex-col focus:outline-none focus-visible:ring-outline-gray-3 focus-visible:ring-2 justify-between border p-3 sm:hover:bg-surface-gray-2 group transition-colors duration-150 active:bg-surface-gray-2"
     :to="
@@ -26,7 +27,10 @@
       </div>
     </div>
     <div class="mt-1.5 flex items-end justify-between">
-      <div class="text-ink-gray-5 text-sm" v-if="space.discussions_count ?? 0 > 0">
+      <div v-if="variant === 'pinned'" class="text-ink-gray-5 text-sm">
+        {{ space.team_title }}
+      </div>
+      <div v-else-if="space.discussions_count ?? 0 > 0" class="text-ink-gray-5 text-sm">
         {{ space.discussions_count }}
         {{ space.discussions_count == 1 ? 'post' : 'posts' }}
       </div>
@@ -84,8 +88,11 @@ import SpaceIcon from '@/components/SpaceIcon.vue'
 import { isPinActionLoading, isPinned, pinSpace, unpinSpace } from '@/data/pinnedSpaces'
 
 interface Props {
-  space: Space
+  space: Space | null
+  variant?: 'default' | 'pinned'
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  variant: 'default',
+})
 </script>

@@ -28,7 +28,7 @@
         </template>
       </TextInput>
       <TabButtons
-        :buttons="[{ label: 'Public' }, { label: 'Private' }, { label: 'Archived' }]"
+        :buttons="[{ label: 'Active' }, { label: 'Private' }, { label: 'Archived' }]"
         v-model="currentTab"
       />
     </div>
@@ -43,7 +43,12 @@
         <span> Pinned </span>
       </div>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        <PinnedSpaceCard v-for="d in filteredPinnedSpaces" :key="d.name" :spaceId="d.project" />
+        <SpaceCard
+          v-for="d in filteredPinnedSpaces"
+          :key="d.name"
+          :space="useSpace(d.project).value"
+          variant="pinned"
+        />
       </div>
     </div>
     <RecycleScroller
@@ -79,13 +84,13 @@ import { useWindowSize } from '@vueuse/core'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import EmptyStateBox from '@/components/EmptyStateBox.vue'
+import SpaceCard from './SpaceCard.vue'
 import SpaceCardGroup from './SpaceCardGroup.vue'
-import PinnedSpaceCard from './PinnedSpaceCard.vue'
 import { useGroupedSpaces } from '@/data/groupedSpaces'
 import { pinnedSpaces } from '@/data/pinnedSpaces'
 import { useSpace } from '@/data/spaces'
 
-const currentTab = ref('Public')
+const currentTab = ref('Active')
 const lockedCommunityForNewSpace = ref('')
 const query = ref('')
 const route = useRoute()
@@ -93,7 +98,7 @@ const scroller = ref(null)
 const searchInputRef = useTemplateRef<InstanceType<typeof TextInput>>('searchInputRef')
 
 const filteredPinnedSpaces = computed(() => {
-  if (currentTab.value !== 'Public' || !pinnedSpaces.data) return []
+  if (currentTab.value !== 'Active' || !pinnedSpaces.data) return []
 
   return pinnedSpaces.data.filter((d) => {
     const space = useSpace(d.project).value
@@ -109,6 +114,7 @@ const groupedSpaces = computed(() => {
       Boolean(
         {
           Public: !space.archived_at,
+          Active: !space.archived_at,
           Private: space.is_private,
           Archived: space.archived_at,
         }[currentTab.value],
