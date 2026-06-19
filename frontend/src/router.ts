@@ -704,6 +704,10 @@ router.beforeEach(async (to, from) => {
     return { name: 'NotFound' }
   }
 
+  if (communityState.id !== communityId) {
+    communityState.change(communityId)
+  }
+
   if (!to.params.spaceId) {
     return
   }
@@ -711,8 +715,21 @@ router.beforeEach(async (to, from) => {
   let space = getSpace(routeParam(to.params.spaceId))
 
   // A scoped space URL is only valid inside the community that owns that space.
-  if (!space || space.team !== communityId) {
+  if (!space) {
     return { name: 'NotFound' }
+  }
+
+  if (space.team !== communityId) {
+    return {
+      name: to.name ?? 'Space',
+      params: {
+        ...to.params,
+        communityId: space.team,
+      },
+      query: to.query,
+      hash: to.hash,
+      replace: true,
+    }
   }
 })
 

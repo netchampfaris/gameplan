@@ -172,9 +172,7 @@
             <template v-else-if="searchResponse?.summary">
               <div class="space-y-1">
                 <p class="text-ink-gray-6">
-                  {{ searchResponse.summary.filtered_matches }} matches ({{
-                    searchResponse.summary.duration
-                  }}s)
+                  {{ visibleSearchResults.length }} matches ({{ searchResponse.summary.duration }}s)
                   <span v-if="hasActiveFilters()">
                     •
                     {{ Object.keys(searchResponse.summary.applied_filters || {}).length }} filter(s)
@@ -192,10 +190,7 @@
           </div>
 
           <!-- Inline Feedback Section -->
-          <div
-            v-if="searchResponse?.results?.length && !feedbackGiven"
-            class="flex items-center gap-2"
-          >
+          <div v-if="visibleSearchResults.length && !feedbackGiven" class="flex items-center gap-2">
             <span class="text-ink-gray-6">Helpful?</span>
             <div class="flex items-center gap-1">
               <Tooltip text="Yes, results were helpful">
@@ -220,7 +215,7 @@
         </div>
 
         <div class="mt-5 -mx-2.5">
-          <template v-for="item in searchResponse?.results" :key="item.id">
+          <template v-for="item in visibleSearchResults" :key="item.id">
             <router-link
               :to="getItemRoute(item)"
               class="flex space-x-2 overflow-hidden sm:rounded px-2.5 py-3 touch-pan-y select-none transition-colors duration-150 active:bg-surface-gray-2 sm:hover:bg-surface-gray-2"
@@ -361,6 +356,12 @@ const searchInput = useTemplateRef<typeof TextInput>('searchInput')
 const router = useRouter()
 const route = useRoute()
 const groupedSpaces = useGroupedSpaceOptions()
+const activeCommunityIds = computed(
+  () => new Set(activeCommunities.value.map((community) => community.name)),
+)
+const visibleSearchResults = computed(() => {
+  return (searchResponse.value?.results || []).filter(isSearchResultVisible)
+})
 
 // API Calls Setup
 const search = useCall<SearchResponse, SearchParams>({
@@ -727,6 +728,13 @@ function getItemRoute(item: SearchResultItem) {
     default:
       return {}
   }
+}
+
+function isSearchResultVisible(item: SearchResultItem) {
+  if (!item.project) return true
+
+  const space = getSpace(item.project)
+  return Boolean(space && !space.archived_at && activeCommunityIds.value.has(space.team))
 }
 
 // Feedback System
