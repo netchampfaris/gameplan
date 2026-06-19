@@ -190,7 +190,7 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 		for pin in frappe.db.get_all(
 			"GP Pinned Project", filters={"project": self.name, "user": frappe.session.user}, pluck="name"
 		):
-			frappe.delete_doc("GP Pinned Project", pin.name, ignore_permissions=True)
+			frappe.delete_doc("GP Pinned Project", pin, ignore_permissions=True)
 
 	@frappe.whitelist()
 	def mark_all_as_read(self):

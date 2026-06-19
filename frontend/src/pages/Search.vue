@@ -627,7 +627,7 @@ function removeFilter(type: keyof SearchFilters, value: string) {
 
 // Search State Persistence
 function getStorageKey(query: string) {
-  return `${STORAGE_KEY_PREFIX}${query}`
+  return `${STORAGE_KEY_PREFIX}${useSessionUser().name}:${query}`
 }
 
 function loadSearchState(searchQuery: string) {

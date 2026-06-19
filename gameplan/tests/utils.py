@@ -38,15 +38,15 @@ def create_team(title="Test Team"):
 
 
 def create_project(title, team, is_private=0):
-	return frappe.get_doc(
-		doctype="GP Project", title=title, team=team, is_private=is_private
-	).insert(ignore_permissions=True)
+	return frappe.get_doc(doctype="GP Project", title=title, team=team, is_private=is_private).insert(
+		ignore_permissions=True
+	)
 
 
 def create_discussion(title, project, content="Test content"):
-	return frappe.get_doc(
-		doctype="GP Discussion", title=title, project=project, content=content
-	).insert(ignore_permissions=True)
+	return frappe.get_doc(doctype="GP Discussion", title=title, project=project, content=content).insert(
+		ignore_permissions=True
+	)
 
 
 def grant_guest_access(user, project):

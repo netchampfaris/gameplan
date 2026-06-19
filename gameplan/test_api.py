@@ -47,3 +47,10 @@ def clear_data(onboard=None):
 
 	if onboard:
 		frappe.get_doc(doctype="GP Project", title="Test Project").insert()
+
+
+@whitelist
+def rebuild_search_index():
+	from gameplan.search_sqlite import GameplanSearch
+
+	GameplanSearch().build_index()

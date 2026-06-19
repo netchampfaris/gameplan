@@ -161,8 +161,8 @@ class GameplanSearch(SQLiteSearch):
 		member_exists = (
 			frappe.qb.from_(Member)
 			.select(Member.name)
-			.where(Member.parenttype == "GP Team")
-			.where(Member.parent == Project.team)
+			.where(Member.parenttype == "GP Project")
+			.where(Member.parent == Project.name)
 			.where(Member.user == frappe.session.user)
 		)
 		projects = (
