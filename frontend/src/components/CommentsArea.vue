@@ -76,7 +76,7 @@
       ref="addComment"
     >
       <div class="pointer-events-auto sm:ml-60">
-        <div class="discussion-container bg-surface-base px-2 py-2 sm:bg-transparent sm:py-3">
+        <div class="discussion-container bg-surface-base py-2 sm:bg-transparent sm:py-3">
           <div v-if="!showCommentBox">
             <button
               type="button"
