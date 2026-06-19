@@ -4,7 +4,7 @@
       <template #default="{ togglePopover }">
         <Button
           variant="ghost"
-          class="!size-8 shrink-0"
+          class="!size-7 shrink-0"
           tooltip="Edit icon"
           :disabled="!canEditSpace"
           @click="togglePopover()"
