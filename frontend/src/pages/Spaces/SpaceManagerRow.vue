@@ -77,7 +77,6 @@ const props = defineProps<{
 
 const rowClass = [
   'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2',
-  'transition-colors hover:bg-surface-gray-1',
   'md:grid-cols-[2rem_minmax(8rem,1fr)_6.5rem_15rem_3rem]',
 ]
 
