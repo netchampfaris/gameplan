@@ -67,7 +67,7 @@
 
     <div
       v-if="!readOnlyMode && !disableNewComment && !hideNewComment"
-      class="pointer-events-none fixed left-0 right-0 z-[2] mt-2 w-full print:hidden"
+      class="pointer-events-none fixed left-0 right-0 z-[2] mt-2 w-full print:hidden sm:left-[274px] sm:right-1 sm:w-auto"
       :class="[
         showCommentBox && !composerMinimized
           ? 'bottom-0'
@@ -75,7 +75,7 @@
       ]"
       ref="addComment"
     >
-      <div class="pointer-events-auto sm:ml-60">
+      <div class="pointer-events-auto">
         <div class="discussion-container bg-surface-base py-2 sm:bg-transparent sm:py-3">
           <div v-if="!showCommentBox">
             <button
