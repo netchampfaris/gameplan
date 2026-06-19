@@ -132,6 +132,7 @@ function isMoreRoute() {
     'Task',
     'Drafts',
     'Spaces',
+    'CommunitySpaces',
   ].includes(name)
 }
 

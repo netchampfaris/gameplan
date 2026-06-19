@@ -38,6 +38,14 @@ function optionalRouteParam(value: RouteParamValue | undefined): string | undefi
   return resolvedValue || undefined
 }
 
+async function ensureConfigureAccess() {
+  await ensureCommunityDataLoaded()
+
+  if (useSessionUser().role !== 'Gameplan Admin') {
+    return getHomeRoute()
+  }
+}
+
 const routes: RouteRecordRaw[] = [
     {
       path: '/',
@@ -214,17 +222,17 @@ const routes: RouteRecordRaw[] = [
       component: () => import('@/pages/Teams.vue'),
     },
     {
-      path: '/spaces',
+      path: '/configure',
       name: 'Spaces',
       component: () => import('@/pages/Spaces/Spaces.vue'),
-      // `/spaces` is an admin-only global housekeeping page; non-admins never reach it.
-      async beforeEnter() {
-        await ensureCommunityDataLoaded()
-
-        if (useSessionUser().role !== 'Gameplan Admin') {
-          return getHomeRoute()
-        }
-      },
+      // `/configure` is an admin-only global housekeeping page; non-admins never reach it.
+      beforeEnter: ensureConfigureAccess,
+    },
+    {
+      path: '/configure/:communityId',
+      name: 'CommunitySpaces',
+      component: () => import('@/pages/Spaces/Spaces.vue'),
+      beforeEnter: ensureConfigureAccess,
     },
     {
       name: 'Space',
@@ -760,8 +768,8 @@ function getHomeRoute(): RouteLocationRaw {
     return { name: 'Onboarding' }
   }
 
-  // The site has communities/spaces but the user has joined none. Admins manage
-  // them on the global Spaces page; everyone else sees the no-communities state.
+  // The site has communities/spaces but the user has joined none. Admins configure
+  // them on the global manager page; everyone else sees the no-communities state.
   if (useSessionUser().role === 'Gameplan Admin') {
     return { name: 'Spaces' }
   }

@@ -1,7 +1,12 @@
 <template>
   <PageHeader>
-    <Breadcrumbs class="h-7" :items="[{ label: 'Community Spaces', route: { name: 'Spaces' } }]" />
-    <Button icon-left="lucide-plus" :disabled="!canCreateSpace" @click="openNewSpaceDialog">
+    <Breadcrumbs class="h-7" :items="breadcrumbs" />
+    <Button
+      v-if="selectedCommunity"
+      icon-left="lucide-plus"
+      :disabled="!canCreateSpace"
+      @click="openNewSpaceDialog"
+    >
       New space
     </Button>
   </PageHeader>
@@ -9,96 +14,117 @@
   <NewSpaceDialog v-model="newSpaceDialog" :lockedCommunityId="selectedCommunityId || ''" />
 
   <div class="body-container pb-16 pt-4">
-    <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-      <Combobox
-        v-model="selectedCommunityId"
-        :options="communityOptions"
-        placeholder="Select community"
-        trigger="button"
-        variant="outline"
-        size="md"
-        align="start"
-        class="w-full lg:max-w-xl"
-        open-on-click
-      >
-        <template #item-prefix="{ item }">
-          <CommunityImage
-            :community="item"
-            class="size-5 shrink-0 rounded-[7px] border border-outline-gray-1 bg-surface-gray-1"
-          />
-        </template>
+    <template v-if="selectedCommunityId">
+      <div v-if="!selectedCommunity" class="py-12 text-center text-base text-ink-gray-5">
+        Community not found
+      </div>
 
-        <template #item-suffix="{ item }">
-          <span v-if="item.archived_at" class="text-sm text-ink-gray-5">Archived</span>
-          <span v-if="item.is_private" class="lucide-lock size-3.5 text-ink-gray-5" />
-        </template>
+      <template v-else>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <TabButtons :options="spaceStatusButtons" v-model="spaceStatusFilter">
+              <template #suffix="{ button }">
+                <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
+                  {{ getSpaceStatusCount(button.modelValue) }}
+                </span>
+              </template>
+            </TabButtons>
+            <TabButtons :options="spaceVisibilityButtons" v-model="spaceVisibilityFilter">
+              <template #suffix="{ button }">
+                <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
+                  {{ getSpaceVisibilityCount(button.modelValue) }}
+                </span>
+              </template>
+            </TabButtons>
+          </div>
+        </div>
 
-        <template #suffix="{ open }">
-          <span
-            :class="[
-              'lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
-              open && 'rotate-180',
-            ]"
+        <div v-if="filteredSpaces.length" class="mt-3 divide-y divide-outline-gray-1 border-b">
+          <div
+            class="hidden grid-cols-[1.75rem_minmax(8rem,1fr)_6.5rem_15.25rem_3rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
+          >
+            <div class="col-span-2">Space</div>
+            <div>Visibility</div>
+            <div>Content</div>
+            <div class="text-right">Actions</div>
+          </div>
+          <SpaceManagerRow
+            v-for="space in filteredSpaces"
+            :key="space.name"
+            :space="space"
+            :pages-count="getPagesCount(space.name)"
           />
-        </template>
-      </Combobox>
+        </div>
+
+        <div v-else class="py-12 text-center">
+          <div class="text-base text-ink-gray-6">No spaces match these filters</div>
+          <div class="mt-1 text-sm text-ink-gray-5">Try a different status or visibility.</div>
+        </div>
+      </template>
+    </template>
+
+    <template v-else>
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <TabButtons :options="statusButtons" v-model="statusFilter">
+        <TabButtons :options="communityStatusButtons" v-model="communityStatusFilter">
           <template #suffix="{ button }">
             <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
-              {{ getStatusCount(button.modelValue) }}
+              {{ getCommunityStatusCount(button.modelValue) }}
             </span>
           </template>
         </TabButtons>
-        <TabButtons :options="visibilityButtons" v-model="visibilityFilter">
+        <TabButtons :options="communityVisibilityButtons" v-model="communityVisibilityFilter">
           <template #suffix="{ button }">
             <span class="rounded-full bg-surface-gray-3 px-1.5 text-xs text-ink-gray-6">
-              {{ getVisibilityCount(button.modelValue) }}
+              {{ getCommunityVisibilityCount(button.modelValue) }}
             </span>
           </template>
         </TabButtons>
       </div>
-    </div>
 
-    <div v-if="!selectedCommunity" class="py-12 text-center text-base text-ink-gray-5">
-      No communities available
-    </div>
+      <div v-if="!communities.data?.length" class="py-12 text-center text-base text-ink-gray-5">
+        No communities available
+      </div>
 
-    <div v-else-if="filteredSpaces.length" class="mt-3 divide-y divide-outline-gray-1 border-b">
       <div
-        class="hidden grid-cols-[1.75rem_minmax(8rem,1fr)_6.5rem_15.25rem_3rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
+        v-else-if="filteredCommunities.length"
+        class="mt-3 divide-y divide-outline-gray-1 border-b"
       >
-        <div class="col-span-2">Space</div>
-        <div>Visibility</div>
-        <div>Content</div>
-        <div class="text-right">Actions</div>
+        <div
+          class="hidden grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_7rem_8rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
+        >
+          <div class="col-span-2">Community</div>
+          <div>Spaces</div>
+          <div>Members</div>
+          <div>Status</div>
+          <div>Visibility</div>
+          <div class="text-right">Actions</div>
+        </div>
+        <CommunityManagerRow
+          v-for="community in filteredCommunities"
+          :key="community.name"
+          :community="community"
+          :spaces-count="getCommunitySpacesCount(community.name)"
+        />
       </div>
-      <SpaceManagerRow
-        v-for="space in filteredSpaces"
-        :key="space.name"
-        :space="space"
-        :pages-count="getPagesCount(space.name)"
-      />
-    </div>
 
-    <div v-else class="py-12 text-center">
-      <div class="text-base text-ink-gray-6">No spaces match these filters</div>
-      <div class="mt-1 text-sm text-ink-gray-5">Try a different status or visibility.</div>
-    </div>
+      <div v-else class="py-12 text-center">
+        <div class="text-base text-ink-gray-6">No communities match these filters</div>
+        <div class="mt-1 text-sm text-ink-gray-5">Try a different status or visibility.</div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { Breadcrumbs, Button, Combobox, TabButtons, type ComboboxOption, useList } from 'frappe-ui'
-import CommunityImage from '@/components/CommunityImage.vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { Breadcrumbs, Button, TabButtons, useList } from 'frappe-ui'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import { communities } from '@/data/communities'
-import { communityState } from '@/data/communityState'
+import { communities, type Community } from '@/data/communities'
 import { spaces, type Space } from '@/data/spaces'
 import type { GPPage } from '@/types/doctypes'
+import CommunityManagerRow from './CommunityManagerRow.vue'
 import SpaceManagerRow from './SpaceManagerRow.vue'
 
 type StatusFilter = 'Active' | 'Archived'
@@ -106,10 +132,10 @@ type VisibilityFilter = 'All' | 'Public' | 'Private'
 type PageRecord = Pick<GPPage, 'project'>
 
 const route = useRoute()
-const router = useRouter()
-const selectedCommunityId = ref<string | null>(null)
-const statusFilter = ref<StatusFilter>('Active')
-const visibilityFilter = ref<VisibilityFilter>('All')
+const communityStatusFilter = ref<StatusFilter>('Active')
+const communityVisibilityFilter = ref<VisibilityFilter>('All')
+const spaceStatusFilter = ref<StatusFilter>('Active')
+const spaceVisibilityFilter = ref<VisibilityFilter>('All')
 const newSpaceDialog = ref(false)
 
 const statusButtons = [
@@ -121,6 +147,11 @@ const visibilityButtons = [
   { label: 'Public', value: 'Public' },
   { label: 'Private', value: 'Private' },
 ]
+const communityStatusButtons = statusButtons
+const communityVisibilityButtons = visibilityButtons
+const spaceStatusButtons = statusButtons
+const spaceVisibilityButtons = visibilityButtons
+
 const pages = useList<PageRecord>({
   doctype: 'GP Page',
   fields: ['project'],
@@ -129,21 +160,23 @@ const pages = useList<PageRecord>({
   cacheKey: 'space-page-counts',
 })
 
-const communityOptions = computed((): ComboboxOption[] => {
-  return (communities.data || []).map((community) => ({
-    label: community.title,
-    value: community.name,
-    name: community.name,
-    title: community.title,
-    icon: community.icon,
-    image: community.image,
-    archived_at: community.archived_at,
-    is_private: community.is_private,
-  }))
+const selectedCommunityId = computed(() => {
+  return typeof route.params.communityId === 'string' ? route.params.communityId : null
 })
 
 const selectedCommunity = computed(() => {
+  if (!selectedCommunityId.value) return null
   return (communities.data || []).find((community) => community.name === selectedCommunityId.value)
+})
+
+const breadcrumbs = computed(() => {
+  const items: { label: string; route?: { name: string } }[] = [
+    { label: 'Communities', route: { name: 'Spaces' } },
+  ]
+  if (selectedCommunity.value) {
+    items.push({ label: selectedCommunity.value.title })
+  }
+  return items
 })
 
 const communitySpaces = computed(() => {
@@ -153,7 +186,19 @@ const communitySpaces = computed(() => {
 
 const filteredSpaces = computed(() => {
   return communitySpaces.value.filter((space) => {
-    return matchesStatusFilter(space) && matchesVisibilityFilter(space)
+    return (
+      matchesStatusFilter(space, spaceStatusFilter.value) &&
+      matchesVisibilityFilter(space, spaceVisibilityFilter.value)
+    )
+  })
+})
+
+const filteredCommunities = computed(() => {
+  return (communities.data || []).filter((community) => {
+    return (
+      matchesCommunityStatusFilter(community, communityStatusFilter.value) &&
+      matchesCommunityVisibilityFilter(community, communityVisibilityFilter.value)
+    )
   })
 })
 
@@ -166,63 +211,52 @@ const pagesCountBySpace = computed(() => {
   return counts
 })
 
-const activeCount = computed(
+const activeSpaceCount = computed(
   () => communitySpaces.value.filter((space) => !space.archived_at).length,
 )
-const archivedCount = computed(
+const archivedSpaceCount = computed(
   () => communitySpaces.value.filter((space) => space.archived_at).length,
 )
-const publicCount = computed(
+const publicSpaceCount = computed(
   () => communitySpaces.value.filter((space) => !space.is_private).length,
 )
-const privateCount = computed(
+const privateSpaceCount = computed(
   () => communitySpaces.value.filter((space) => space.is_private).length,
+)
+const activeCommunityCount = computed(
+  () => (communities.data || []).filter((community) => !community.archived_at).length,
+)
+const archivedCommunityCount = computed(
+  () => (communities.data || []).filter((community) => community.archived_at).length,
+)
+const publicCommunityCount = computed(
+  () => (communities.data || []).filter((community) => !community.is_private).length,
+)
+const privateCommunityCount = computed(
+  () => (communities.data || []).filter((community) => community.is_private).length,
 )
 
 const canCreateSpace = computed(() =>
   Boolean(selectedCommunity.value && !selectedCommunity.value.archived_at),
 )
 
-watch(
-  communityOptions,
-  () => {
-    if (!selectedCommunityId.value || !isValidCommunity(selectedCommunityId.value)) {
-      selectedCommunityId.value = getInitialCommunityId()
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  () => route.query.teamId,
-  () => {
-    const routeCommunityId = getRouteCommunityId()
-    if (routeCommunityId && isValidCommunity(routeCommunityId)) {
-      selectedCommunityId.value = routeCommunityId
-    }
-  },
-  { immediate: true },
-)
-
-watch(selectedCommunityId, (communityId) => {
-  if (!communityId || route.query.teamId === communityId) return
-
-  router.replace({
-    name: 'Spaces',
-    query: {
-      ...route.query,
-      teamId: communityId,
-    },
-  })
-})
-
-function matchesStatusFilter(space: Space) {
-  return statusFilter.value === 'Active' ? !space.archived_at : Boolean(space.archived_at)
+function matchesStatusFilter(space: Space, filter: StatusFilter) {
+  return filter === 'Active' ? !space.archived_at : Boolean(space.archived_at)
 }
 
-function matchesVisibilityFilter(space: Space) {
-  if (visibilityFilter.value === 'Public') return !space.is_private
-  if (visibilityFilter.value === 'Private') return Boolean(space.is_private)
+function matchesVisibilityFilter(space: Space, filter: VisibilityFilter) {
+  if (filter === 'Public') return !space.is_private
+  if (filter === 'Private') return Boolean(space.is_private)
+  return true
+}
+
+function matchesCommunityStatusFilter(community: Community, filter: StatusFilter) {
+  return filter === 'Active' ? !community.archived_at : Boolean(community.archived_at)
+}
+
+function matchesCommunityVisibilityFilter(community: Community, filter: VisibilityFilter) {
+  if (filter === 'Public') return !community.is_private
+  if (filter === 'Private') return Boolean(community.is_private)
   return true
 }
 
@@ -230,31 +264,28 @@ function getPagesCount(spaceId: string) {
   return pagesCountBySpace.value[spaceId] || 0
 }
 
-function getStatusCount(value: unknown) {
-  return value === 'Archived' ? archivedCount.value : activeCount.value
+function getSpaceStatusCount(value: unknown) {
+  return value === 'Archived' ? archivedSpaceCount.value : activeSpaceCount.value
 }
 
-function getVisibilityCount(value: unknown) {
-  if (value === 'Public') return publicCount.value
-  if (value === 'Private') return privateCount.value
+function getSpaceVisibilityCount(value: unknown) {
+  if (value === 'Public') return publicSpaceCount.value
+  if (value === 'Private') return privateSpaceCount.value
   return communitySpaces.value.length
 }
 
-function getInitialCommunityId() {
-  const routeCommunityId = getRouteCommunityId()
-  if (routeCommunityId && isValidCommunity(routeCommunityId)) return routeCommunityId
-  if (communityState.id && isValidCommunity(communityState.id)) return communityState.id
-
-  const activeCommunity = (communities.data || []).find((community) => !community.archived_at)
-  return activeCommunity?.name || communities.data?.[0]?.name || null
+function getCommunityStatusCount(value: unknown) {
+  return value === 'Archived' ? archivedCommunityCount.value : activeCommunityCount.value
 }
 
-function getRouteCommunityId() {
-  return typeof route.query.teamId === 'string' ? route.query.teamId : null
+function getCommunityVisibilityCount(value: unknown) {
+  if (value === 'Public') return publicCommunityCount.value
+  if (value === 'Private') return privateCommunityCount.value
+  return communities.data?.length || 0
 }
 
-function isValidCommunity(communityId: string) {
-  return Boolean((communities.data || []).find((community) => community.name === communityId))
+function getCommunitySpacesCount(communityId: string) {
+  return (spaces.data || []).filter((space) => space.team === communityId).length
 }
 
 function openNewSpaceDialog() {

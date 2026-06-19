@@ -223,7 +223,7 @@ const adminShortcuts = computed<RailItem[]>(() => {
     {
       label: 'Spaces',
       icon: 'lucide-layout-grid',
-      isActive: isRoute('Spaces'),
+      isActive: isRoute('Spaces', 'CommunitySpaces'),
       route: { name: 'Spaces' },
     },
   ]
