@@ -199,7 +199,6 @@ import { isNewCommentOpen } from '@/data/newComment'
 import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import { useDraftSync } from '@/data/useDraftSync'
 import { useSessionUser } from '@/data/users'
-import { htmlToText } from '@/utils'
 
 interface Props {
   doctype: string
@@ -407,9 +406,8 @@ const minimizedLabel = computed(() => {
 })
 
 const draftContentPreview = computed(() => {
-  return htmlToText(draftData.value.content ?? '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  const text = firstTextBlock(draftData.value.content ?? '')
+  return text ? `${text}...` : ''
 })
 
 const composerEditorMaxHeightStyle = computed(() => `${composerEditorMaxHeight.value}px`)
@@ -756,6 +754,13 @@ function normalizePoll(poll?: ComposerUiState['poll']): NewPoll {
           { title: '', idx: 2 },
         ],
   }
+}
+
+function firstTextBlock(html: string) {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const blocks = Array.from(doc.body.querySelectorAll('p, li, blockquote, h1, h2, h3, h4, h5, h6'))
+  const firstBlock = blocks.find((block) => block.textContent?.trim())
+  return firstBlock?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
 }
 
 let resizeStartY = 0
