@@ -1,181 +1,250 @@
 <template>
   <PageHeader>
-    <Breadcrumbs class="h-7" :items="[{ label: 'Spaces', route: { name: 'Spaces' } }]" />
-    <Button
-      icon-left="lucide-plus"
-      @click="
-        () => {
-          lockedCommunityForNewSpace = ''
-          newSpaceDialog = true
-        }
-      "
-    >
-      Add new
+    <Breadcrumbs class="h-7" :items="[{ label: 'Community Spaces', route: { name: 'Spaces' } }]" />
+    <Button icon-left="lucide-plus" :disabled="!canCreateSpace" @click="openNewSpaceDialog">
+      New space
     </Button>
   </PageHeader>
-  <NewSpaceDialog v-model="newSpaceDialog" :lockedCommunityId="lockedCommunityForNewSpace" />
-  <div class="body-container">
-    <div class="mt-6 mb-3 flex items-center justify-between gap-2.5">
+
+  <NewSpaceDialog v-model="newSpaceDialog" :lockedCommunityId="selectedCommunityId || ''" />
+  <EditSpaceDialog v-model="editSpaceDialog" :spaceId="spaceIdBeingEdited || ''" />
+
+  <div class="body-container pb-16 pt-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="min-w-0">
+        <h1 class="text-3xl-semibold text-ink-gray-8">Community Spaces</h1>
+        <p class="mt-1 text-base text-ink-gray-5">Manage spaces for one community at a time.</p>
+      </div>
+      <Combobox
+        v-model="selectedCommunityId"
+        :options="communityOptions"
+        placeholder="Select community"
+        class="w-full sm:w-80"
+        open-on-click
+      />
+    </div>
+
+    <div class="mt-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
       <TextInput
         ref="searchInputRef"
         v-model="query"
         :debounce="150"
-        :placeholder="$platform == 'mac' ? 'Search (⌘+F)' : 'Search (Ctrl+F)'"
-        class="w-full"
+        :placeholder="$platform == 'mac' ? 'Search spaces (⌘+F)' : 'Search spaces (Ctrl+F)'"
+        class="w-full lg:max-w-sm"
       >
         <template #prefix>
           <span class="lucide-search size-4 text-ink-gray-5" />
         </template>
       </TextInput>
-      <TabButtons
-        :buttons="[{ label: 'Active' }, { label: 'Private' }, { label: 'Archived' }]"
-        v-model="currentTab"
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <TabButtons :options="statusButtons" v-model="statusFilter" />
+        <TabButtons :options="visibilityButtons" v-model="visibilityFilter" />
+      </div>
+    </div>
+
+    <div
+      v-if="selectedCommunity"
+      class="mt-5 flex flex-col gap-3 border-y border-outline-gray-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div class="flex min-w-0 items-center gap-2">
+        <div class="min-w-0 text-base-medium text-ink-gray-8">
+          {{ selectedCommunity.title }}
+        </div>
+        <Badge v-if="selectedCommunity.archived_at">Archived community</Badge>
+        <Badge v-if="selectedCommunity.is_private">
+          <template #prefix><span class="lucide-lock size-3" /></template>
+          Private
+        </Badge>
+      </div>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-gray-5">
+        <span>{{ activeCount }} active</span>
+        <span>{{ archivedCount }} archived</span>
+        <span>{{ publicCount }} public</span>
+        <span>{{ privateCount }} private</span>
+      </div>
+    </div>
+
+    <div v-if="!selectedCommunity" class="py-12 text-center text-base text-ink-gray-5">
+      No communities available
+    </div>
+
+    <div v-else-if="filteredSpaces.length" class="mt-3 divide-y divide-outline-gray-1 border-b">
+      <div
+        class="hidden grid-cols-[2rem_minmax(0,1fr)_7rem_8rem_8rem] gap-3 px-3 py-2 text-sm text-ink-gray-5 md:grid"
+      >
+        <div></div>
+        <div>Space</div>
+        <div>Visibility</div>
+        <div>Content</div>
+        <div class="text-right">Actions</div>
+      </div>
+      <SpaceManagerRow
+        v-for="space in filteredSpaces"
+        :key="space.name"
+        :space="space"
+        @edit="openEditSpaceDialog"
       />
     </div>
-    <div class="p-3" v-if="!hasAnySpaces">
-      <EmptyStateBox>
-        <div class="text-ink-gray-5 text-base">No spaces</div>
-      </EmptyStateBox>
-    </div>
-    <div class="mb-10" v-if="filteredPinnedSpaces.length > 0">
-      <div class="flex items-center text-base text-ink-gray-8 py-2">
-        <span class="lucide-pin inline h-4 w-4 mr-2" />
-        <span> Pinned </span>
-      </div>
-      <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        <SpaceCard
-          v-for="d in filteredPinnedSpaces"
-          :key="d.name"
-          :space="useSpace(d.project).value"
-          variant="pinned"
-        />
+
+    <div v-else class="py-12 text-center">
+      <div class="text-base text-ink-gray-6">No spaces match these filters</div>
+      <div class="mt-1 text-sm text-ink-gray-5">
+        Try a different status, visibility, or search term.
       </div>
     </div>
-    <RecycleScroller
-      ref="scroller"
-      key-field="name"
-      :items="groupedSpaces"
-      size-field="height"
-      @scroll-end="onScrollEnd"
-    >
-      <template #default="{ item }">
-        <SpaceCardGroup
-          :ref="(el) => setGroupRefs(el, item.name)"
-          :group="item"
-          class="scroll-mt-12"
-          @new-space="
-            (communityName) => {
-              lockedCommunityForNewSpace = communityName
-              newSpaceDialog = true
-            }
-          "
-        />
-      </template>
-    </RecycleScroller>
   </div>
 </template>
-<script setup lang="ts">
-import { ref, nextTick, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import { useRoute } from 'vue-router'
-import { Breadcrumbs, TabButtons, Button, TextInput } from 'frappe-ui'
-import { useWindowSize } from '@vueuse/core'
-import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import EmptyStateBox from '@/components/EmptyStateBox.vue'
-import SpaceCard from './SpaceCard.vue'
-import SpaceCardGroup from './SpaceCardGroup.vue'
-import { useGroupedSpaces } from '@/data/groupedSpaces'
-import { pinnedSpaces } from '@/data/pinnedSpaces'
-import { useSpace } from '@/data/spaces'
 
-const currentTab = ref('Active')
-const lockedCommunityForNewSpace = ref('')
-const query = ref('')
+<script setup lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  Badge,
+  Breadcrumbs,
+  Button,
+  Combobox,
+  TabButtons,
+  TextInput,
+  type ComboboxOption,
+} from 'frappe-ui'
+import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
+import EditSpaceDialog from '@/components/EditSpaceDialog.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import { communities } from '@/data/communities'
+import { communityState } from '@/data/communityState'
+import { spaces, type Space } from '@/data/spaces'
+import SpaceManagerRow from './SpaceManagerRow.vue'
+
+type StatusFilter = 'Active' | 'Archived'
+type VisibilityFilter = 'All' | 'Public' | 'Private'
+
 const route = useRoute()
-const scroller = ref(null)
+const router = useRouter()
+const selectedCommunityId = ref<string | null>(null)
+const query = ref('')
+const statusFilter = ref<StatusFilter>('Active')
+const visibilityFilter = ref<VisibilityFilter>('All')
+const newSpaceDialog = ref(false)
+const editSpaceDialog = ref(false)
+const spaceIdBeingEdited = ref<string | null>(null)
 const searchInputRef = useTemplateRef<InstanceType<typeof TextInput>>('searchInputRef')
 
-const filteredPinnedSpaces = computed(() => {
-  if (currentTab.value !== 'Active' || !pinnedSpaces.data) return []
+const statusButtons = [{ label: 'Active' }, { label: 'Archived' }]
+const visibilityButtons = [{ label: 'All' }, { label: 'Public' }, { label: 'Private' }]
 
-  return pinnedSpaces.data.filter((d) => {
-    const space = useSpace(d.project).value
-    if (!space) return false
-    if (!query.value) return true
-    return space.title.toLowerCase().includes(query.value.toLowerCase())
+const communityOptions = computed((): ComboboxOption[] => {
+  return (communities.data || []).map((community) => ({
+    label: community.archived_at ? `${community.title} (archived)` : community.title,
+    value: community.name,
+  }))
+})
+
+const selectedCommunity = computed(() => {
+  return (communities.data || []).find((community) => community.name === selectedCommunityId.value)
+})
+
+const communitySpaces = computed(() => {
+  if (!selectedCommunityId.value) return []
+  return (spaces.data || []).filter((space) => space.team === selectedCommunityId.value)
+})
+
+const filteredSpaces = computed(() => {
+  const searchText = query.value.trim().toLowerCase()
+  return communitySpaces.value.filter((space) => {
+    return (
+      matchesStatusFilter(space) &&
+      matchesVisibilityFilter(space) &&
+      (!searchText || space.title.toLowerCase().includes(searchText))
+    )
   })
 })
 
-const groupedSpaces = computed(() => {
-  let _groupedSpaces = useGroupedSpaces({
-    filterFn: (space) =>
-      Boolean(
-        {
-          Public: !space.archived_at,
-          Active: !space.archived_at,
-          Private: space.is_private,
-          Archived: space.archived_at,
-        }[currentTab.value],
-      ) && (query.value ? space.title.toLowerCase().includes(query.value.toLowerCase()) : true),
+const activeCount = computed(
+  () => communitySpaces.value.filter((space) => !space.archived_at).length,
+)
+const archivedCount = computed(
+  () => communitySpaces.value.filter((space) => space.archived_at).length,
+)
+const publicCount = computed(
+  () => communitySpaces.value.filter((space) => !space.is_private).length,
+)
+const privateCount = computed(
+  () => communitySpaces.value.filter((space) => space.is_private).length,
+)
+
+const canCreateSpace = computed(() =>
+  Boolean(selectedCommunity.value && !selectedCommunity.value.archived_at),
+)
+
+watch(
+  communityOptions,
+  () => {
+    if (!selectedCommunityId.value || !isValidCommunity(selectedCommunityId.value)) {
+      selectedCommunityId.value = getInitialCommunityId()
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => route.query.teamId,
+  () => {
+    const routeCommunityId = getRouteCommunityId()
+    if (routeCommunityId && isValidCommunity(routeCommunityId)) {
+      selectedCommunityId.value = routeCommunityId
+    }
+  },
+  { immediate: true },
+)
+
+watch(selectedCommunityId, (communityId) => {
+  if (!communityId || route.query.teamId === communityId) return
+
+  router.replace({
+    name: 'Spaces',
+    query: {
+      ...route.query,
+      teamId: communityId,
+    },
   })
-
-  let out = []
-
-  let categoryHeight = 44
-  let cardHeight = 66.95
-  let gap = 12
-  let gapBetweenGroups = 48
-
-  for (const group of _groupedSpaces.value) {
-    let rows = Math.ceil(group.spaces.length / columns.value)
-    let gapHeight = (rows - 1) * gap
-    let groupHeight = categoryHeight + gapHeight + rows * cardHeight + gapBetweenGroups
-    out.push({
-      ...group,
-      height: groupHeight,
-    })
-  }
-  return out
 })
 
-const hasAnySpaces = computed(() => {
-  return filteredPinnedSpaces.value.length > 0 || groupedSpaces.value.length > 0
-})
-
-const newSpaceDialog = ref(false)
-const groupRefs = ref<Record<string, InstanceType<typeof SpaceCardGroup>>>({})
-
-async function onScrollEnd() {
-  if (route.query.teamId) {
-    await nextTick()
-    setTimeout(() => {
-      scrollToCategory(route.query.teamId as string)
-    }, 100)
-  }
+function matchesStatusFilter(space: Space) {
+  return statusFilter.value === 'Active' ? !space.archived_at : Boolean(space.archived_at)
 }
 
-function scrollToCategory(categoryId: string) {
-  const groupElement = groupRefs.value[categoryId]
-  if (groupElement?.$el) {
-    groupElement.$el.scrollIntoView({ block: 'start' })
-  }
+function matchesVisibilityFilter(space: Space) {
+  if (visibilityFilter.value === 'Public') return !space.is_private
+  if (visibilityFilter.value === 'Private') return Boolean(space.is_private)
+  return true
 }
 
-function setGroupRefs(el: any, name: string) {
-  if (el) {
-    groupRefs.value[name] = el
-  }
+function getInitialCommunityId() {
+  const routeCommunityId = getRouteCommunityId()
+  if (routeCommunityId && isValidCommunity(routeCommunityId)) return routeCommunityId
+  if (communityState.id && isValidCommunity(communityState.id)) return communityState.id
+
+  const activeCommunity = (communities.data || []).find((community) => !community.archived_at)
+  return activeCommunity?.name || communities.data?.[0]?.name || null
 }
 
-const { width: windowWidth } = useWindowSize()
-const columns = computed(() => {
-  if (windowWidth.value < 768) return 1
-  if (windowWidth.value < 1024) return 2
-  if (windowWidth.value < 1280) return 3
-  return 4
-})
+function getRouteCommunityId() {
+  return typeof route.query.teamId === 'string' ? route.query.teamId : null
+}
+
+function isValidCommunity(communityId: string) {
+  return Boolean((communities.data || []).find((community) => community.name === communityId))
+}
+
+function openNewSpaceDialog() {
+  if (!canCreateSpace.value) return
+  newSpaceDialog.value = true
+}
+
+function openEditSpaceDialog(spaceId: string) {
+  spaceIdBeingEdited.value = spaceId
+  editSpaceDialog.value = true
+}
 
 function handleKeyDown(e: KeyboardEvent) {
   if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
@@ -189,10 +258,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
-
-  if (!route.query.teamId) {
-    nextTick(() => searchInputRef.value?.el?.focus())
-  }
+  nextTick(() => searchInputRef.value?.el?.focus())
 })
 
 onUnmounted(() => {
