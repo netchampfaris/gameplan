@@ -9,7 +9,8 @@
       <div class="relative size-7">
         <button
           type="button"
-          class="group/image relative flex size-7 items-center justify-center rounded-[7px] border border-outline-gray-1 bg-surface-gray-1 outline-none transition hover:border-outline-gray-3 focus:border-outline-gray-4 disabled:cursor-not-allowed"
+          class="group/image relative flex size-7 items-center justify-center rounded-[7px] bg-surface-gray-1 outline-none transition disabled:cursor-not-allowed"
+          :class="getButtonBorderClass(file)"
           :aria-label="`Upload image for ${community.title}`"
           :aria-busy="uploading || saving"
           :disabled="uploading || saving"
@@ -98,6 +99,11 @@ function getImageUrl(file: File | null) {
   }
 
   return props.community.image
+}
+
+function getButtonBorderClass(file: File | null) {
+  if (getImageUrl(file)) return ''
+  return 'border border-outline-gray-1 hover:border-outline-gray-3 focus:border-outline-gray-4'
 }
 
 function getPreviewUrl(file: File) {
