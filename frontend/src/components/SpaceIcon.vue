@@ -1,8 +1,5 @@
 <template>
-  <span v-if="isLucideIcon" :class="[icon, 'inline-block shrink-0']" />
-  <span v-else class="inline-block shrink-0 font-[emoji] leading">
-    {{ icon }}
-  </span>
+  <span :class="[displayIcon, 'inline-block shrink-0']" />
 </template>
 
 <script setup lang="ts">
@@ -12,5 +9,7 @@ const props = defineProps<{
   icon?: string | null
 }>()
 
-const isLucideIcon = computed(() => props.icon?.startsWith('lucide-'))
+const displayIcon = computed(() => {
+  return props.icon?.startsWith('lucide-') ? props.icon : 'lucide-hash'
+})
 </script>

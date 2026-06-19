@@ -64,6 +64,7 @@ import { readOnlyMode } from '@/data/readOnlyMode'
 
 const props = defineProps<{
   space: Space
+  pagesCount: number
 }>()
 
 const emit = defineEmits<{
@@ -80,8 +81,12 @@ const canEditSpace = computed(() => !readOnlyMode && !props.space.archived_at)
 const visibilityLabel = computed(() => (props.space.is_private ? 'Private' : 'Public'))
 const contentLabel = computed(() => {
   const discussions = props.space.discussions_count ?? 0
+  const pages = props.pagesCount
   const tasks = props.space.tasks_count ?? 0
-  return `${formatCount(discussions, 'post')} / ${formatCount(tasks, 'task')}`
+  return `${formatCount(discussions, 'post')} / ${formatCount(pages, 'page')} / ${formatCount(
+    tasks,
+    'task',
+  )}`
 })
 
 async function restoreSpace() {

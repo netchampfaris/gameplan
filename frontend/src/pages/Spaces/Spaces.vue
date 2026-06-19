@@ -82,6 +82,7 @@
         v-for="space in filteredSpaces"
         :key="space.name"
         :space="space"
+        :pages-count="getPagesCount(space.name)"
         @edit="openEditSpaceDialog"
       />
     </div>
@@ -106,6 +107,7 @@ import {
   TabButtons,
   TextInput,
   type ComboboxOption,
+  useList,
 } from 'frappe-ui'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
 import EditSpaceDialog from '@/components/EditSpaceDialog.vue'
@@ -113,10 +115,12 @@ import PageHeader from '@/components/PageHeader.vue'
 import { communities } from '@/data/communities'
 import { communityState } from '@/data/communityState'
 import { spaces, type Space } from '@/data/spaces'
+import type { GPPage } from '@/types/doctypes'
 import SpaceManagerRow from './SpaceManagerRow.vue'
 
 type StatusFilter = 'Active' | 'Archived'
 type VisibilityFilter = 'All' | 'Public' | 'Private'
+type PageRecord = Pick<GPPage, 'project'>
 
 const route = useRoute()
 const router = useRouter()
@@ -131,6 +135,13 @@ const searchInputRef = useTemplateRef<InstanceType<typeof TextInput>>('searchInp
 
 const statusButtons = [{ label: 'Active' }, { label: 'Archived' }]
 const visibilityButtons = [{ label: 'All' }, { label: 'Public' }, { label: 'Private' }]
+const pages = useList<PageRecord>({
+  doctype: 'GP Page',
+  fields: ['project'],
+  initialData: [],
+  limit: 99999,
+  cacheKey: 'space-page-counts',
+})
 
 const communityOptions = computed((): ComboboxOption[] => {
   return (communities.data || []).map((community) => ({
@@ -157,6 +168,15 @@ const filteredSpaces = computed(() => {
       (!searchText || space.title.toLowerCase().includes(searchText))
     )
   })
+})
+
+const pagesCountBySpace = computed(() => {
+  const counts: Record<string, number> = {}
+  for (const page of pages.data || []) {
+    if (!page.project) continue
+    counts[page.project] = (counts[page.project] || 0) + 1
+  }
+  return counts
 })
 
 const activeCount = computed(
@@ -217,6 +237,10 @@ function matchesVisibilityFilter(space: Space) {
   if (visibilityFilter.value === 'Public') return !space.is_private
   if (visibilityFilter.value === 'Private') return Boolean(space.is_private)
   return true
+}
+
+function getPagesCount(spaceId: string) {
+  return pagesCountBySpace.value[spaceId] || 0
 }
 
 function getInitialCommunityId() {

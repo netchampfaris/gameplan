@@ -12,9 +12,10 @@ from pypika.terms import ExistsCriterion
 import gameplan
 from gameplan.api import invite_by_email
 from gameplan.gameplan.doctype.gp_unread_record.gp_unread_record import GPUnreadRecord
-from gameplan.gemoji import get_random_gemoji
 from gameplan.mixins.archivable import Archivable
 from gameplan.mixins.manage_members import ManageMembersMixin
+
+DEFAULT_SPACE_ICON = "lucide-hash"
 
 
 class GPProject(ManageMembersMixin, Archivable, Document):
@@ -78,9 +79,11 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 		d = super().as_dict(*args, **kwargs)
 		return d
 
+	def before_validate(self):
+		if not self.icon or not self.icon.startswith("lucide-"):
+			self.icon = DEFAULT_SPACE_ICON
+
 	def before_insert(self):
-		if not self.icon:
-			self.icon = get_random_gemoji().emoji
 		self.append("members", {"user": frappe.session.user})
 
 	def on_trash(self):
