@@ -14,12 +14,9 @@
 
     <div class="min-w-0">
       <div class="flex min-w-0 items-center gap-1.5">
-        <router-link
-          :to="{ name: 'Space', params: { communityId: space.team, spaceId: space.name } }"
-          class="truncate text-base-medium text-ink-gray-8 hover:text-ink-gray-9"
-        >
+        <div class="truncate text-base-medium text-ink-gray-8">
           {{ space.title }}
-        </router-link>
+        </div>
         <span v-if="space.is_private" class="lucide-lock size-3.5 shrink-0 text-ink-gray-5" />
         <Badge v-if="space.archived_at" class="shrink-0">Archived</Badge>
       </div>
