@@ -248,6 +248,9 @@ let drafts = useList<Draft>({
   doctype: 'GP Draft',
   filters: {
     type: 'Discussion',
+    // Only standalone new-discussion drafts belong here; edit/comment buffers
+    // (mode='Edit', or comment drafts) are surface-local and excluded.
+    mode: 'New',
   },
   fields: [
     'name',

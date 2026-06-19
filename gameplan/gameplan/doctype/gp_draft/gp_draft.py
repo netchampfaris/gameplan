@@ -37,6 +37,24 @@ class GPDraft(Document):
 			self.delete()
 			return discussion.name
 
+	def commit(self, reference_doctype: str, reference_name: str):
+		"""Finalize an edit/comment draft whose content has already been saved onto its
+		target document. Reparents any draft-owned attachments onto the target (so they
+		survive the draft deletion) and clears the ?fid= query params that otherwise hide
+		the migrated images, then deletes the draft."""
+		if self.owner != frappe.session.user:
+			frappe.throw("You are not allowed to modify this draft")
+
+		target = frappe.get_doc(reference_doctype, reference_name)
+		self.move_attachments_to(target)
+
+		cleaned = remove_query_params_from_images(target.content or "")
+		if cleaned != target.content:
+			target.content = cleaned
+			target.save()
+
+		self.delete()
+
 	def move_attachments_to(self, doc):
 		attachments = frappe.qb.get_query(
 			"File",
@@ -49,6 +67,44 @@ class GPDraft(Document):
 				{"attached_to_doctype": doc.doctype, "attached_to_name": doc.name},
 				update_modified=False,
 			)
+
+
+@frappe.whitelist()
+def find_my_draft(
+	type: str,
+	mode: str = "New",
+	reference_doctype: str | None = None,
+	reference_name: str | None = None,
+):
+	"""Return the current user's singleton draft for a given target, or None.
+
+	Singleton drafts (a comment-in-progress on a discussion, an in-flight edit of a
+	post/comment) are keyed by (owner, type, mode, reference) so the same logical edit
+	resolves to one row across tabs and devices. New-discussion drafts are standalone
+	and looked up by name instead, so they are not served here."""
+	filters = {"owner": frappe.session.user, "type": type, "mode": mode}
+	if reference_name:
+		filters["reference_doctype"] = reference_doctype
+		filters["reference_name"] = reference_name
+
+	name = frappe.db.get_value("GP Draft", filters, "name")
+	if not name:
+		return None
+	return frappe.get_doc("GP Draft", name).as_dict()
+
+
+@frappe.whitelist()
+def publish_draft(name: str):
+	"""Publish a discussion draft by name. Returns the new GP Discussion name."""
+	return frappe.get_doc("GP Draft", name).publish()
+
+
+@frappe.whitelist()
+def commit_draft(name: str, reference_doctype: str, reference_name: str):
+	"""Finalize an edit/comment draft after its content has been saved onto the target.
+	See GPDraft.commit for the attachment-migration rationale."""
+	draft = frappe.get_doc("GP Draft", name)
+	draft.commit(reference_doctype, reference_name)
 
 
 def remove_query_params_from_images(content):

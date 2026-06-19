@@ -62,14 +62,8 @@
             v-if="comment.deleted_at == null"
             :quote-source-id="`comment:${comment.name}`"
             :author="comment.owner"
-            :value="isEditing ? draftContent : comment.content"
-            @change="
-              (value: string) => {
-                if (isEditing) {
-                  draftContent = value
-                }
-              }
-            "
+            :value="isEditing ? draftData.content : comment.content"
+            @change="onEditorChange"
             :editable="isEditing"
             :submitButtonProps="{
               onClick: () => updateComment(),
@@ -114,6 +108,7 @@ import { GPComment } from '@/types/doctypes'
 import { isSessionUser } from '@/data/session'
 import { dialog } from 'frappe-ui'
 import { tags } from '@/data/tags'
+import { useDraftSync } from '@/data/useDraftSync'
 
 interface Props {
   comment: GPComment
@@ -125,23 +120,40 @@ interface Props {
 const props = defineProps<Props>()
 const showRevisionsDialog = ref(false)
 const isEditing = ref(false)
-const draftContent = ref('')
 const isUpdating = ref(false)
 const updateError = ref(null)
 
-const startEditing = () => {
-  isEditing.value = true
-  draftContent.value = props.comment.content
+// While editing, the comment body is an auto-saved draft: it survives reloads and
+// silently restores if the edit is reopened. Dormant until the editor is open.
+const draft = useDraftSync({
+  identity: () => ({
+    type: 'Comment',
+    mode: 'Edit',
+    referenceDoctype: 'GP Comment',
+    referenceName: props.comment.name,
+  }),
+  enabled: isEditing,
+  initialPayload: () => ({ content: props.comment.content ?? '' }),
+})
+const draftData = draft.data
+
+const onEditorChange = (value: string) => {
+  if (isEditing.value) draftData.value.content = value
 }
 
-const discardEdit = () => {
+const startEditing = () => {
+  isEditing.value = true
+}
+
+const discardEdit = async () => {
   isEditing.value = false
-  draftContent.value = ''
   updateError.value = null
+  await draft.clear()
 }
 
 const updateComment = () => {
-  if (!draftContent.value.trim()) return
+  const content = draftData.value.content
+  if (!content?.trim()) return
 
   isUpdating.value = true
   updateError.value = null
@@ -149,10 +161,11 @@ const updateComment = () => {
   props.comments.setValue
     .submit({
       name: props.comment.name,
-      content: draftContent.value,
+      content,
     })
-    .then(() => {
-      discardEdit()
+    .then(async () => {
+      await draft.commit()
+      isEditing.value = false
       tags.reload()
     })
     .catch((error) => {

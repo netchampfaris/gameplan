@@ -341,6 +341,12 @@ export interface GPDraft extends DocType {
   content?: string
   /** Type: Select */
   type?: 'Discussion' | 'Comment'
+  /** Mode: Select */
+  mode?: 'New' | 'Edit'
+  /** Reference DocType: Link (DocType) */
+  reference_doctype?: string
+  /** Reference Name: Dynamic Link */
+  reference_name?: string
   /** Project: Link (GP Project) */
   project?: string
   /** Team: Link (GP Team) */

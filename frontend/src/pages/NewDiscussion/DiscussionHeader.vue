@@ -5,7 +5,7 @@
       :items="[
         { label: 'Drafts', route: { name: 'Drafts' } },
         {
-          label: draftDoc?.doc ? draftData.title : 'New Discussion',
+          label: isPersisted ? draftData.title : 'New Discussion',
           route: discussionRoute,
         },
       ]"
@@ -16,10 +16,10 @@
         :options="[
           {
             label: 'Delete',
-            condition: () => draftDoc?.doc && sessionUser.name == author.name,
+            condition: () => isPersisted && sessionUser.name == author.name,
             onClick: deleteDraft,
           },
-          { label: 'Discard', condition: () => !draftDoc?.doc, onClick: discard },
+          { label: 'Discard', condition: () => !isPersisted, onClick: discard },
           {
             label: 'Save Draft',
             condition: () => isDraftChanged && !saveStatus.isSaving,
@@ -51,7 +51,7 @@ import { useNewDiscussionContext } from './useNewDiscussion'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
 const {
-  draftDoc,
+  isPersisted,
   draftData,
   sessionUser,
   author,

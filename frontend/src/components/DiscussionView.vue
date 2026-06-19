@@ -103,20 +103,20 @@
                   type="text"
                   class="w-full rounded border-0 text-ink-gray-8 px-0 py-0.5 text-4xl-semibold focus:ring-0"
                   ref="title"
-                  v-model="discussion.doc.title"
+                  v-model="postDraftData.title"
                   placeholder="Title"
                 />
               </div>
             </div>
             <DiscussionViewEditor
               ref="postEditor"
-              :content="discussion.doc.content"
+              :content="editingPost ? postDraftData.content : discussion.doc.content"
               :editable="editingPost"
               :saving="discussion.setValue.loading"
               :can-save="canSavePost"
               :quote-source-id="`discussion:${discussion.doc.name}`"
               :author="discussion.doc.owner"
-              @change="discussion.doc.content = $event"
+              @change="onPostEditorChange"
               @save="updatePost"
               @discard="cancelEdit"
             />
@@ -270,6 +270,7 @@ import { getSpace, useSpace } from '@/data/spaces'
 import { useCommunity } from '@/data/communities'
 import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDiscussion } from '@/data/discussions'
+import { useDraftSync } from '@/data/useDraftSync'
 import { tags } from '@/data/tags'
 import { useScrollPosition } from '@/utils/scrollContainer'
 import { isMobile } from '@/composables/isMobile'
@@ -319,6 +320,28 @@ const pinDialog = reactive<{
 const showRevisionsDialog = ref(false)
 
 const discussion = useDiscussion(() => props.postId)
+
+// While the post is being edited, its title/body live in an auto-saved draft instead of
+// being mutated on discussion.doc directly. The draft survives reloads and navigation, and
+// silently restores if the edit is reopened. Dormant until editingPost flips true.
+const postDraft = useDraftSync({
+  identity: () => ({
+    type: 'Discussion',
+    mode: 'Edit',
+    referenceDoctype: 'GP Discussion',
+    referenceName: props.postId,
+  }),
+  enabled: editingPost,
+  initialPayload: () => ({
+    title: discussion.doc?.title ?? '',
+    content: discussion.doc?.content ?? '',
+  }),
+})
+const postDraftData = postDraft.data
+
+function onPostEditorChange(value: string) {
+  if (editingPost.value) postDraftData.value.content = value
+}
 
 onMounted(() => {
   scrollToUnread()
@@ -398,7 +421,7 @@ function moveToSpace() {
   }
 }
 
-const canSavePost = computed(() => Boolean(discussion.doc?.title?.trim()))
+const canSavePost = computed(() => Boolean(postDraftData.value.title?.trim()))
 
 // Read content from the editor's own serializer rather than discussion.doc.content:
 // the editor re-normalizes HTML on load and writes it back, so the stored value
@@ -425,7 +448,7 @@ function startEditingPost() {
 function isPostDirty() {
   if (!editSnapshot.value) return false
   return (
-    (discussion.doc?.title ?? '') !== editSnapshot.value.title ||
+    (postDraftData.value.title ?? '') !== editSnapshot.value.title ||
     currentPostContent() !== editSnapshot.value.content
   )
 }
@@ -433,6 +456,8 @@ function isPostDirty() {
 function closeEditor() {
   editingPost.value = false
   editSnapshot.value = null
+  // Explicit discard throws the draft away (navigating away would keep it instead).
+  postDraft.clear()
   discussion.reload()
 }
 
@@ -455,10 +480,12 @@ function updatePost() {
   if (!editingPost.value || !canSavePost.value) return
   discussion.setValue
     .submit({
-      title: discussion.doc?.title,
-      content: discussion.doc?.content,
+      title: postDraftData.value.title,
+      content: postDraftData.value.content,
     })
-    .then(() => {
+    .then(async () => {
+      // Content is saved onto the post; migrate the draft's attachments and delete it.
+      await postDraft.commit()
       tags.reload()
     })
   editingPost.value = false

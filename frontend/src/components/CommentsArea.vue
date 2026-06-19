@@ -108,7 +108,7 @@
               ref="newCommentEditor"
               v-if="showCommentBox && newCommentType == 'Comment'"
               :key="commentEditorKey"
-              :value="newComment"
+              :value="draftData.content"
               @change="onNewCommentChange"
               :submitButtonProps="{
                 variant: 'solid',
@@ -169,6 +169,7 @@ import type { Editor } from '@tiptap/vue-3'
 import { tags } from '@/data/tags'
 import { isNewCommentOpen } from '@/data/newComment'
 import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
+import { useDraftSync } from '@/data/useDraftSync'
 
 interface Props {
   doctype: string
@@ -201,7 +202,19 @@ const socket = useSocket()
 
 const showCommentBox = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')
-const newComment = ref(localStorage.getItem(draftCommentKey()) || '')
+
+// The new-comment composer is an auto-saved draft, keyed to this discussion so it
+// survives reloads and restores across tabs. One draft per (user, discussion).
+const draft = useDraftSync({
+  identity: () => ({
+    type: 'Comment',
+    mode: 'New',
+    referenceDoctype: props.doctype,
+    referenceName: props.name,
+  }),
+  initialPayload: () => ({ content: '' }),
+})
+const draftData = draft.data
 const newPoll = ref({
   title: '',
   multiple_answers: false,
@@ -327,7 +340,7 @@ const timelineItems = computed(() => {
 })
 
 const commentEmpty = computed(() => {
-  return !newComment.value || newComment.value === '<p></p>'
+  return !draftData.value.content || draftData.value.content === '<p></p>'
 })
 
 const editorObject = computed<Editor | null>(() => {
@@ -341,10 +354,6 @@ defineExpose({
   getCommentContentElement,
   highlightComment,
 })
-
-function draftCommentKey(): string {
-  return `draft-comment-${props.doctype}-${props.name}`
-}
 
 function openCommentBox() {
   showCommentBox.value = true
@@ -372,8 +381,6 @@ function highlightComment(id: string) {
 }
 
 function resetCommentState() {
-  localStorage.removeItem(draftCommentKey())
-  newComment.value = ''
   showCommentBox.value = false
   commentEditorKey.value++
   newCommentType.value = 'Comment'
@@ -397,9 +404,10 @@ async function submitComment() {
     .submit({
       reference_doctype: props.doctype,
       reference_name: props.name,
-      content: newComment.value,
+      content: draftData.value.content,
     })
-    .then(() => {
+    .then(async () => {
+      await draft.commit()
       resetCommentState()
       tags.reload()
     })
@@ -493,22 +501,23 @@ function setItemRef($component: any, item: any) {
 }
 
 function onNewCommentChange(content: string) {
-  newComment.value = content
-  setTimeout(() => {
-    localStorage.setItem(draftCommentKey(), content)
-  }, 0)
+  draftData.value.content = content
 }
 
-function discardComment() {
+async function discardComment() {
   if (!editorObject.value?.isEmpty) {
     dialog.danger({
       title: 'Discard comment',
       message: 'Are you sure you want to discard your comment?',
       confirmLabel: 'Discard comment',
       cancelLabel: 'Keep comment',
-      onConfirm: resetCommentState,
+      onConfirm: async () => {
+        await draft.clear()
+        resetCommentState()
+      },
     })
   } else {
+    await draft.clear()
     resetCommentState()
   }
 }
@@ -523,10 +532,16 @@ watch(showCommentBox, (val) => {
   }
 })
 
+// Reopen the composer if a saved draft is restored for this discussion.
+watch(
+  () => draft.ready.value,
+  (ready) => {
+    if (ready && draft.restored.value) showCommentBox.value = true
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
-  if (!commentEmpty.value) {
-    showCommentBox.value = true
-  }
   // Announce this area's reply box (quote insert target) and its comments (scroll
   // targets) to the rich-quote controller, instead of being reached into.
   richQuotes?.setReplyTarget({
