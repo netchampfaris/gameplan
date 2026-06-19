@@ -21,16 +21,11 @@
         class="w-full lg:max-w-xl"
         open-on-click
       >
-        <template #prefix>
-          <CommunityImage
-            v-if="selectedCommunity"
-            :community="selectedCommunity"
-            class="size-5 shrink-0 bg-surface-gray-1"
-          />
-        </template>
-
         <template #item-prefix="{ item }">
-          <CommunityImage :community="item" class="size-5 shrink-0 bg-surface-gray-1" />
+          <CommunityImage
+            :community="item"
+            class="size-5 shrink-0 rounded-[7px] border border-outline-gray-1 bg-surface-gray-1"
+          />
         </template>
 
         <template #item-suffix="{ item }">
