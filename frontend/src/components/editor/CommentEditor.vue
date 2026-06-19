@@ -71,7 +71,7 @@ defineExpose({ editor })
           <Tooltip :text="toolbarExpanded ? 'Show fewer tools' : 'Show more tools'">
             <Button
               variant="ghost"
-              :icon="toolbarExpanded ? 'lucide-chevron-left' : 'lucide-ellipsis'"
+              :icon="toolbarExpanded ? 'lucide-list-minus' : 'lucide-list-plus'"
               :aria-label="toolbarExpanded ? 'Show fewer editor tools' : 'Show more editor tools'"
               @click="emit('update:toolbarExpanded', !toolbarExpanded)"
             />

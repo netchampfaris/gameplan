@@ -97,14 +97,22 @@
             <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
               {{ minimizedLabel }}
             </span>
-            <span class="lucide-maximize-2 ml-2 size-4 shrink-0 text-ink-gray-5" />
+            <span class="lucide-panel-bottom-open ml-2 size-4 shrink-0 text-ink-gray-5" />
           </button>
           <div
             v-else
-            class="w-full rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3 sm:p-4"
+            class="group/comment-composer relative w-full rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3 sm:p-4"
             @keydown.ctrl.enter.capture.stop="submitComment"
             @keydown.meta.enter.capture.stop="submitComment"
           >
+            <button
+              type="button"
+              class="absolute left-1/2 top-1.5 flex h-3 w-16 -translate-x-1/2 cursor-ns-resize items-center justify-center rounded-full opacity-0 transition-opacity hover:opacity-100 focus:opacity-100 group-hover/comment-composer:opacity-100"
+              aria-label="Resize comment box"
+              @pointerdown="startComposerResize"
+            >
+              <span class="h-1 w-10 rounded-full bg-surface-gray-4" />
+            </button>
             <div class="mb-3 flex items-center gap-2">
               <UserAvatar :user="$user().name" size="md" />
               <span class="min-w-0 flex-1 truncate text-base-medium text-ink-gray-8">
@@ -117,7 +125,7 @@
               <Tooltip text="Minimize">
                 <Button
                   variant="ghost"
-                  icon="lucide-minus"
+                  icon="lucide-panel-bottom-close"
                   aria-label="Minimize comment box"
                   @click="minimizeComposer"
                 />
@@ -139,7 +147,7 @@
                 onClick: discardComment,
               }"
               :editable="true"
-              max-height="min(58vh, 560px)"
+              :max-height="composerEditorMaxHeightStyle"
               v-model:toolbar-expanded="composerToolbarExpanded"
               placeholder="Add a comment..."
             />
@@ -216,9 +224,14 @@ interface ComposerUiState {
   open?: boolean
   minimized?: boolean
   toolbarExpanded?: boolean
+  editorMaxHeight?: number
   type?: 'Comment' | 'Poll'
   poll?: NewPoll
 }
+
+const DEFAULT_COMPOSER_EDITOR_MAX_HEIGHT = 560
+const MIN_COMPOSER_EDITOR_MAX_HEIGHT = 260
+const MAX_COMPOSER_EDITOR_VIEWPORT_RATIO = 0.72
 
 const props = withDefaults(defineProps<Props>(), {
   readOnlyMode: false,
@@ -234,6 +247,7 @@ const sessionUser = useSessionUser()
 const showCommentBox = ref(false)
 const composerMinimized = ref(false)
 const composerToolbarExpanded = ref(false)
+const composerEditorMaxHeight = ref(DEFAULT_COMPOSER_EDITOR_MAX_HEIGHT)
 const composerStateLoaded = ref(false)
 const newCommentType = ref<'Comment' | 'Poll'>('Comment')
 
@@ -390,6 +404,8 @@ const minimizedLabel = computed(() => {
   if (newCommentType.value === 'Poll') return newPoll.value.title || 'Poll in progress'
   return commentEmpty.value ? 'Add a comment' : 'Comment in progress'
 })
+
+const composerEditorMaxHeightStyle = computed(() => `${composerEditorMaxHeight.value}px`)
 
 defineExpose({
   editorObject,
@@ -600,7 +616,14 @@ watch(composerMinimized, (minimized) => {
 })
 
 watch(
-  [showCommentBox, composerMinimized, composerToolbarExpanded, newCommentType, newPoll],
+  [
+    showCommentBox,
+    composerMinimized,
+    composerToolbarExpanded,
+    composerEditorMaxHeight,
+    newCommentType,
+    newPoll,
+  ],
   () => {
     saveComposerState()
   },
@@ -650,6 +673,7 @@ onUnmounted(() => {
   socket.off('new_activity')
   mutationObserver?.disconnect()
   resizeObserver?.disconnect()
+  stopComposerResize()
   isNewCommentOpen.value = false
 })
 
@@ -680,6 +704,7 @@ function loadComposerState() {
   showCommentBox.value = Boolean(state.open)
   composerMinimized.value = Boolean(state.minimized)
   composerToolbarExpanded.value = Boolean(state.toolbarExpanded)
+  composerEditorMaxHeight.value = normalizeComposerHeight(state.editorMaxHeight)
   newCommentType.value = state.type ?? 'Comment'
   newPoll.value = normalizePoll(state.poll)
   composerStateLoaded.value = true
@@ -694,6 +719,7 @@ function saveComposerState() {
       open: showCommentBox.value,
       minimized: composerMinimized.value,
       toolbarExpanded: composerToolbarExpanded.value,
+      editorMaxHeight: composerEditorMaxHeight.value,
       type: newCommentType.value,
       poll: newPoll.value,
     } satisfies ComposerUiState),
@@ -723,5 +749,42 @@ function normalizePoll(poll?: ComposerUiState['poll']): NewPoll {
           { title: '', idx: 2 },
         ],
   }
+}
+
+let resizeStartY = 0
+let resizeStartHeight = DEFAULT_COMPOSER_EDITOR_MAX_HEIGHT
+
+function startComposerResize(event: PointerEvent) {
+  event.preventDefault()
+  resizeStartY = event.clientY
+  resizeStartHeight = composerEditorMaxHeight.value
+  document.body.style.cursor = 'ns-resize'
+  document.body.style.userSelect = 'none'
+  window.addEventListener('pointermove', resizeComposer)
+  window.addEventListener('pointerup', stopComposerResize)
+}
+
+function resizeComposer(event: PointerEvent) {
+  const nextHeight = resizeStartHeight + resizeStartY - event.clientY
+  composerEditorMaxHeight.value = normalizeComposerHeight(nextHeight)
+}
+
+function stopComposerResize() {
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  window.removeEventListener('pointermove', resizeComposer)
+  window.removeEventListener('pointerup', stopComposerResize)
+}
+
+function normalizeComposerHeight(height?: number) {
+  const viewportMaxHeight = Math.floor(window.innerHeight * MAX_COMPOSER_EDITOR_VIEWPORT_RATIO)
+  const maxHeight = Math.max(MIN_COMPOSER_EDITOR_MAX_HEIGHT, viewportMaxHeight)
+  return Math.min(
+    Math.max(
+      Math.round(height || DEFAULT_COMPOSER_EDITOR_MAX_HEIGHT),
+      MIN_COMPOSER_EDITOR_MAX_HEIGHT,
+    ),
+    maxHeight,
+  )
 }
 </script>

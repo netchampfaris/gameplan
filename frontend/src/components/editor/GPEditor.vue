@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, type CSSProperties } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch, type CSSProperties } from 'vue'
 import type { AnyExtension } from '@tiptap/core'
 import {
   Editor as FrappeEditor,
@@ -49,14 +49,34 @@ const emit = defineEmits<{
 }>()
 
 const ft = useTemplateRef<InstanceType<typeof FrappeEditor>>('ft')
+const editorContent = useTemplateRef<HTMLElement>('editorContent')
 const editor = computed(() => ft.value?.editor ?? null)
+const hasScrollOverflow = ref(false)
+const canScrollUp = ref(false)
+const canScrollDown = ref(false)
 
 const scrollStyle = computed<CSSProperties>(() => ({
   maxHeight: props.maxHeight,
   overflowY: props.maxHeight ? 'auto' : undefined,
 }))
 
+watch(
+  () => [props.content, props.maxHeight],
+  () => nextTick(updateScrollFades),
+  { immediate: true },
+)
+
 defineExpose({ editor })
+
+function updateScrollFades() {
+  const $el = editorContent.value?.$el ?? editorContent.value
+  if (!$el) return
+
+  hasScrollOverflow.value = $el.scrollHeight > $el.clientHeight + 1
+  canScrollUp.value = hasScrollOverflow.value && $el.scrollTop > 1
+  canScrollDown.value =
+    hasScrollOverflow.value && $el.scrollTop + $el.clientHeight < $el.scrollHeight - 1
+}
 </script>
 
 <template>
@@ -84,8 +104,26 @@ defineExpose({ editor })
         class="overflow-x-auto"
       />
       <slot name="editor" :editor="e" :editor-class="editorClass" :scroll-style="scrollStyle">
-        <EditorDropZone :editor="e" :disabled="!editable">
-          <EditorContent :editor="e" :class="editorClass" :style="scrollStyle" />
+        <EditorDropZone
+          :editor="e"
+          :disabled="!editable"
+          class="relative"
+          :class="{
+            'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-10 before:h-8 before:bg-gradient-to-b before:from-surface-base before:to-transparent before:opacity-0 before:transition-opacity before:duration-150':
+              maxHeight,
+            'after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-10 after:h-8 after:bg-gradient-to-t after:from-surface-base after:to-transparent after:opacity-0 after:transition-opacity after:duration-150':
+              maxHeight,
+            'before:opacity-100': canScrollUp,
+            'after:opacity-100': canScrollDown,
+          }"
+        >
+          <EditorContent
+            ref="editorContent"
+            :editor="e"
+            :class="editorClass"
+            :style="scrollStyle"
+            @scroll="updateScrollFades"
+          />
         </EditorDropZone>
       </slot>
       <EditorFixedMenu
