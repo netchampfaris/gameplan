@@ -46,6 +46,17 @@ async function ensureConfigureAccess() {
   }
 }
 
+function redirectOldSpacesRoute(to: RouteLocationNormalized): RouteLocationRaw {
+  const queryTeamId = to.query.teamId
+  const communityId = Array.isArray(queryTeamId) ? queryTeamId[0] : queryTeamId
+
+  if (typeof communityId === 'string' && communityId) {
+    return { name: 'CommunitySpaces', params: { communityId }, query: {} }
+  }
+
+  return { name: 'Spaces', query: {} }
+}
+
 const routes: RouteRecordRaw[] = [
     {
       path: '/',
@@ -222,16 +233,20 @@ const routes: RouteRecordRaw[] = [
       component: () => import('@/pages/Teams.vue'),
     },
     {
+      path: '/spaces',
+      redirect: redirectOldSpacesRoute,
+    },
+    {
       path: '/configure',
       name: 'Spaces',
-      component: () => import('@/pages/Spaces/Spaces.vue'),
+      component: () => import('@/pages/Configure/Configure.vue'),
       // `/configure` is an admin-only global housekeeping page; non-admins never reach it.
       beforeEnter: ensureConfigureAccess,
     },
     {
       path: '/configure/:communityId',
       name: 'CommunitySpaces',
-      component: () => import('@/pages/Spaces/Spaces.vue'),
+      component: () => import('@/pages/Configure/Configure.vue'),
       beforeEnter: ensureConfigureAccess,
     },
     {

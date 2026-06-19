@@ -16,7 +16,6 @@
           <span :class="[visibilityIcon, 'size-3.5']" />
           {{ visibilityLabel }}
         </span>
-        <span>{{ statusLabel }}</span>
       </div>
     </div>
 
@@ -25,9 +24,6 @@
     </div>
     <div class="hidden text-sm text-ink-gray-5 md:block">
       {{ membersLabel }}
-    </div>
-    <div class="hidden md:block">
-      <Badge>{{ statusLabel }}</Badge>
     </div>
     <div class="hidden items-center gap-1 text-sm text-ink-gray-6 md:flex">
       <span :class="[visibilityIcon, 'size-3.5']" />
@@ -47,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Badge, Button } from 'frappe-ui'
+import { Button } from 'frappe-ui'
 import CommunityImage from '@/components/CommunityImage.vue'
 import type { Community } from '@/data/communities'
 
@@ -58,10 +54,9 @@ const props = defineProps<{
 
 const rowClass = [
   'grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-1 py-2',
-  'md:grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_7rem_8rem]',
+  'md:grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_8rem]',
 ]
 
-const statusLabel = computed(() => (props.community.archived_at ? 'Archived' : 'Active'))
 const visibilityLabel = computed(() => (props.community.is_private ? 'Private' : 'Public'))
 const visibilityIcon = computed(() =>
   props.community.is_private ? 'lucide-lock' : 'lucide-globe-2',

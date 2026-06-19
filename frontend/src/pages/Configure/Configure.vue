@@ -48,7 +48,7 @@
             <div>Content</div>
             <div class="text-right">Actions</div>
           </div>
-          <SpaceManagerRow
+          <SpaceRow
             v-for="space in filteredSpaces"
             :key="space.name"
             :space="space"
@@ -90,16 +90,15 @@
         class="mt-3 divide-y divide-outline-gray-1 border-b"
       >
         <div
-          class="hidden grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_7rem_8rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
+          class="hidden grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_8rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
         >
           <div class="col-span-2">Community</div>
           <div>Spaces</div>
           <div>Members</div>
-          <div>Status</div>
           <div>Visibility</div>
           <div class="text-right">Actions</div>
         </div>
-        <CommunityManagerRow
+        <CommunityRow
           v-for="community in filteredCommunities"
           :key="community.name"
           :community="community"
@@ -124,8 +123,8 @@ import PageHeader from '@/components/PageHeader.vue'
 import { communities, type Community } from '@/data/communities'
 import { spaces, type Space } from '@/data/spaces'
 import type { GPPage } from '@/types/doctypes'
-import CommunityManagerRow from './CommunityManagerRow.vue'
-import SpaceManagerRow from './SpaceManagerRow.vue'
+import CommunityRow from './CommunityRow.vue'
+import SpaceRow from './SpaceRow.vue'
 
 type StatusFilter = 'Active' | 'Archived'
 type VisibilityFilter = 'All' | 'Public' | 'Private'
