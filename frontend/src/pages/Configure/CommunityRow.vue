@@ -1,9 +1,6 @@
 <template>
   <div :class="rowClass">
-    <CommunityImage
-      :community="community"
-      class="size-7 shrink-0 rounded-[7px] border border-outline-gray-1 bg-surface-gray-1"
-    />
+    <CommunityImageUploader :community="community" class="shrink-0" />
 
     <div class="min-w-0">
       <div class="truncate text-base text-ink-gray-8">
@@ -44,8 +41,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Button } from 'frappe-ui'
-import CommunityImage from '@/components/CommunityImage.vue'
 import type { Community } from '@/data/communities'
+import CommunityImageUploader from './CommunityImageUploader.vue'
 
 const props = defineProps<{
   community: Community
