@@ -90,7 +90,7 @@
         class="mt-3 divide-y divide-outline-gray-1 border-b"
       >
         <div
-          class="hidden grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_8rem] gap-1 py-2 text-sm text-ink-gray-5 md:grid"
+          class="hidden grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_8rem] gap-2 py-2 text-sm text-ink-gray-5 md:grid"
         >
           <div class="col-span-2">Community</div>
           <div>Spaces</div>

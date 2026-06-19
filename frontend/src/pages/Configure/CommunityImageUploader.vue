@@ -18,11 +18,11 @@
         >
           <CommunityImage :community="previewCommunity(file)" class="size-full" />
           <span
-            class="absolute inset-0 rounded-[7px] bg-surface-gray-10/20 opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:opacity-100 group-focus/image:opacity-100"
+            class="absolute inset-0 rounded-[6px] bg-surface-base opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:opacity-100 group-focus/image:opacity-100"
             :class="{ 'opacity-100': uploading || saving }"
           >
             <span
-              class="absolute inset-1 grid place-items-center rounded-full bg-surface-base text-ink-gray-7 opacity-0 shadow-sm transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:scale-100 group-hover/image:opacity-100 group-focus/image:scale-100 group-focus/image:opacity-100"
+              class="absolute inset-1 grid place-items-center rounded-full text-ink-gray-7 opacity-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/image:scale-100 group-hover/image:opacity-100 group-focus/image:scale-100 group-focus/image:opacity-100"
               :class="uploading || saving ? 'scale-100 opacity-100' : 'scale-90'"
             >
               <span v-if="uploading" class="text-xs-medium">{{ progress }}%</span>

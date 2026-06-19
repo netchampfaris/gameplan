@@ -50,7 +50,7 @@ const props = defineProps<{
 }>()
 
 const rowClass = [
-  'grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-1 py-2',
+  'grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-2 py-2',
   'md:grid-cols-[1.75rem_minmax(10rem,1fr)_7rem_7rem_7rem_8rem]',
 ]
 
