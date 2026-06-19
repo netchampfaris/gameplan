@@ -97,7 +97,7 @@
             <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
               {{ minimizedLabel }}
             </span>
-            <span class="lucide-panel-bottom-open ml-2 size-4 shrink-0 text-ink-gray-5" />
+            <span class="lucide-maximize-2 ml-2 size-4 shrink-0 text-ink-gray-5" />
           </button>
           <div
             v-else
@@ -125,7 +125,7 @@
               <Tooltip text="Minimize">
                 <Button
                   variant="ghost"
-                  icon="lucide-panel-bottom-close"
+                  icon="lucide-minimize-2"
                   aria-label="Minimize comment box"
                   @click="minimizeComposer"
                 />
