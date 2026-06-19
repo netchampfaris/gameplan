@@ -55,7 +55,7 @@
 
     <div v-else-if="filteredSpaces.length" class="mt-2 divide-y divide-outline-gray-1 border-b">
       <div
-        class="hidden grid-cols-[2rem_minmax(0,1fr)_7rem_8rem_8rem] gap-3 px-3 py-2 text-sm text-ink-gray-5 md:grid"
+        class="hidden grid-cols-[2rem_minmax(0,1fr)_7rem_12rem_4rem] gap-3 px-3 py-2 text-sm text-ink-gray-5 md:grid"
       >
         <div></div>
         <div>Space</div>

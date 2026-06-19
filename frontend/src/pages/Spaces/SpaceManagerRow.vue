@@ -18,10 +18,10 @@
 
     <div class="min-w-0">
       <div class="flex min-w-0 items-center gap-1.5">
-        <TextInput
+        <input
           v-model="title"
-          variant="ghost"
-          class="-ms-2 min-w-0 flex-1 text-base-medium text-ink-gray-8"
+          aria-label="Space title"
+          class="-ms-1 h-7 min-w-0 flex-1 rounded border-0 bg-transparent px-1 text-base font-medium text-ink-gray-8 outline-none ring-0 transition-colors hover:bg-surface-gray-1 focus:bg-surface-gray-1 focus:ring-0 disabled:cursor-not-allowed disabled:text-ink-gray-6"
           :disabled="!canEditSpace"
           @blur="saveTitle"
           @keydown.enter.prevent="saveTitle"
@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Badge, Button, TextInput, useDoctype } from 'frappe-ui'
+import { Badge, Button, useDoctype } from 'frappe-ui'
 import IconPicker from '@/components/IconPicker.vue'
 import SpaceIcon from '@/components/SpaceIcon.vue'
 import SpaceOptions from '@/components/SpaceOptions.vue'
@@ -78,7 +78,7 @@ const props = defineProps<{
 const rowClass = [
   'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2',
   'transition-colors hover:bg-surface-gray-1',
-  'md:grid-cols-[2rem_minmax(0,1fr)_7rem_8rem_8rem]',
+  'md:grid-cols-[2rem_minmax(0,1fr)_7rem_12rem_4rem]',
 ]
 
 const project = useDoctype<GPProject>('GP Project')
