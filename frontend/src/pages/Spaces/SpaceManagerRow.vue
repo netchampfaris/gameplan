@@ -87,13 +87,13 @@ const canEditSpace = computed(() => !readOnlyMode && !props.space.archived_at)
 const visibilityLabel = computed(() => (props.space.is_private ? 'Private' : 'Public'))
 const visibilityIcon = computed(() => (props.space.is_private ? 'lucide-lock' : 'lucide-globe-2'))
 const contentLabel = computed(() => {
-  const discussions = props.space.discussions_count ?? 0
-  const pages = props.pagesCount
-  const tasks = props.space.tasks_count ?? 0
-  return `${formatCount(discussions, 'post')} / ${formatCount(pages, 'page')} / ${formatCount(
-    tasks,
-    'task',
-  )}`
+  const counts = [
+    formatNonZeroCount(props.space.discussions_count ?? 0, 'post'),
+    formatNonZeroCount(props.pagesCount, 'page'),
+    formatNonZeroCount(props.space.tasks_count ?? 0, 'task'),
+  ].filter((count): count is string => Boolean(count))
+
+  return counts.length ? counts.join(' / ') : 'No content'
 })
 
 watch(
@@ -138,5 +138,9 @@ async function restoreSpace() {
 
 function formatCount(count: number, label: string) {
   return `${count} ${count === 1 ? label : `${label}s`}`
+}
+
+function formatNonZeroCount(count: number, label: string) {
+  return count > 0 ? formatCount(count, label) : null
 }
 </script>
