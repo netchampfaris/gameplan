@@ -82,26 +82,28 @@
                       v-if="space.is_private"
                       class="ml-1 size-3 shrink-0 text-ink-gray-5"
                     />
-                    <span
-                      v-if="getSpaceUnreadCount(space.name) > 0"
-                      class="ml-2 shrink-0 text-xs text-ink-gray-5"
-                    >
-                      {{ getSpaceUnreadCount(space.name) }}
-                    </span>
                   </span>
                 </AppLink>
-                <Dropdown :options="spaceOptions(space)" align="end">
-                  <template #default="{ open }">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      icon="lucide-more-horizontal text-ink-gray-5"
-                      :label="`${space.title} options`"
-                      class="mr-1 shrink-0 opacity-0 group-hover/space:opacity-100 focus:opacity-100"
-                      :class="open ? 'opacity-100' : ''"
-                    />
-                  </template>
-                </Dropdown>
+                <div class="relative mr-1 flex h-7 w-7 shrink-0 items-center justify-end">
+                  <span
+                    v-if="getSpaceUnreadCount(space.name) > 0"
+                    class="absolute right-1 text-xs text-ink-gray-5 transition-opacity group-hover/space:opacity-0 group-focus-within/space:opacity-0"
+                  >
+                    {{ getSpaceUnreadCount(space.name) }}
+                  </span>
+                  <Dropdown :options="spaceOptions(space)" align="start" side="right">
+                    <template #default="{ open }">
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        icon="lucide-more-horizontal text-ink-gray-5"
+                        :label="`${space.title} options`"
+                        class="absolute right-0 opacity-0 group-hover/space:opacity-100 group-focus-within/space:opacity-100"
+                        :class="open ? 'opacity-100' : ''"
+                      />
+                    </template>
+                  </Dropdown>
+                </div>
               </div>
 
               <div
