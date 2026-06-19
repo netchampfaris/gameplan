@@ -2,13 +2,13 @@
   <DropdownMoreOptions
     :label="`${space?.title} Space Options`"
     v-bind="$attrs"
+    button-size="xs"
     :options="options"
   />
 
   <MergeSpaceDialog v-model="showSpaceMergeDialog" :spaceId="props.spaceId" />
   <ChangeSpaceCategoryDialog v-model="showSpaceCategoryDialog" :spaceId="props.spaceId" />
-  <EditSpaceDialog v-model="showSpaceEditDialog" :spaceId="props.spaceId" />
-  <ManageMembersDialog v-model="inviteGuestDialog" :spaceId="props.spaceId" />
+  <SpaceAccessDialog v-model="showSpaceAccessDialog" :spaceId="props.spaceId" />
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -16,10 +16,8 @@ import { useDoctype, dialog } from 'frappe-ui'
 import DropdownMoreOptions from './DropdownMoreOptions.vue'
 import MergeSpaceDialog from './MergeSpaceDialog.vue'
 import ChangeSpaceCategoryDialog from './ChangeSpaceCategoryDialog.vue'
-import EditSpaceDialog from './EditSpaceDialog.vue'
-import ManageMembersDialog from './ManageMembersDialog.vue'
-import { useSpace, hasJoined, joinSpace, leaveSpace } from '@/data/spaces'
-import { markSpaceAsRead } from '@/data/unreadCount'
+import SpaceAccessDialog from './SpaceAccessDialog.vue'
+import { useSpace } from '@/data/spaces'
 import { readOnlyMode } from '@/data/readOnlyMode'
 import { GPProject } from '@/types/doctypes'
 
@@ -36,49 +34,14 @@ const spaces = useDoctype<GPProject>('GP Project')
 
 const showSpaceMergeDialog = ref(false)
 const showSpaceCategoryDialog = ref(false)
-const showSpaceEditDialog = ref(false)
-const inviteGuestDialog = ref(false)
+const showSpaceAccessDialog = ref(false)
 const canEditSpace = computed(() => !readOnlyMode && !space.value?.archived_at)
 
 const options = computed(() => [
   {
-    label: 'Edit',
-    icon: 'lucide-edit',
-    onClick: () => (showSpaceEditDialog.value = true),
-    condition: () => canEditSpace.value,
-  },
-  {
-    label: 'Mark all as read',
-    icon: 'lucide-check',
-    onClick: () => {
-      dialog.confirm({
-        title: 'Are you sure?',
-        message:
-          'This action will mark all discussions in this space as read. This action cannot be undone.',
-        confirmLabel: 'Mark all as read',
-        onConfirm: () => markSpaceAsRead(props.spaceId),
-      })
-    },
-    condition: () => canEditSpace.value,
-  },
-  {
-    label: hasJoined(props.spaceId) ? 'Leave space' : 'Join space',
-    icon: hasJoined(props.spaceId) ? 'lucide-log-out' : 'lucide-log-in',
-    onClick: () => {
-      if (space.value) {
-        if (hasJoined(props.spaceId)) {
-          leaveSpace(space.value)
-        } else {
-          joinSpace(space.value)
-        }
-      }
-    },
-    condition: () => canEditSpace.value,
-  },
-  {
-    label: 'Manage Members',
-    icon: 'lucide-user-plus',
-    onClick: () => (inviteGuestDialog.value = true),
+    label: 'Manage access',
+    icon: 'lucide-users',
+    onClick: () => (showSpaceAccessDialog.value = true),
     condition: () => canEditSpace.value,
   },
   {

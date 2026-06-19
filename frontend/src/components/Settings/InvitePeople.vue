@@ -21,19 +21,10 @@
             :options="[
               { label: 'Admin', value: 'Gameplan Admin' },
               { label: 'Member', value: 'Gameplan Member' },
-              { label: 'Guest', value: 'Gameplan Guest' },
             ]"
             v-model="role"
           />
           <p class="mt-2 text-base text-ink-gray-8">{{ description }}</p>
-        </div>
-        <div v-if="role === 'Gameplan Guest'">
-          <MultiSelect
-            label="Invite Guest to Spaces"
-            :options="groupedSpaceOptions"
-            v-model="selectedProjects"
-            placeholder="Select spaces"
-          />
         </div>
         <ErrorMessage :message="inviteByEmail.error" />
         <Button
@@ -42,7 +33,7 @@
             inviteByEmail.submit({
               emails,
               role,
-              projects: selectedProjects.length ? selectedProjects : null,
+              projects: null,
             })
           "
           :loading="inviteByEmail.loading"
@@ -96,26 +87,21 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MultiSelect, Select, Tooltip } from 'frappe-ui'
+import { Select, Tooltip } from 'frappe-ui'
 import { useCall, useList } from 'frappe-ui'
-import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { GPInvitation } from '@/types/doctypes'
 
-type Role = 'Gameplan Admin' | 'Gameplan Member' | 'Gameplan Guest'
+type Role = 'Gameplan Admin' | 'Gameplan Member'
 
 const role = ref<Role>('Gameplan Member')
 const emails = ref('')
-const selectedProjects = ref<string[]>([])
 const pendingToDelete = ref<string | null>(null)
-
-const groupedSpaceOptions = useGroupedSpaceOptions({ filterFn: (space) => !space.archived_at })
 
 const description = computed((): string => {
   const descriptions: Record<Role, string> = {
     'Gameplan Admin':
-      'Can create new teams and projects, invite admins and members, browse and create discussions.',
-    'Gameplan Member': 'Can create projects, invite members, browse and create discussions.',
-    'Gameplan Guest': 'Can browse and participate in invited teams or projects.',
+      'Can create communities and spaces, invite admins and members, browse and create discussions.',
+    'Gameplan Member': 'Can join communities, create spaces, browse and create discussions.',
   }
   return descriptions[role.value]
 })
@@ -140,7 +126,6 @@ const inviteByEmail = useCall<
   onSuccess: () => {
     role.value = 'Gameplan Member'
     emails.value = ''
-    selectedProjects.value = []
     pendingInvitations.reload()
   },
 })

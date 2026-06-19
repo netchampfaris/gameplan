@@ -199,13 +199,15 @@ export default {
       return list
     },
     profiles() {
-      return (this.$resources.profiles.data || []).map((profile) => {
-        return {
-          ...profile,
-          email: this.$user(profile.user).email,
-          full_name: this.$user(profile.user).full_name,
-        }
-      })
+      return (this.$resources.profiles.data || [])
+        .filter((profile) => this.$user(profile.user).isNotGuest)
+        .map((profile) => {
+          return {
+            ...profile,
+            email: this.$user(profile.user).email,
+            full_name: this.$user(profile.user).full_name,
+          }
+        })
     },
   },
   methods: {

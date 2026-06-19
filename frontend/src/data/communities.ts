@@ -2,13 +2,15 @@ import { computed, MaybeRefOrGetter, toValue } from 'vue'
 import { useList } from 'frappe-ui'
 import { GPTeam, GPMember } from '@/types/doctypes'
 
-interface Member extends Pick<GPMember, 'user'> {}
+export interface CommunityMember extends Pick<GPMember, 'user'> {
+  user: string
+}
 
 export interface Community extends Pick<
   GPTeam,
   'name' | 'title' | 'icon' | 'image' | 'modified' | 'creation' | 'archived_at' | 'is_private'
 > {
-  members: Member[]
+  members: CommunityMember[]
 }
 
 export let communities = useList<Community>({

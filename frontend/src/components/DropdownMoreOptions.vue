@@ -1,7 +1,7 @@
 <template>
   <Dropdown v-bind="$attrs">
     <template #default="{ open }">
-      <Button :label="label" :variant="open ? 'subtle' : 'ghost'">
+      <Button :label="label" :size="buttonSize" :variant="open ? 'subtle' : 'ghost'">
         <template #icon>
           <span class="lucide-more-horizontal h-4 w-4 text-ink-gray-6" />
         </template>
@@ -17,5 +17,6 @@ defineOptions({
 
 defineProps<{
   label?: string
+  buttonSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'xs'
 }>()
 </script>
