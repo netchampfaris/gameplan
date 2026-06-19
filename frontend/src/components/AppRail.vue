@@ -76,20 +76,7 @@
         class="mt-3 flex w-full flex-col items-center gap-0.5 border-t border-outline-gray-2 pt-3"
       >
         <RailIcon
-          v-for="item in primaryShortcuts"
-          :key="item.label"
-          :label="item.label"
-          :icon="item.icon"
-          :is-active="item.isActive"
-          @click="goTo(item)"
-        />
-      </div>
-
-      <div
-        class="mt-3 flex w-full flex-col items-center gap-0.5 border-t border-outline-gray-2 pt-3"
-      >
-        <RailIcon
-          v-for="item in shortcuts"
+          v-for="item in mainShortcuts"
           :key="item.label"
           :label="item.label"
           :icon="item.icon"
@@ -99,6 +86,18 @@
       </div>
 
       <div class="flex-1" />
+      <div
+        class="mb-3 flex w-full flex-col items-center gap-0.5 border-b border-outline-gray-2 pb-3"
+      >
+        <RailIcon
+          v-for="item in personalShortcuts"
+          :key="item.label"
+          :label="item.label"
+          :icon="item.icon"
+          :is-active="item.isActive"
+          @click="goTo(item)"
+        />
+      </div>
       <UserDropdown>
         <template #trigger="{ open }">
           <button
@@ -162,22 +161,48 @@ const homeRoute = computed<RouteLocationRaw>(() => {
   return { name: 'Home' }
 })
 
-const primaryShortcuts = computed<RailItem[]>(() => [
-  {
-    label: 'Inbox',
-    icon: 'lucide-inbox',
-    isActive: isRoute('Notifications'),
-    route: { name: 'Notifications' },
-  },
+const adminShortcuts = computed<RailItem[]>(() => {
+  if (!isAdmin.value) return []
+
+  return [
+    {
+      label: 'Configure communities',
+      icon: 'lucide-folder-tree',
+      isActive: isRoute('Spaces', 'CommunitySpaces', 'CommunityMembers'),
+      route: { name: 'Spaces' },
+    },
+  ]
+})
+
+const mainShortcuts = computed<RailItem[]>(() => [
   {
     label: 'Search',
     icon: 'lucide-search',
     isActive: isRoute('Search'),
     route: { name: 'Search' },
   },
+  {
+    label: 'People',
+    icon: 'lucide-users-2',
+    isActive: isRoute(
+      'People',
+      'PersonProfile',
+      'PersonProfileAboutMe',
+      'PersonProfilePosts',
+      'PersonProfileReplies',
+    ),
+    route: { name: 'People' },
+  },
+  ...adminShortcuts.value,
 ])
 
-const secondaryShortcuts = computed<RailItem[]>(() => [
+const personalShortcuts = computed<RailItem[]>(() => [
+  {
+    label: 'Inbox',
+    icon: 'lucide-inbox',
+    isActive: isRoute('Notifications'),
+    route: { name: 'Notifications' },
+  },
   {
     label: 'Drafts',
     icon: 'lucide-pencil-line',
@@ -202,34 +227,7 @@ const secondaryShortcuts = computed<RailItem[]>(() => [
     isActive: isRoute('MyPages', 'Page'),
     route: { name: 'MyPages' },
   },
-  {
-    label: 'People',
-    icon: 'lucide-users-2',
-    isActive: isRoute(
-      'People',
-      'PersonProfile',
-      'PersonProfileAboutMe',
-      'PersonProfilePosts',
-      'PersonProfileReplies',
-    ),
-    route: { name: 'People' },
-  },
 ])
-
-const adminShortcuts = computed<RailItem[]>(() => {
-  if (!isAdmin.value) return []
-
-  return [
-    {
-      label: 'Spaces',
-      icon: 'lucide-layout-grid',
-      isActive: isRoute('Spaces', 'CommunitySpaces'),
-      route: { name: 'Spaces' },
-    },
-  ]
-})
-
-const shortcuts = computed(() => [...secondaryShortcuts.value, ...adminShortcuts.value])
 
 function goTo(item: RailItem) {
   router.push(item.route)
