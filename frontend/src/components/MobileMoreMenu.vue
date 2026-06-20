@@ -45,6 +45,9 @@
               <span class="min-w-0 flex-1 truncate text-lg text-ink-gray-9">
                 {{ item.label }}
               </span>
+              <span v-if="item.value" class="shrink-0 text-base text-ink-gray-5">
+                {{ item.value }}
+              </span>
               <span class="size-4 shrink-0 text-ink-gray-4 lucide-chevron-right" />
             </span>
           </button>
@@ -59,13 +62,14 @@ import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useSessionUser } from '@/data/users'
 import { session } from '@/data/session'
-import { useTheme } from '@/utils/useTheme'
+import { useTheme, type Theme } from '@/utils/useTheme'
 
 interface MoreItem {
   label: string
   icon: string
   route?: RouteLocationRaw
   onClick?: () => void
+  value?: string
 }
 
 interface MoreItemGroup {
@@ -75,7 +79,13 @@ interface MoreItemGroup {
 
 const router = useRouter()
 const sessionUser = useSessionUser()
-const { toggleTheme } = useTheme()
+const { cycleTheme, currentTheme } = useTheme()
+
+const THEME_META: Record<Theme, { label: string; icon: string }> = {
+  light: { label: 'Light', icon: 'lucide-sun' },
+  dark: { label: 'Dark', icon: 'lucide-moon' },
+  system: { label: 'System Default', icon: 'lucide-monitor-smartphone' },
+}
 
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 const userInitials = computed(() => {
@@ -113,7 +123,12 @@ const itemGroups = computed<MoreItemGroup[]>(() => {
       label: 'Settings',
       items: [
         { label: 'Account', icon: 'lucide-user', onClick: openProfile },
-        { label: 'Theme', icon: 'lucide-moon', onClick: toggleTheme },
+        {
+          label: 'Theme',
+          icon: THEME_META[currentTheme.value].icon,
+          onClick: cycleTheme,
+          value: THEME_META[currentTheme.value].label,
+        },
         { label: 'Log out', icon: 'lucide-log-out', onClick: () => session.logout.submit() },
       ],
     },

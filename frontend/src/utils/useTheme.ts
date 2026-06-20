@@ -2,6 +2,11 @@ import { onMounted, ref, type Ref } from 'vue'
 
 export type Theme = 'light' | 'dark' | 'system'
 
+const THEME_COLORS = {
+  light: '#ffffff',
+  dark: '#171717',
+} as const
+
 const currentTheme: Ref<Theme> = ref('light')
 let isInitialized = false
 
@@ -12,6 +17,20 @@ const getSystemTheme = (): 'light' | 'dark' => {
 const applyTheme = (theme: Theme): void => {
   const resolvedTheme = theme === 'system' ? getSystemTheme() : theme
   document.documentElement.setAttribute('data-theme', resolvedTheme)
+  updateThemeMeta(resolvedTheme)
+}
+
+const updateThemeMeta = (theme: 'light' | 'dark'): void => {
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+    meta.content = THEME_COLORS[theme]
+  })
+
+  const statusBarStyle = document.querySelector<HTMLMetaElement>(
+    'meta[name="apple-mobile-web-app-status-bar-style"]',
+  )
+  if (statusBarStyle) {
+    statusBarStyle.content = theme === 'dark' ? 'black-translucent' : 'default'
+  }
 }
 
 const handleSystemThemeChange = () => {
@@ -39,10 +58,17 @@ const setTheme = (theme: Theme): void => {
   localStorage.setItem('theme', theme)
 }
 
+const THEME_CYCLE: Theme[] = ['light', 'dark', 'system']
+
 export function useTheme() {
   const toggleTheme = (): void => {
     const theme: Theme = currentTheme.value === 'dark' ? 'light' : 'dark'
     setTheme(theme)
+  }
+
+  const cycleTheme = (): void => {
+    const next = (THEME_CYCLE.indexOf(currentTheme.value) + 1) % THEME_CYCLE.length
+    setTheme(THEME_CYCLE[next])
   }
 
   onMounted(() => {
@@ -52,6 +78,7 @@ export function useTheme() {
   return {
     currentTheme,
     toggleTheme,
+    cycleTheme,
     setTheme,
     initializeTheme,
     getSystemTheme,
