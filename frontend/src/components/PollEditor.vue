@@ -22,9 +22,14 @@
       v-model="poll.anonymous"
       @change="$emit('update:poll', poll)"
     />
-    <div class="flex justify-end space-x-2">
-      <Button v-bind="discardButtonProps">Discard</Button>
-      <Button v-bind="submitButtonProps" variant="solid">Submit</Button>
+    <div class="flex items-center justify-between gap-2">
+      <div class="sm:hidden">
+        <slot name="actions-left" />
+      </div>
+      <div class="flex items-center justify-end space-x-2">
+        <Button v-bind="discardButtonProps">Discard</Button>
+        <Button v-bind="submitButtonProps" variant="solid">Submit</Button>
+      </div>
     </div>
   </div>
 </template>

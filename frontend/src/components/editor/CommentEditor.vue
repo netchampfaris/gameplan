@@ -79,9 +79,14 @@ defineExpose({ editor })
             />
           </Tooltip>
         </div>
-        <div class="flex items-center justify-end space-x-2">
-          <Button v-bind="discardButtonProps || {}"> Discard </Button>
-          <Button variant="solid" v-bind="submitButtonProps || {}"> Submit </Button>
+        <div class="flex items-center justify-between gap-2 sm:justify-end">
+          <div class="sm:hidden">
+            <slot name="actions-left" />
+          </div>
+          <div class="flex items-center justify-end space-x-2">
+            <Button v-bind="discardButtonProps || {}"> Discard </Button>
+            <Button variant="solid" v-bind="submitButtonProps || {}"> Submit </Button>
+          </div>
         </div>
       </div>
     </template>

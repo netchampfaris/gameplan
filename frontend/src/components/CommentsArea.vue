@@ -134,7 +134,7 @@
           </div>
           <div
             v-else
-            class="group/comment-composer relative -mx-3 bg-surface-base p-3 focus-within:border-outline-gray-3"
+            class="group/comment-composer relative -mx-3 bg-surface-base p-4 focus-within:border-outline-gray-3 sm:p-3"
             :class="
               isComposerFullscreen
                 ? 'flex h-full flex-col'
@@ -152,14 +152,19 @@
               <span class="h-1 w-10 rounded-full bg-surface-gray-4" />
             </button>
             <div class="mb-3 flex items-center gap-2">
-              <UserAvatar :user="$user().name" size="md" />
-              <span class="min-w-0 flex-1 truncate text-base-medium text-ink-gray-8">
+              <UserAvatar class="sm:hidden" :user="$user().name" size="lg" />
+              <UserAvatar class="hidden sm:inline-block" :user="$user().name" size="md" />
+              <span
+                class="min-w-0 flex-1 truncate text-lg-medium text-ink-gray-8 sm:text-base-medium"
+              >
                 {{ $user().full_name }}
               </span>
-              <TabButtons
-                :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
-                v-model="newCommentType"
-              />
+              <div class="hidden sm:block">
+                <TabButtons
+                  :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
+                  v-model="newCommentType"
+                />
+              </div>
               <Tooltip :text="isComposerFullscreen ? 'Minimize' : 'Expand'">
                 <Button
                   class="sm:hidden"
@@ -199,7 +204,14 @@
               :min-height="activeComposerEditorMinHeightStyle"
               v-model:toolbar-expanded="composerToolbarExpanded"
               placeholder="Add a comment..."
-            />
+            >
+              <template #actions-left>
+                <TabButtons
+                  :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
+                  v-model="newCommentType"
+                />
+              </template>
+            </CommentEditor>
             <PollEditor
               v-show="newCommentType == 'Poll'"
               v-model:poll="newPoll"
@@ -210,7 +222,14 @@
               :discardButtonProps="{
                 onClick: discardPoll,
               }"
-            />
+            >
+              <template #actions-left>
+                <TabButtons
+                  :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
+                  v-model="newCommentType"
+                />
+              </template>
+            </PollEditor>
             <ErrorMessage :message="polls.insert.error" />
           </div>
         </div>
