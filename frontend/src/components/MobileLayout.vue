@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 flex flex-col overflow-hidden touch-none">
-    <div id="pageHeaderTarget" />
+    <div id="pageHeaderTarget" class="standalone:pt-[env(safe-area-inset-top)]" />
 
     <div
       id="scrollContainer"
