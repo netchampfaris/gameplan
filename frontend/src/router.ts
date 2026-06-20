@@ -70,10 +70,15 @@ const routes: RouteRecordRaw[] = [
     {
       path: '/home',
       name: 'Home',
-      component: RouteGuard,
+      component: () => import('@/pages/MobileHome.vue'),
       async beforeEnter() {
         await ensureCommunityDataLoaded()
-        return getHomeRoute()
+
+        if (isMobileViewport() && communityState.id) {
+          return
+        }
+
+        return getDesktopHomeRoute()
       },
     },
     {
@@ -90,6 +95,23 @@ const routes: RouteRecordRaw[] = [
         name: 'Discussions',
         params: { communityId: routeParam(to.params.communityId) },
       }),
+    },
+    {
+      name: 'MobileCommunityMenu',
+      path: '/community/:communityId/menu',
+      component: () => import('@/pages/MobileCommunityMenu.vue'),
+      props: true,
+      meta: { communityScope: true },
+      async beforeEnter(to) {
+        await ensureCommunityDataLoaded()
+
+        if (!isMobileViewport()) {
+          return {
+            name: 'Discussions',
+            params: { communityId: routeParam(to.params.communityId) },
+          }
+        }
+      },
     },
     {
       name: 'Discussions',
@@ -718,7 +740,7 @@ router.beforeEach(async (to, from) => {
 
   await ensureCommunityDataLoaded()
 
-  if (['/', '/home', '/community'].includes(to.path)) {
+  if (['/', '/community'].includes(to.path)) {
     return getHomeRoute()
   }
 
@@ -777,6 +799,14 @@ async function waitForResource(resource: ResourceLike) {
 }
 
 function getHomeRoute(): RouteLocationRaw {
+  if (isMobileViewport() && communityState.id) {
+    return { name: 'Home' }
+  }
+
+  return getDesktopHomeRoute()
+}
+
+function getDesktopHomeRoute(): RouteLocationRaw {
   // Home resolves to the active community when possible; onboarding stays only for truly empty sites.
   if (communityState.id) {
     return {
@@ -796,6 +826,10 @@ function getHomeRoute(): RouteLocationRaw {
   }
 
   return { name: 'NoCommunities' }
+}
+
+function isMobileViewport() {
+  return typeof window !== 'undefined' && window.innerWidth < 640
 }
 
 function hasAnyData(): boolean {

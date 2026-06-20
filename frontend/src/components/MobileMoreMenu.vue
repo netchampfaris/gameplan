@@ -1,38 +1,55 @@
 <template>
-  <div class="flex h-full flex-col">
-    <div class="px-4 pt-6 pb-2 text-4xl-semibold text-ink-gray-9">More</div>
-
-    <nav class="flex-1 px-2">
-      <button
-        v-for="item in items"
-        :key="item.label"
-        type="button"
-        class="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-base text-ink-gray-8 transition active:bg-surface-gray-2"
-        @click="onItemClick(item)"
+  <div class="min-h-full bg-surface-gray-1 px-4 pt-8 pb-28">
+    <div class="flex flex-col items-center text-center">
+      <div
+        v-if="sessionUser.name"
+        class="flex size-[120px] items-center justify-center overflow-hidden rounded-full bg-surface-gray-3 text-5xl-semibold text-ink-gray-7 shadow-sm"
+        :style="avatarStyle"
       >
-        <span :class="[item.icon, 'size-5 text-ink-gray-6']" />
-        <span class="flex-1">{{ item.label }}</span>
-        <LucideChevronRight class="size-4 text-ink-gray-4" />
-      </button>
-    </nav>
+        <img
+          v-if="sessionUser.user_image"
+          :src="sessionUser.user_image"
+          :alt="`${sessionUser.full_name}'s profile photo`"
+          class="size-full object-cover"
+        />
+        <span v-else>{{ userInitials }}</span>
+      </div>
+      <div class="mt-5 max-w-full truncate text-5xl-semibold text-ink-gray-9">
+        {{ sessionUser.full_name }}
+      </div>
+      <Button variant="ghost" size="lg" @click="openProfile"> View profile </Button>
+    </div>
 
-    <div class="border-t border-outline-gray-2 px-2 py-2">
-      <UserDropdown>
-        <template #trigger="{ open }">
+    <div class="mt-10 space-y-6">
+      <section v-for="group in itemGroups" :key="group.label">
+        <div class="mb-2 pl-[18px] text-lg-medium text-ink-gray-5">
+          {{ group.label }}
+        </div>
+        <nav class="overflow-hidden rounded-xl bg-surface-base">
           <button
+            v-for="(item, index) in group.items"
+            :key="item.label"
             type="button"
-            class="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition"
-            :class="open ? 'bg-surface-gray-2' : 'active:bg-surface-gray-2'"
+            class="flex min-h-14 w-full text-left transition active:bg-surface-gray-2"
+            @click="onItemClick(item)"
           >
-            <UserAvatar v-if="sessionUser.name" :user="sessionUser.name" size="lg" class="size-9" />
-            <span class="flex flex-col">
-              <span class="text-base-medium text-ink-gray-9">{{ sessionUser.full_name }}</span>
-              <span class="text-xs text-ink-gray-5">Account &amp; settings</span>
+            <span class="flex w-14 shrink-0 items-center justify-center py-3">
+              <span :class="[item.icon, 'size-5 text-ink-gray-8']" aria-hidden="true" />
             </span>
-            <LucideChevronUp class="ml-auto size-4 text-ink-gray-4" />
+            <span class="relative flex min-w-0 flex-1 items-center gap-3 py-3 pr-4">
+              <span
+                v-if="index > 0"
+                class="pointer-events-none absolute left-0 right-4 top-0 border-t border-outline-gray-2"
+                aria-hidden="true"
+              />
+              <span class="min-w-0 flex-1 truncate text-lg text-ink-gray-9">
+                {{ item.label }}
+              </span>
+              <span class="size-4 shrink-0 text-ink-gray-4 lucide-chevron-right" />
+            </span>
           </button>
-        </template>
-      </UserDropdown>
+        </nav>
+      </section>
     </div>
   </div>
 </template>
@@ -41,24 +58,41 @@
 import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { useSessionUser } from '@/data/users'
-import UserAvatar from './UserAvatar.vue'
-import UserDropdown from './UserDropdown.vue'
-import LucideChevronRight from '~icons/lucide/chevron-right'
-import LucideChevronUp from '~icons/lucide/chevron-up'
+import { session } from '@/data/session'
+import { useTheme } from '@/utils/useTheme'
 
 interface MoreItem {
   label: string
   icon: string
-  route: RouteLocationRaw
+  route?: RouteLocationRaw
+  onClick?: () => void
+}
+
+interface MoreItemGroup {
+  label: string
+  items: MoreItem[]
 }
 
 const router = useRouter()
 const sessionUser = useSessionUser()
+const { toggleTheme } = useTheme()
 
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
+const userInitials = computed(() => {
+  return (sessionUser.full_name || sessionUser.name)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+})
+const avatarStyle = computed(() => ({
+  backgroundColor: sessionUser.image_background_color || undefined,
+}))
 
-const items = computed<MoreItem[]>(() => {
-  const list: MoreItem[] = [
+const itemGroups = computed<MoreItemGroup[]>(() => {
+  const workspaceItems: MoreItem[] = [
     { label: 'Bookmarks', icon: 'lucide-bookmark', route: { name: 'Bookmarks' } },
     { label: 'People', icon: 'lucide-users-2', route: { name: 'People' } },
     { label: 'Pages', icon: 'lucide-files', route: { name: 'MyPages' } },
@@ -67,13 +101,38 @@ const items = computed<MoreItem[]>(() => {
   ]
 
   if (isAdmin.value) {
-    list.push({ label: 'Spaces', icon: 'lucide-layout-grid', route: { name: 'Spaces' } })
+    workspaceItems.push({ label: 'Manage', icon: 'lucide-layout-grid', route: { name: 'Spaces' } })
   }
 
-  return list
+  return [
+    {
+      label: 'Workspace',
+      items: workspaceItems,
+    },
+    {
+      label: 'Settings',
+      items: [
+        { label: 'Account', icon: 'lucide-user', onClick: openProfile },
+        { label: 'Theme', icon: 'lucide-moon', onClick: toggleTheme },
+        { label: 'Log out', icon: 'lucide-log-out', onClick: () => session.logout.submit() },
+      ],
+    },
+  ]
 })
 
 function onItemClick(item: MoreItem) {
-  router.push(item.route)
+  if (item.onClick) {
+    item.onClick()
+    return
+  }
+
+  if (item.route) {
+    router.push(item.route)
+  }
+}
+
+function openProfile() {
+  if (!sessionUser.user_profile) return
+  router.push({ name: 'PersonProfile', params: { personId: sessionUser.user_profile } })
 }
 </script>
