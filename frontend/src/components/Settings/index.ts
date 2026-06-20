@@ -1,8 +1,11 @@
 import { ref, type Component } from 'vue'
 
+type LucideIconString = `lucide-${string}`
+
 interface Tab {
   label: string
-  icon: Component
+  group?: string
+  icon: Component | LucideIconString
   component: Component
 }
 
