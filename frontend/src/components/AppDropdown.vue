@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :options="dropdownItems" match-target-width>
+  <Dropdown :options="dropdownItems" match-trigger-width>
     <template #default="{ open }">
       <button
         type="button"

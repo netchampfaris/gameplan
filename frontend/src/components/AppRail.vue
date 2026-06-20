@@ -102,8 +102,8 @@
         <template #trigger="{ open }">
           <button
             type="button"
-            class="flex size-7 items-center justify-center rounded-full transition"
-            :class="open ? 'ring-2 ring-outline-gray-4' : 'hover:opacity-90'"
+            class="flex size-7 items-center justify-center rounded-full transition focus-visible:ring-0 focus-visible:focus-ring"
+            :class="open ? '' : 'hover:opacity-90'"
           >
             <UserAvatar v-if="sessionUser.name" :user="sessionUser.name" size="md" class="size-7" />
           </button>
