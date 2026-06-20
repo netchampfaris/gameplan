@@ -18,6 +18,14 @@
       />
     </div>
 
+    <template v-if="isInitialLoading">
+      <DiscussionRowSkeleton
+        v-for="index in skeletonRowCount"
+        :key="index"
+        :show-separator="index < skeletonRowCount"
+      />
+    </template>
+
     <DiscussionRow
       v-for="(discussion, i) of discussions.data"
       :key="discussion.name"
@@ -52,6 +60,7 @@ import { computed, toValue } from 'vue'
 import type { OrderBy } from 'frappe-ui'
 import { UseDiscussionOptions, useDiscussions } from '@/data/discussions'
 import DiscussionRow from './DiscussionRow.vue'
+import DiscussionRowSkeleton from './DiscussionRowSkeleton.vue'
 import EmptyStateBox from './EmptyStateBox.vue'
 
 interface Props {
@@ -104,6 +113,8 @@ const pinnedDiscussions = useDiscussions({
 })
 
 const filters = computed(() => toValue(props.filters))
+const skeletonRowCount = 3
+const isInitialLoading = computed(() => discussions.loading && !discussions.data?.length)
 
 function toggleSelection(name: string) {
   emit('toggle-selection', name)

@@ -1,12 +1,12 @@
 <template>
-  <Select class="!w-fit" v-if="screen.width < 640" :options="spaceTabs" v-model="currentTab" />
-  <TabButtons v-else :buttons="spaceTabs" v-model="currentTab" />
+  <TabButtons :buttons="spaceTabs" :size="tabButtonSize" v-model="currentTab" />
 </template>
 <script setup lang="ts">
+import { isMobile } from '@/composables/isMobile'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { TabButtons, Select } from 'frappe-ui'
-import { useScreenSize } from '@/composables/useScreenSize'
+import type { PillSize } from 'frappe-ui'
+import { TabButtons } from 'frappe-ui'
 
 const props = defineProps<{
   spaceId: string
@@ -14,13 +14,15 @@ const props = defineProps<{
 
 const currentRoute = useRoute()
 const router = useRouter()
-const screen = useScreenSize()
+const isMobileViewport = isMobile()
 
 const spaceTabs = [
   { label: 'Discussions', value: 'discussions' },
   { label: 'Pages', value: 'pages' },
   { label: 'Tasks', value: 'tasks' },
 ]
+
+const tabButtonSize = computed<PillSize>(() => (isMobileViewport.value ? 'md' : 'sm'))
 
 const currentTab = computed({
   get() {

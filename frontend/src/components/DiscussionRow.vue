@@ -2,10 +2,10 @@
   <RouterLink :to="linkTo" custom v-slot="{ href, navigate }">
     <a
       :href="href"
-      class="group relative block h-15 sm:rounded-[10px] select-none transition-colors duration-150 active:bg-surface-gray-2 sm:hover:bg-surface-gray-1"
+      class="group relative block h-[68px] select-none transition-colors duration-150 active:bg-surface-gray-2 sm:h-15 sm:rounded-[10px] sm:hover:bg-surface-gray-1"
       @click="handleRowClick($event, navigate)"
     >
-      <div class="flex h-full items-center overflow-hidden px-3 py-2">
+      <div class="flex h-[68px] items-center overflow-hidden px-4 py-2 sm:h-full sm:px-3">
         <motion.div
           class="flex shrink-0 items-center overflow-hidden"
           :animate="{ width: selectable ? 32 : 0 }"
@@ -35,14 +35,14 @@
             <UserAvatarWithHover :user="discussion.owner" size="2xl" />
           </div>
         </div>
-        <div class="ml-4 mr-4 min-w-0 flex-1">
+        <div class="mx-3 min-w-0 flex-1 sm:ml-4 sm:mr-4">
           <div class="flex min-w-0 items-center">
             <div
               class="overflow-hidden text-ellipsis whitespace-nowrap leading-none"
               :class="discussion.unread ? 'text-ink-gray-8' : 'text-ink-gray-8'"
             >
               <span
-                class="overflow-hidden text-ellipsis whitespace-nowrap text-base"
+                class="overflow-hidden text-ellipsis whitespace-nowrap text-lg sm:text-base"
                 :class="[discussion.unread ? 'font-semibold' : '']"
               >
                 {{ discussion.title }}
@@ -51,7 +51,7 @@
           </div>
           <div class="mt-1.5 flex min-w-0 items-center justify-between">
             <div
-              class="overflow-hidden text-ellipsis whitespace-nowrap text-base inline-flex items-center text-ink-gray-5"
+              class="inline-flex items-center overflow-hidden text-ellipsis whitespace-nowrap text-md text-ink-gray-5 sm:text-base"
             >
               <div class="flex items-center min-w-0">
                 <div class="text-ink-gray-5">
@@ -119,7 +119,7 @@
       </div>
       <!-- Separator -->
       <div class="pl-1" v-if="index < total - 1">
-        <div class="ml-16 mr-3 h-px border-t transition-opacity group-hover:opacity-0" />
+        <div class="ml-16 mr-4 h-px border-t transition-opacity group-hover:opacity-0 sm:mr-3" />
       </div>
     </a>
   </RouterLink>

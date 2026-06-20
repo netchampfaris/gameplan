@@ -1,10 +1,11 @@
 <template>
   <div>
     <div>
-      <PageHeader>
+      <MobileHeader class="sm:hidden" title="Search" />
+      <PageHeader class="hidden sm:flex">
         <Breadcrumbs :items="[{ label: 'Search', route: { name: 'Search' } }]" />
       </PageHeader>
-      <div class="mt-6 body-container">
+      <div class="body-container pt-5 sm:mt-6 sm:pt-0">
         <div class="flex items-center space-x-2">
           <TextInput
             ref="searchInput"
@@ -269,6 +270,7 @@ import {
   usePageMeta,
 } from 'frappe-ui'
 import PageHeader from '@/components/PageHeader.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import { useCall, useNewDoc } from 'frappe-ui'
 import { GPSearchFeedback } from '@/types/doctypes'
 import { useSessionUser } from '@/data/users'
