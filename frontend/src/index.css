@@ -15,6 +15,7 @@
   cv11  — single-story lowercase 'a': cleaner, more contemporary feel
 */
 html {
+  --mobile-header-height: 52px;
   font-feature-settings:
     'calt' 1,
     'cv01' 1,
