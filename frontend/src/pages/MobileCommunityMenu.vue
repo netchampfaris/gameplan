@@ -1,13 +1,7 @@
 <template>
   <MobileHeader :title="community?.title || 'Community'">
     <template #left>
-      <Button
-        variant="ghost"
-        size="md"
-        icon="lucide-chevron-left"
-        label="Communities"
-        @click="router.push({ name: 'Home' })"
-      />
+      <MobileBackButton :to="{ name: 'Home' }" label="Communities" />
     </template>
     <MobileHeaderTitle :title="community?.title || 'Community'">
       <template #icon>
@@ -80,8 +74,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
-import { Button, usePageMeta } from 'frappe-ui'
+import { usePageMeta } from 'frappe-ui'
 import CommunityImage from '@/components/CommunityImage.vue'
+import MobileBackButton from '@/components/MobileBackButton.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import MobileHeaderTitle from '@/components/MobileHeaderTitle.vue'
 import MobileListRow from '@/components/MobileListRow.vue'

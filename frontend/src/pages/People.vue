@@ -2,7 +2,21 @@
   <div class="flex h-full flex-col">
     <div class="flex flex-1">
       <div class="w-full">
-        <PageHeader>
+        <MobileHeader class="sm:hidden" title="People">
+          <template #left>
+            <MobileBackButton :to="{ name: 'More' }" />
+          </template>
+          <template #right>
+            <Button
+              variant="ghost"
+              size="md"
+              icon="lucide-user-plus-2"
+              label="Invite"
+              @click="showSettingsDialog('Invites')"
+            />
+          </template>
+        </MobileHeader>
+        <PageHeader class="hidden sm:flex">
           <Breadcrumbs :items="[{ label: 'People', route: { name: 'People' } }]" />
           <div class="h-7"></div>
         </PageHeader>
@@ -36,6 +50,7 @@
                 </template>
               </Select>
               <Button
+                class="hidden sm:inline-flex"
                 variant="solid"
                 icon-left="lucide-user-plus-2"
                 @click="showSettingsDialog('Invites')"
@@ -137,7 +152,9 @@
   </div>
 </template>
 <script>
-import { Breadcrumbs, Badge, Input, Select, TextInput } from 'frappe-ui'
+import { Breadcrumbs, Badge, Button, Input, Select, TextInput } from 'frappe-ui'
+import MobileBackButton from '@/components/MobileBackButton.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { showSettingsDialog } from '@/components/Settings'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
@@ -145,7 +162,17 @@ import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 export default {
   name: 'People',
   props: ['person'],
-  components: { Badge, Input, TextInput, Select, Breadcrumbs, PageHeader },
+  components: {
+    Badge,
+    Button,
+    Input,
+    TextInput,
+    Select,
+    Breadcrumbs,
+    MobileBackButton,
+    MobileHeader,
+    PageHeader,
+  },
   data() {
     return {
       search: '',

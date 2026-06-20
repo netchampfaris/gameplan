@@ -1,12 +1,9 @@
 <template>
   <MobileHeader v-if="communityState.doc" class="sm:hidden" :title="feedTitle">
     <template #left>
-      <Button
-        variant="ghost"
-        size="md"
-        icon="lucide-chevron-left"
+      <MobileBackButton
+        :to="{ name: 'MobileCommunityMenu', params: { communityId } }"
         label="Community menu"
-        @click="openCommunityMenu"
       />
     </template>
   </MobileHeader>
@@ -39,12 +36,12 @@
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
-import { Breadcrumbs, Button, Select, usePageMeta } from 'frappe-ui'
+import { Breadcrumbs, Select, usePageMeta } from 'frappe-ui'
 import type { OrderBy } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import LastPostReminder from '@/components/LastPostReminder.vue'
+import MobileBackButton from '@/components/MobileBackButton.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { communityState } from '@/data/communityState'
 
@@ -61,7 +58,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const orderBy = ref<OrderBy>('last_post_at desc')
 const discussionListRef = useTemplateRef('discussionListRef')
-const router = useRouter()
 
 const filters = computed(() => ({
   team: props.communityId,
@@ -95,10 +91,6 @@ const orderOptions = [
     value: 'creation desc' as OrderBy,
   },
 ]
-
-function openCommunityMenu() {
-  router.push({ name: 'MobileCommunityMenu', params: { communityId: props.communityId } })
-}
 
 usePageMeta(() => ({ title: feedTitle.value }))
 </script>

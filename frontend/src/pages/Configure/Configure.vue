@@ -1,5 +1,29 @@
 <template>
-  <PageHeader>
+  <MobileHeader class="sm:hidden" :title="mobileTitle">
+    <template #left>
+      <MobileBackButton :to="mobileBackRoute" />
+    </template>
+    <template #right>
+      <Button
+        v-if="showNewCommunityButton"
+        variant="ghost"
+        size="md"
+        icon="lucide-plus"
+        label="New community"
+        @click="newCommunityDialog = true"
+      />
+      <Button
+        v-if="showNewSpaceButton"
+        variant="ghost"
+        size="md"
+        icon="lucide-plus"
+        label="New space"
+        :disabled="!canCreateSpace"
+        @click="openNewSpaceDialog"
+      />
+    </template>
+  </MobileHeader>
+  <PageHeader class="hidden sm:flex">
     <Breadcrumbs class="h-7" :items="breadcrumbs" />
     <Button
       v-if="showNewCommunityButton"
@@ -51,9 +75,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, type RouteLocationRaw } from 'vue-router'
 import { Breadcrumbs, Button } from 'frappe-ui'
 import NewSpaceDialog from '@/components/NewSpaceDialog.vue'
+import MobileBackButton from '@/components/MobileBackButton.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { communities } from '@/data/communities'
 import CommunitiesList from './CommunitiesList.vue'
@@ -86,6 +112,22 @@ const selectedCommunity = computed(() => {
 const isMembersView = computed(() => route.name === 'CommunityMembers')
 const showNewCommunityButton = computed(() => !selectedCommunityId.value)
 const showNewSpaceButton = computed(() => Boolean(selectedCommunity.value && !isMembersView.value))
+
+const mobileTitle = computed(() => {
+  if (isMembersView.value) return 'Members'
+  return selectedCommunity.value?.title || 'Communities'
+})
+
+// Mobile back walks one level up the hierarchy: members → spaces → communities list.
+const mobileBackRoute = computed<RouteLocationRaw>(() => {
+  if (isMembersView.value && selectedCommunityId.value) {
+    return { name: 'CommunitySpaces', params: { communityId: selectedCommunityId.value } }
+  }
+  if (selectedCommunityId.value) {
+    return { name: 'Spaces' }
+  }
+  return { name: 'More' }
+})
 
 const breadcrumbs = computed(() => {
   const items: BreadcrumbItem[] = [{ label: 'Communities', route: { name: 'Spaces' } }]

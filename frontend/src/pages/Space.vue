@@ -7,12 +7,9 @@
         </template>
       </MobileHeaderTitle>
       <template #left>
-        <Button
-          variant="ghost"
-          size="md"
-          icon="lucide-chevron-left"
+        <MobileBackButton
+          :to="{ name: 'MobileCommunityMenu', params: { communityId } }"
           label="Community menu"
-          @click="router.push({ name: 'MobileCommunityMenu', params: { communityId } })"
         />
       </template>
       <template #right>
@@ -56,6 +53,7 @@ import { useSpace, spaces as spaceList } from '@/data/spaces'
 import { GPProject } from '@/types/doctypes'
 import EmptyStateBox from '@/components/EmptyStateBox.vue'
 import SpaceBreadcrumbs from '@/components/SpaceBreadcrumbs.vue'
+import MobileBackButton from '@/components/MobileBackButton.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import MobileHeaderTitle from '@/components/MobileHeaderTitle.vue'
 import SpaceIcon from '@/components/SpaceIcon.vue'

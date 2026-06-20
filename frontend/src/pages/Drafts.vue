@@ -1,5 +1,40 @@
 <template>
-  <PageHeader>
+  <MobileHeader class="sm:hidden" title="Drafts">
+    <template #left>
+      <Button
+        v-if="isBulkDeleteMode"
+        variant="ghost"
+        size="md"
+        label="Cancel"
+        @click="cancelBulkDelete"
+      >
+        Cancel
+      </Button>
+      <MobileBackButton v-else :to="{ name: 'More' }" />
+    </template>
+    <template #right>
+      <Button
+        v-if="!isBulkDeleteMode"
+        v-show="drafts.data?.length"
+        variant="ghost"
+        size="md"
+        @click="isBulkDeleteMode = true"
+      >
+        Select
+      </Button>
+      <Button
+        v-else
+        variant="subtle"
+        theme="red"
+        size="md"
+        :disabled="selectedDrafts.length === 0"
+        @click="showDeleteConfirm = true"
+      >
+        Delete{{ selectedDrafts.length ? ` ${selectedDrafts.length}` : '' }}
+      </Button>
+    </template>
+  </MobileHeader>
+  <PageHeader class="hidden sm:flex">
     <Breadcrumbs class="h-7" :items="[{ label: 'Drafts', route: { name: 'Drafts' } }]" />
     <div class="flex items-center gap-2">
       <template v-if="!isBulkDeleteMode">
@@ -38,7 +73,7 @@
           <RouterLink :to="draftRoute(draft)" custom v-slot="{ href, navigate }">
             <a
               :href="href"
-              class="flex items-center py-2 px-3 group relative h-15 rounded-[10px] transition hover:bg-surface-gray-2 cursor-pointer"
+              class="flex items-center py-2 px-3 group relative h-15 rounded-[10px] transition hover:bg-surface-gray-2 active:bg-surface-gray-2 cursor-pointer"
               @click="handleDraftRowClick($event, navigate, draft.name)"
             >
               <motion.div
@@ -140,6 +175,8 @@ import { useList } from 'frappe-ui'
 import UserAvatarWithHover from '@/components/UserAvatarWithHover.vue'
 import { getSpace, useSpace } from '@/data/spaces'
 import { relativeTimestamp } from '@/utils'
+import MobileBackButton from '@/components/MobileBackButton.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'

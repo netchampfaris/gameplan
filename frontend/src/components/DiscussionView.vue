@@ -2,7 +2,7 @@
   <div class="relative flex h-full flex-col" v-if="postId">
     <MobileHeader class="sm:hidden" :title="mobileHeaderTitle">
       <template #left>
-        <Button variant="ghost" size="md" icon="lucide-chevron-left" label="Back" @click="goBack" />
+        <MobileBackButton :to="backRoute" />
       </template>
     </MobileHeader>
     <PageHeader class="hidden sm:flex">
@@ -279,7 +279,7 @@ import {
   watch,
   useTemplateRef,
 } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, type RouteLocationRaw } from 'vue-router'
 import {
   Combobox,
   Avatar,
@@ -299,6 +299,7 @@ import CommentsArea from '@/components/CommentsArea.vue'
 import DiscussionViewEditor from './editor/DiscussionViewEditor.vue'
 import UserProfileLink from './UserProfileLink.vue'
 import RevisionsDialog from './RevisionsDialog.vue'
+import MobileBackButton from './MobileBackButton.vue'
 import MobileHeader from './MobileHeader.vue'
 import PageHeader from './PageHeader.vue'
 import SpaceBreadcrumbs from './SpaceBreadcrumbs.vue'
@@ -465,28 +466,19 @@ function copyLink() {
   copyToClipboard(url)
 }
 
-function goBack() {
+// Undefined falls through to MobileBackButton's router.back() fallback.
+const backRoute = computed<RouteLocationRaw | undefined>(() => {
   const communityId = routeParam(route.params.communityId)
   const spaceId = routeParam(route.params.spaceId)
 
   if (communityId && spaceId) {
-    router.push({
-      name: 'SpaceDiscussions',
-      params: { communityId, spaceId },
-    })
-    return
+    return { name: 'SpaceDiscussions', params: { communityId, spaceId } }
   }
-
   if (communityId) {
-    router.push({
-      name: 'Discussions',
-      params: { communityId },
-    })
-    return
+    return { name: 'Discussions', params: { communityId } }
   }
-
-  router.back()
-}
+  return undefined
+})
 
 function routeParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value

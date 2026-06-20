@@ -1,30 +1,17 @@
 <template>
   <div>
-    <PageHeader>
+    <MobileHeader class="sm:hidden" title="Pages">
+      <template #left>
+        <MobileBackButton :to="{ name: 'More' }" />
+      </template>
+      <template #right>
+        <Select :options="sortOptions" v-model="orderBy" />
+      </template>
+    </MobileHeader>
+    <PageHeader class="hidden sm:flex">
       <Breadcrumbs class="h-7" :items="[{ label: 'My Pages', route: { name: 'MyPages' } }]" />
       <div class="flex items-center space-x-2">
-        <Select
-          :options="[
-            {
-              label: 'Sort by',
-              value: '',
-              disabled: true,
-            },
-            {
-              label: 'Page Title',
-              value: 'title asc',
-            },
-            {
-              label: 'Date Updated',
-              value: 'modified desc',
-            },
-            {
-              label: 'Date Created',
-              value: 'creation desc',
-            },
-          ]"
-          v-model="orderBy"
-        />
+        <Select :options="sortOptions" v-model="orderBy" />
       </div>
     </PageHeader>
 
@@ -44,6 +31,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Select, Breadcrumbs } from 'frappe-ui'
+import MobileBackButton from '@/components/MobileBackButton.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { useNewDoc } from 'frappe-ui'
 import { useSessionUser } from '@/data/users'
@@ -54,6 +43,13 @@ import { UseListOptions } from 'frappe-ui'
 const router = useRouter()
 const sessionUser = useSessionUser()
 const orderBy: UseListOptions<GPPage>['orderBy'] = ref('modified desc')
+
+const sortOptions = [
+  { label: 'Sort by', value: '', disabled: true },
+  { label: 'Page Title', value: 'title asc' },
+  { label: 'Date Updated', value: 'modified desc' },
+  { label: 'Date Created', value: 'creation desc' },
+]
 
 const newPage = useNewDoc<GPPage>('GP Page', {
   title: 'Untitled',
