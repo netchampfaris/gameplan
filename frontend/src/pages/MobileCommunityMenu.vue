@@ -55,7 +55,7 @@
         {{ space.title }}
         <template #trailing>
           <span class="flex w-12 shrink-0 items-center justify-end gap-2">
-            <span v-if="getSpaceUnreadCount(space.name) > 0" class="text-sm text-ink-gray-5">
+            <span v-if="getSpaceUnreadCount(space.name) > 0" class="text-md text-ink-gray-5">
               {{ getSpaceUnreadCount(space.name) }}
             </span>
             <span

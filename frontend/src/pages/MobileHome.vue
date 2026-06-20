@@ -37,7 +37,7 @@
           />
           <span
             v-if="!editMode && getCommunityUnreadCount(community.name) > 0"
-            class="shrink-0 text-base text-ink-gray-5"
+            class="shrink-0 text-md text-ink-gray-5"
           >
             {{ getCommunityUnreadCount(community.name) }}
           </span>

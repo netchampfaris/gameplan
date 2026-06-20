@@ -45,7 +45,7 @@
               <span class="min-w-0 flex-1 truncate text-lg text-ink-gray-9">
                 {{ item.label }}
               </span>
-              <span v-if="item.value" class="shrink-0 text-base text-ink-gray-5">
+              <span v-if="item.value" class="shrink-0 text-md text-ink-gray-5">
                 {{ item.value }}
               </span>
               <span class="size-4 shrink-0 text-ink-gray-4 lucide-chevron-right" />
@@ -103,11 +103,11 @@ const avatarStyle = computed(() => ({
 
 const itemGroups = computed<MoreItemGroup[]>(() => {
   const workspaceItems: MoreItem[] = [
+    { label: 'Drafts', icon: 'lucide-pencil-line', route: { name: 'Drafts' } },
     { label: 'Bookmarks', icon: 'lucide-bookmark', route: { name: 'Bookmarks' } },
-    { label: 'People', icon: 'lucide-users-2', route: { name: 'People' } },
     { label: 'Pages', icon: 'lucide-files', route: { name: 'MyPages' } },
     { label: 'Tasks', icon: 'lucide-list-todo', route: { name: 'MyTasks' } },
-    { label: 'Drafts', icon: 'lucide-pencil-line', route: { name: 'Drafts' } },
+    { label: 'People', icon: 'lucide-users-2', route: { name: 'People' } },
   ]
 
   if (isAdmin.value) {
@@ -116,13 +116,13 @@ const itemGroups = computed<MoreItemGroup[]>(() => {
 
   return [
     {
-      label: 'Workspace',
+      label: '',
       items: workspaceItems,
     },
     {
       label: 'Settings',
       items: [
-        { label: 'Account', icon: 'lucide-user', onClick: openProfile },
+        { label: 'Profile', icon: 'lucide-user', onClick: openProfile },
         {
           label: 'Theme',
           icon: THEME_META[currentTheme.value].icon,
