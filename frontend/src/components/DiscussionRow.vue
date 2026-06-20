@@ -42,8 +42,12 @@
               :class="discussion.unread ? 'text-ink-gray-8' : 'text-ink-gray-8'"
             >
               <span
-                class="overflow-hidden text-ellipsis whitespace-nowrap text-lg sm:text-base"
-                :class="[discussion.unread ? 'font-semibold' : '']"
+                class="overflow-hidden text-ellipsis whitespace-nowrap"
+                :class="[
+                  discussion.unread
+                    ? 'text-lg-semibold sm:text-base-semibold'
+                    : 'text-lg sm:text-base',
+                ]"
               >
                 {{ discussion.title }}
               </span>
