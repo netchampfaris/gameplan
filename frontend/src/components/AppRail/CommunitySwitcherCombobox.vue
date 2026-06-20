@@ -39,7 +39,7 @@ import { useRouter } from 'vue-router'
 import { Button, Combobox } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { activeCommunities } from '@/data/communities'
-import CommunityImage from './CommunityImage.vue'
+import CommunityImage from '../CommunityImage.vue'
 import ManageCommunitiesDialog from './ManageCommunitiesDialog.vue'
 
 const router = useRouter()

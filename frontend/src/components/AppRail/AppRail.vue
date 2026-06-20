@@ -18,6 +18,7 @@
 
       <div
         v-if="activeCommunities.length"
+        ref="communityListEl"
         class="flex w-full flex-col items-center gap-3 border-t border-outline-gray-2 pt-3"
       >
         <TooltipRoot v-for="community in visibleCommunities" :key="community.name">
@@ -73,6 +74,7 @@
       </div>
 
       <div
+        ref="mainShortcutsEl"
         class="mt-3 flex w-full flex-col items-center gap-0.5 border-t border-outline-gray-2 pt-3"
       >
         <RailIcon
@@ -87,6 +89,7 @@
 
       <div class="flex-1" />
       <div
+        ref="bottomGroupEl"
         class="mb-3 flex w-full flex-col items-center gap-0.5 border-b border-outline-gray-2 pb-3"
       >
         <RailIcon
@@ -123,12 +126,13 @@ import { communityState } from '@/data/communityState'
 import { activeCommunities } from '@/data/communities'
 import type { Community } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
-import CommunityImage from './CommunityImage.vue'
+import CommunityImage from '../CommunityImage.vue'
 import CommunitySwitcherCombobox from './CommunitySwitcherCombobox.vue'
-import GameplanLogo from './GameplanLogo.vue'
-import RailIcon from './AppRail/RailIcon.vue'
-import UserAvatar from './UserAvatar.vue'
-import UserDropdown from './UserDropdown.vue'
+import GameplanLogo from '../GameplanLogo.vue'
+import RailIcon from './RailIcon.vue'
+import { useCommunitySlots } from './useCommunitySlots'
+import UserAvatar from '../UserAvatar.vue'
+import UserDropdown from '../UserDropdown.vue'
 
 interface RailItem {
   label: string
@@ -146,13 +150,11 @@ const props = defineProps<{
   showCommunityActiveState: boolean
 }>()
 
-const communitySlotCount = 5
-
 const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
 
-const visibleCommunities = computed(() => {
-  return activeCommunities.value.slice(0, communitySlotCount)
-})
+// Reads `communityListEl` / `mainShortcutsEl` / `bottomGroupEl` template refs to
+// fit as many community buttons as the rail's height allows.
+const { visibleCommunities } = useCommunitySlots()
 
 const homeRoute = computed<RouteLocationRaw>(() => {
   if (communityState.id) {

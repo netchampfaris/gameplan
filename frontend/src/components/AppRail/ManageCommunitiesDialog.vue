@@ -64,7 +64,7 @@ import { Button, Dialog, Switch, toast, useCall } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { activeCommunities, availableCommunities, communities } from '@/data/communities'
 import { useSessionUser } from '@/data/users'
-import CommunityImage from './CommunityImage.vue'
+import CommunityImage from '../CommunityImage.vue'
 
 const props = defineProps<{
   modelValue: boolean

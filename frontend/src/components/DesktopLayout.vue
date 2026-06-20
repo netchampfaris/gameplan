@@ -25,7 +25,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ScrollContainer from './ScrollContainer.vue'
-import AppRail from './AppRail.vue'
+import AppRail from './AppRail'
 import AppSidebar from './AppSidebar.vue'
 import CommandPalette from './CommandPalette/CommandPalette.vue'
 import ReadOnlyBanner from './ReadOnlyBanner.vue'
