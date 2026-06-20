@@ -35,6 +35,11 @@
         </div>
         <Comment
           v-if="item.doctype == 'GP Comment'"
+          :class="{
+            'pt-14 sm:pt-0': needsMobileCommentGap(timelineItems, i, {
+              includeFirstComment: true,
+            }),
+          }"
           :ref="($comment) => setItemRef($comment, item)"
           :comment="item"
           :highlight="
@@ -67,57 +72,80 @@
 
     <div
       v-if="!readOnlyMode && !disableNewComment && !hideNewComment"
-      class="pointer-events-none fixed left-0 right-0 z-[2] mt-2 w-full print:hidden sm:left-[274px] sm:right-1 sm:w-auto"
+      class="pointer-events-none fixed left-0 right-0 z-[2] w-full print:hidden sm:left-[274px] sm:right-1 sm:w-auto"
       :class="[
-        showCommentBox && !composerMinimized
-          ? 'bottom-0'
-          : 'bottom-12 sm:bottom-0 standalone:bottom-16 standalone:sm:bottom-0',
+        isComposerFullscreen
+          ? 'bottom-0 top-[var(--mobile-header-height)] z-20'
+          : showCommentBox && !composerMinimized
+            ? 'bottom-0 mt-2'
+            : 'bottom-14 mt-2 sm:bottom-0 standalone:bottom-[4.5rem] standalone:sm:bottom-0',
+        !showCommentBox || composerMinimized
+          ? 'border-t border-outline-gray-2 bg-surface-base sm:border-t-0 sm:bg-transparent'
+          : '',
       ]"
       ref="addComment"
     >
-      <div class="pointer-events-auto">
-        <div class="discussion-container bg-surface-base py-2 sm:bg-transparent sm:py-3">
-          <div v-if="!showCommentBox" class="-mx-3">
+      <div class="pointer-events-auto" :class="{ 'h-full': isComposerFullscreen }">
+        <div
+          class="discussion-container bg-surface-base sm:bg-transparent"
+          :class="isComposerFullscreen ? 'h-full py-0' : 'py-3'"
+        >
+          <div v-if="!showCommentBox" class="sm:-mx-3">
             <button
               type="button"
-              class="flex w-full items-center rounded-lg border bg-surface-base px-2 py-2 text-left text-base text-ink-gray-5 shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1"
+              class="flex w-full items-center gap-3 text-left sm:gap-0 sm:rounded-lg sm:border sm:bg-surface-base sm:px-2 sm:py-2 sm:text-base sm:text-ink-gray-5 sm:shadow-sm sm:hover:border-outline-gray-3 sm:hover:bg-surface-gray-1"
               @click="openCommentBox"
             >
-              <UserAvatar class="mr-3" :user="$user().name" size="sm" />
-              Add a comment
+              <UserAvatar class="sm:hidden" :user="$user().name" size="xl" />
+              <UserAvatar class="mr-3 hidden sm:inline-block" :user="$user().name" size="sm" />
+              <span
+                class="flex h-8 min-w-0 flex-1 items-center rounded-md bg-surface-gray-2 px-3 text-md text-ink-gray-5 sm:hidden"
+              >
+                Add a comment
+              </span>
+              <span class="hidden sm:inline">Add a comment</span>
             </button>
           </div>
           <div
             v-else-if="composerMinimized"
-            class="-mx-3 flex cursor-pointer items-center rounded-lg border bg-surface-base px-2 py-2 text-left shadow-sm hover:border-outline-gray-3 hover:bg-surface-gray-1 focus:border-outline-gray-3 focus:outline-none"
+            class="flex cursor-pointer items-center gap-3 text-left focus:outline-none sm:-mx-3 sm:gap-0 sm:rounded-lg sm:border sm:bg-surface-base sm:px-2 sm:py-2 sm:shadow-sm sm:hover:border-outline-gray-3 sm:hover:bg-surface-gray-1 sm:focus:border-outline-gray-3"
             role="button"
             tabindex="0"
             @click="restoreComposer"
             @keydown.enter.prevent="restoreComposer"
             @keydown.space.prevent="restoreComposer"
           >
-            <UserAvatar class="mr-3" :user="$user().name" size="sm" />
-            <span class="min-w-0 flex-1 truncate text-base text-ink-gray-6">
+            <UserAvatar class="sm:hidden" :user="$user().name" size="xl" />
+            <UserAvatar class="mr-3 hidden sm:inline-block" :user="$user().name" size="sm" />
+            <span
+              class="flex h-8 min-w-0 flex-1 items-center truncate rounded-md bg-surface-gray-2 px-3 text-md text-ink-gray-5 sm:h-auto sm:bg-transparent sm:px-0 sm:text-base sm:text-ink-gray-6"
+            >
               {{ minimizedLabel }}
             </span>
             <Tooltip text="Expand">
               <Button
+                class="shrink-0"
                 variant="ghost"
                 icon="lucide-maximize-2"
                 aria-label="Expand comment box"
-                @click="restoreComposer"
+                @click.stop="expandComposer"
               />
             </Tooltip>
           </div>
           <div
             v-else
-            class="group/comment-composer relative -mx-3 rounded-lg border bg-surface-base p-3 shadow-sm focus-within:border-outline-gray-3"
+            class="group/comment-composer relative -mx-3 bg-surface-base p-3 focus-within:border-outline-gray-3"
+            :class="
+              isComposerFullscreen
+                ? 'flex h-full flex-col'
+                : 'border-t border-outline-gray-2 sm:rounded-lg sm:border sm:shadow-sm'
+            "
             @keydown.ctrl.enter.capture.stop="submitComment"
             @keydown.meta.enter.capture.stop="submitComment"
           >
             <button
               type="button"
-              class="absolute left-1/2 top-0 z-10 flex h-6 w-24 -translate-x-1/2 cursor-ns-resize touch-none items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100 focus:opacity-100 group-hover/comment-composer:opacity-100"
+              class="absolute left-1/2 top-0 z-10 hidden h-6 w-24 -translate-x-1/2 cursor-ns-resize touch-none items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100 focus:opacity-100 group-hover/comment-composer:opacity-100 sm:flex"
               aria-label="Resize comment box"
               @pointerdown.stop="startComposerResize"
             >
@@ -132,8 +160,18 @@
                 :buttons="[{ label: 'Comment' }, { label: 'Poll' }]"
                 v-model="newCommentType"
               />
+              <Tooltip :text="isComposerFullscreen ? 'Minimize' : 'Expand'">
+                <Button
+                  class="sm:hidden"
+                  variant="ghost"
+                  :icon="isComposerFullscreen ? 'lucide-minimize-2' : 'lucide-maximize-2'"
+                  :aria-label="isComposerFullscreen ? 'Minimize comment box' : 'Expand comment box'"
+                  @click="toggleMobileComposerFullscreen"
+                />
+              </Tooltip>
               <Tooltip text="Minimize">
                 <Button
+                  class="hidden sm:inline-flex"
                   variant="ghost"
                   icon="lucide-minimize-2"
                   aria-label="Minimize comment box"
@@ -157,8 +195,8 @@
                 onClick: discardComment,
               }"
               :editable="true"
-              :max-height="composerEditorMaxHeightStyle"
-              :min-height="composerEditorMinHeightStyle"
+              :max-height="activeComposerEditorMaxHeightStyle"
+              :min-height="activeComposerEditorMinHeightStyle"
               v-model:toolbar-expanded="composerToolbarExpanded"
               placeholder="Add a comment..."
             />
@@ -210,6 +248,8 @@ import { isNewCommentOpen } from '@/data/newComment'
 import { useRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import { useDraftSync } from '@/data/useDraftSync'
 import { useSessionUser } from '@/data/users'
+import { isMobile } from '@/composables/isMobile'
+import { needsMobileCommentGap } from '@/utils/commentTimeline'
 
 interface Props {
   doctype: string
@@ -255,9 +295,11 @@ const router = useRouter()
 const route = useRoute()
 const socket = useSocket()
 const sessionUser = useSessionUser()
+const isMobileViewport = isMobile()
 
 const showCommentBox = ref(false)
 const composerMinimized = ref(false)
+const mobileComposerFullscreen = ref(false)
 const composerToolbarExpanded = ref(false)
 const composerEditorMaxHeight = ref(DEFAULT_COMPOSER_EDITOR_MAX_HEIGHT)
 const composerEditorMinHeight = ref<number | null>(null)
@@ -427,6 +469,29 @@ const composerEditorMaxHeightStyle = computed(() => `${composerEditorMaxHeight.v
 const composerEditorMinHeightStyle = computed(() =>
   composerEditorMinHeight.value == null ? undefined : `${composerEditorMinHeight.value}px`,
 )
+const mobileComposerEditorHeightStyle = 'calc(100dvh - var(--mobile-header-height) - 10.5rem)'
+const mobileComposerEditorShortHeightStyle = '12rem'
+const isComposerFullscreen = computed(
+  () =>
+    isMobileViewport.value &&
+    showCommentBox.value &&
+    !composerMinimized.value &&
+    mobileComposerFullscreen.value,
+)
+const activeComposerEditorMaxHeightStyle = computed(() =>
+  isMobileViewport.value
+    ? mobileComposerFullscreen.value
+      ? mobileComposerEditorHeightStyle
+      : mobileComposerEditorShortHeightStyle
+    : composerEditorMaxHeightStyle.value,
+)
+const activeComposerEditorMinHeightStyle = computed(() =>
+  isMobileViewport.value
+    ? mobileComposerFullscreen.value
+      ? mobileComposerEditorHeightStyle
+      : undefined
+    : composerEditorMinHeightStyle.value,
+)
 
 defineExpose({
   editorObject,
@@ -439,18 +504,50 @@ defineExpose({
 function openCommentBox() {
   showCommentBox.value = true
   composerMinimized.value = false
+  mobileComposerFullscreen.value = false
   newCommentType.value = 'Comment'
 }
 
 function minimizeComposer() {
+  if (isMobileViewport.value && mobileComposerFullscreen.value) {
+    mobileComposerFullscreen.value = false
+    return
+  }
   composerMinimized.value = true
+  mobileComposerFullscreen.value = false
 }
 
 function restoreComposer() {
   composerMinimized.value = false
+  mobileComposerFullscreen.value = false
   nextTick(() => {
     editorObject.value?.commands.focus()
   })
+}
+
+function expandMobileComposer() {
+  showCommentBox.value = true
+  composerMinimized.value = false
+  mobileComposerFullscreen.value = true
+  nextTick(() => {
+    editorObject.value?.commands.focus()
+  })
+}
+
+function expandComposer() {
+  if (isMobileViewport.value) {
+    expandMobileComposer()
+  } else {
+    restoreComposer()
+  }
+}
+
+function toggleMobileComposerFullscreen() {
+  if (mobileComposerFullscreen.value) {
+    minimizeComposer()
+  } else {
+    expandMobileComposer()
+  }
 }
 
 function getCommentContentElement(id) {
@@ -476,6 +573,7 @@ function highlightComment(id: string) {
 function resetCommentState() {
   showCommentBox.value = false
   composerMinimized.value = false
+  mobileComposerFullscreen.value = false
   composerToolbarExpanded.value = false
   commentEditorKey.value++
   newCommentType.value = 'Comment'

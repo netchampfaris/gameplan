@@ -6,19 +6,23 @@
     />
     <UserInfo :email="comment.owner" v-slot="{ user }">
       <div
-        class="flex items-center text-base text-ink-gray-8 sticky top-0 pt-14 pb-2 bg-surface-base z-[1]"
+        class="sticky -top-px z-[1] flex items-center bg-surface-base pb-2 pt-2 text-md text-ink-gray-8 sm:top-0 sm:pt-14 sm:text-base"
       >
         <UserProfileLink class="mr-3" :user="user.name">
-          <UserAvatarWithHover size="lg" :user="user.name" />
+          <UserAvatarWithHover class="sm:hidden" size="xl" :user="user.name" />
+          <UserAvatarWithHover class="hidden sm:inline-flex" size="lg" :user="user.name" />
         </UserProfileLink>
         <div class="md:flex md:items-center">
-          <UserProfileLink class="font-medium hover:text-ink-blue-8" :user="user.name">
+          <UserProfileLink
+            class="text-md-medium hover:text-ink-blue-8 sm:text-base sm:font-medium"
+            :user="user.name"
+          >
             {{ user.full_name }}
             <span class="hidden md:inline">&nbsp;&middot;&nbsp;</span>
           </UserProfileLink>
           <div>
             <Tooltip :text="dayjsLocal(comment.creation).format('D MMM YYYY [at] h:mm A')">
-              <time class="text-ink-gray-5" :datetime="comment.creation">
+              <time class="text-p-base text-ink-gray-5 sm:text-base" :datetime="comment.creation">
                 {{ dayjsLocal(comment.creation).fromNow() }}
               </time>
             </Tooltip>

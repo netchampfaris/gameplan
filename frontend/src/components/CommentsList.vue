@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="px-1">
-      <template v-for="item in timelineItems" :key="item.doctype + item.name">
+      <template v-for="(item, i) in timelineItems" :key="item.doctype + item.name">
         <div
           v-if="newMessagesFrom && newMessagesFrom == item.name"
           class="relative my-4"
@@ -35,6 +35,9 @@
         </div>
         <Comment
           v-if="item.doctype == 'GP Comment'"
+          :class="{
+            'pt-14 sm:pt-0': needsMobileCommentGap(timelineItems, i),
+          }"
           :ref="($comment) => setItemRef($comment, item)"
           :comment="item"
           :highlight="highlightedItem == item"
@@ -104,6 +107,7 @@ import Comment from './Comment.vue'
 import Activity from './Activity.vue'
 import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
+import { needsMobileCommentGap } from '@/utils/commentTimeline'
 import { dialog } from 'frappe-ui'
 import { useSocket } from '@/socket'
 import { GPActivity, GPComment } from '@/types/doctypes'

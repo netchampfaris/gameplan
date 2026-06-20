@@ -1,9 +1,26 @@
 <template>
   <div class="relative flex h-full flex-col" v-if="postId">
+    <MobileHeader class="sm:hidden" :title="mobileHeaderTitle">
+      <template #left>
+        <Button variant="ghost" size="md" icon="lucide-chevron-left" label="Back" @click="goBack" />
+      </template>
+    </MobileHeader>
+    <PageHeader class="hidden sm:flex">
+      <SpaceBreadcrumbs
+        class="flex"
+        :spaceId="currentSpaceId"
+        :items="[{ label: discussion.doc?.title || postId, onClick: scrollToTop }]"
+      />
+    </PageHeader>
     <div class="discussion-container">
       <div v-if="discussion.loading">
-        <div class="pb-2 pt-14 flex w-full items-center sticky top-0 z-[1] bg-surface-base">
-          <Avatar size="lg" label="A" class="mr-3 animate-pulse shrink-0">
+        <div
+          class="sticky -top-px z-[1] flex w-full items-center bg-surface-base pb-2 pt-2 sm:top-0 sm:pt-14"
+        >
+          <Avatar size="xl" label="A" class="mr-3 shrink-0 animate-pulse sm:hidden">
+            <div></div>
+          </Avatar>
+          <Avatar size="lg" label="A" class="mr-3 hidden shrink-0 animate-pulse sm:inline-flex">
             <div></div>
           </Avatar>
           <div class="flex flex-col md:block">
@@ -36,22 +53,30 @@
           @keydown.esc="cancelEdit"
         >
           <div
-            class="pb-2 flex w-full items-center bg-surface-base"
-            :class="{ 'sticky top-0 z-[1] pt-14': !editingPost }"
+            class="flex w-full items-center bg-surface-base pb-2 pt-2"
+            :class="editingPost ? 'sm:pt-0' : 'sticky -top-px z-[1] sm:top-0 sm:pt-14'"
           >
             <UserProfileLink class="mr-3" :user="discussion.doc.owner">
-              <UserAvatarWithHover size="lg" :user="discussion.doc.owner" />
+              <UserAvatarWithHover class="sm:hidden" size="xl" :user="discussion.doc.owner" />
+              <UserAvatarWithHover
+                class="hidden sm:inline-flex"
+                size="lg"
+                :user="discussion.doc.owner"
+              />
             </UserProfileLink>
             <div class="flex flex-col md:block">
               <UserProfileLink
-                class="text-base-medium text-ink-gray-8 hover:text-ink-blue-8"
+                class="text-md-medium text-ink-gray-8 hover:text-ink-blue-8 sm:text-base-medium"
                 :user="discussion.doc.owner"
               >
                 {{ $user(discussion.doc.owner).full_name }}
                 <span class="hidden md:inline text-ink-gray-7">&nbsp;&middot;&nbsp;</span>
               </UserProfileLink>
               <Tooltip :text="dayjsLocal(discussion.doc.creation).format('D MMM YYYY [at] h:mm A')">
-                <time class="text-base text-ink-gray-5" :datetime="discussion.doc.creation">
+                <time
+                  class="text-p-base text-ink-gray-5 sm:text-base"
+                  :datetime="discussion.doc.creation"
+                >
                   {{ dayjsLocal(discussion.doc.creation).fromNow() }}
                 </time>
               </Tooltip>
@@ -72,7 +97,7 @@
           </div>
           <div :class="{ 'pb-4 mt-1': !editingPost }">
             <div class="flex items-start justify-between space-x-1">
-              <h1 v-if="!editingPost" class="flex items-center text-4xl-semibold">
+              <h1 v-if="!editingPost" class="flex items-center text-4xl-semibold" ref="postTitleEl">
                 <Tooltip v-if="discussion.doc.closed_at" text="This discussion is closed">
                   <span class="lucide-lock mr-2 h-4 w-4 text-ink-gray-6" />
                 </Tooltip>
@@ -230,7 +255,7 @@
       </template>
     </div>
     <div
-      v-if="!isMobile && !editingPost"
+      v-if="!isMobileViewport && !editingPost"
       class="fixed bottom-3 h-9 grid place-content-center right-3 z-[2] print:hidden"
     >
       <Button variant="ghost" v-show="isScrolled" @click="scrollToTop">
@@ -244,7 +269,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, reactive, useTemplateRef } from 'vue'
+import {
+  ref,
+  computed,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+  reactive,
+  watch,
+  useTemplateRef,
+} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   Combobox,
@@ -265,6 +299,9 @@ import CommentsArea from '@/components/CommentsArea.vue'
 import DiscussionViewEditor from './editor/DiscussionViewEditor.vue'
 import UserProfileLink from './UserProfileLink.vue'
 import RevisionsDialog from './RevisionsDialog.vue'
+import MobileHeader from './MobileHeader.vue'
+import PageHeader from './PageHeader.vue'
+import SpaceBreadcrumbs from './SpaceBreadcrumbs.vue'
 import { copyToClipboard } from '@/utils'
 import { getSpace, useSpace } from '@/data/spaces'
 import { useCommunity } from '@/data/communities'
@@ -272,8 +309,8 @@ import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { useDiscussion } from '@/data/discussions'
 import { useDraftSync } from '@/data/useDraftSync'
 import { tags } from '@/data/tags'
-import { useScrollPosition } from '@/utils/scrollContainer'
-import { isMobile } from '@/composables/isMobile'
+import { getScrollContainer, useScrollPosition } from '@/utils/scrollContainer'
+import { isMobile as useIsMobile } from '@/composables/isMobile'
 import { provideRichQuotes } from '@/components/RichQuoteExtension/useRichQuotes'
 import QuoteBacklinksPopover from '@/components/RichQuoteExtension/QuoteBacklinksPopover.vue'
 import { refreshUnreadCountForProjects } from '@/data/unreadCount'
@@ -286,11 +323,18 @@ const props = defineProps<{
 
 const router = useRouter()
 const route = useRoute()
+const isMobileViewport = useIsMobile()
 const commentsArea = useTemplateRef('commentsArea')
 const postEditor = useTemplateRef<{ editor: Editor | null }>('postEditor')
 const mainPostContentEl = ref<HTMLElement | null>(null)
+const postTitleEl = useTemplateRef<HTMLElement>('postTitleEl')
 
 const { isScrolled, scrollToTop } = useScrollPosition()
+const discussion = useDiscussion(() => props.postId)
+const showTitleInMobileHeader = ref(false)
+const mobileHeaderTitle = computed(() =>
+  showTitleInMobileHeader.value ? discussion.doc?.title || 'Discussion' : 'Discussion',
+)
 
 const richQuotes = provideRichQuotes()
 richQuotes.setPostContentEl(() => mainPostContentEl.value)
@@ -319,8 +363,6 @@ const pinDialog = reactive<{
 })
 const showRevisionsDialog = ref(false)
 
-const discussion = useDiscussion(() => props.postId)
-
 // While the post is being edited, its title/body live in an auto-saved draft instead of
 // being mutated on discussion.doc directly. The draft survives reloads and navigation, and
 // silently restores if the edit is reopened. Dormant until editingPost flips true.
@@ -344,7 +386,40 @@ function onPostEditorChange(value: string) {
 }
 
 onMounted(() => {
+  const scrollContainer = getScrollContainer()
+  scrollContainer.addEventListener('scroll', updateMobileHeaderTitle)
+  updateMobileHeaderTitle()
   scrollToUnread()
+})
+
+onBeforeUnmount(() => {
+  getScrollContainer().removeEventListener('scroll', updateMobileHeaderTitle)
+})
+
+function updateMobileHeaderTitle() {
+  if (!isMobileViewport.value) {
+    showTitleInMobileHeader.value = false
+    return
+  }
+
+  const titleElement = postTitleEl.value
+  if (!titleElement || editingPost.value) {
+    showTitleInMobileHeader.value = false
+    return
+  }
+
+  const scrollContainer = getScrollContainer()
+  const containerTop = scrollContainer.getBoundingClientRect().top
+  const mobileHeaderHeight = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--mobile-header-height'),
+  )
+
+  showTitleInMobileHeader.value =
+    titleElement.getBoundingClientRect().bottom <= containerTop + mobileHeaderHeight
+}
+
+watch([() => discussion.doc?.title, editingPost, isMobileViewport], () => {
+  nextTick(updateMobileHeaderTitle)
 })
 
 async function scrollToUnread() {
@@ -388,6 +463,33 @@ function copyLink() {
   let location = window.location
   let url = `${location.origin}${location.pathname}`
   copyToClipboard(url)
+}
+
+function goBack() {
+  const communityId = routeParam(route.params.communityId)
+  const spaceId = routeParam(route.params.spaceId)
+
+  if (communityId && spaceId) {
+    router.push({
+      name: 'SpaceDiscussions',
+      params: { communityId, spaceId },
+    })
+    return
+  }
+
+  if (communityId) {
+    router.push({
+      name: 'Discussions',
+      params: { communityId },
+    })
+    return
+  }
+
+  router.back()
+}
+
+function routeParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
 }
 
 function moveToSpace() {
@@ -509,6 +611,11 @@ function updateUrlSlug() {
 const space = useSpace(() => discussion.doc?.project)
 const community = useCommunity(() => discussion.doc?.team)
 const communityTitle = computed(() => community.value?.title ?? '')
+const currentSpaceId = computed(() => {
+  if (discussion.doc?.project) return discussion.doc.project
+  if (typeof route.params.spaceId === 'string') return route.params.spaceId
+  return ''
+})
 
 const spaceOptions = useGroupedSpaceOptions({
   filterFn: (space) => !space.archived_at && space.name !== discussion.doc?.project,
