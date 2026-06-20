@@ -15,8 +15,10 @@ remain as-is until a separate schema/API rename is explicitly planned.
 ### Collaboration model
 - There is **no global discussions feed** anymore.
 - `GP Team` becomes the required top-level collaboration scope and is called **Community** in the UI.
-- The app shell always has a **current Community**.
+- The app shell has a **current Community**, meaning the last accessible community the user visited.
 - The selected Community is explicit in canonical collaboration URLs as `communityId`.
+- There is no separate "saved home community" concept. `/`, `/home`, and legacy `/discussions`
+  resolve from the last visited accessible community, then the first accessible community.
 
 ### Community-scoped surfaces
 - Community discussions
@@ -27,14 +29,16 @@ remain as-is until a separate schema/API rename is explicitly planned.
 - Onboarding
 
 ### Global surfaces (stay global in v1)
-- `/spaces`, `/search`, `/bookmarks`, `/notifications`, `/drafts`, `/tasks`, `/pages`, `/people`
-- command palette
+- `/manage`, `/search`, `/bookmarks`, `/notifications`, `/drafts`, `/tasks`, `/pages`, `/people`
+- command palette, except create actions may use the current/route community as defaults
 
 ### Route behavior
-- `/` and `/home` resolve to last selected accessible community, else first accessible community, else onboarding.
+- `/` and `/home` resolve to last visited accessible community, else first accessible community, else onboarding.
 - `/community/:communityId` redirects to `/community/:communityId/discussions`.
-- Deep links navigate to the target community but **do not** silently overwrite the persisted current community. Persistence updates only on deliberate switches (rail switcher click, sidebar click, explicit community nav). This avoids notification clicks rewriting "home" for the user.
-- `/discussions` redirects to the current selected community, or first accessible community.
+- Any valid community-scoped route updates the current community. This includes direct links,
+  notification links, search results, and explicit rail/sidebar/mobile navigation. This matches
+  the product mental model: the current community is simply where the user last worked.
+- `/discussions` redirects to the current community, or first accessible community.
 
 ### Feed types
 - Keep only: `recent`, `unread`, `participating`.
@@ -50,12 +54,26 @@ remain as-is until a separate schema/API rename is explicitly planned.
 - The "+ New discussion" entry point lives **only inside the community discussions list** (and inline shell affordances scoped to the current community). The global `/drafts` page is a pure list of existing drafts — no "+ New" button.
 - Legacy drafts without space/community still supported via `/new-discussion?draft=...`.
 - New drafts must not be created until a space has been selected.
-- Command palette "Add discussion" entry point is **deferred** to a follow-up — out of scope for this branch.
+- Command palette "Add Discussion" is in scope:
+  - From a space route, open scoped composer with that space preselected.
+  - From a community route, open scoped composer for that community and require/select a space
+    before creating the draft.
+  - From a global route, use the current community if available; if not, ask the user to choose
+    a community/space before opening a new draft.
+  - Do not create a new draft until a space is selected and there is meaningful title/body content.
 
-### Spaces
+### Management
 - All spaces must belong to a community.
-- `/spaces` stays as an **admin-only** global page for housekeeping. Non-admins are redirected away (route guard) and the rail icon is hidden for them.
-- Admins (`Gameplan Admin` role) keep existing actions. Do not expand or reduce. Admin check uses the codebase convention `useSessionUser().role === 'Gameplan Admin'` (the `UserInfo` model has a singular `role` field, not a `roles` array), matching `AppRail.vue` / `AppSidebar.vue` / `MobileMoreMenu.vue`.
+- The admin management surface manages communities, spaces, members, guests, and community images.
+- Canonical route should be `/manage`, with nested views for a community's spaces and members.
+  `/spaces` is no longer accurate and should exist only as a compatibility redirect. `/configure`
+  is a temporary implementation name, not the product route.
+- Management is **admin-only** in this branch. Non-admins are redirected away (route guard) and
+  management entry points are hidden for them.
+- Admins (`Gameplan Admin` role) keep existing actions. Do not expand or reduce. Admin check uses
+  the codebase convention `useSessionUser().role === 'Gameplan Admin'` (the `UserInfo` model has a
+  singular `role` field, not a `roles` array), matching `AppRail.vue` / `AppSidebar.vue` /
+  `MobileMoreMenu.vue`.
 - Do not change move-space implementation.
 
 ### Migration of uncategorized spaces (existing sites only)
@@ -74,16 +92,22 @@ remain as-is until a separate schema/API rename is explicitly planned.
 
 ### Active frontend naming
 - Active app-layer code uses Community naming: `communityState`, `communities`, `activeCommunities`, `getCommunity`, `getActiveCommunity`, `communitySpaces`, and canonical route param `communityId`.
-- `communityState` stores only the deliberately selected/default community. It is not updated by deep links.
-- Scoped routes display the community from `route.params.communityId`. This route-effective community may differ from the persisted default community.
+- `communityState` stores the current/last visited community. It updates on every valid
+  community-scoped navigation.
+- Scoped routes display the community from `route.params.communityId`, and the router keeps
+  `communityState` aligned to that route after the route is validated.
 - Do not add app-layer compatibility shims for old names (`activeCategory`, `categorySpaces`, old localStorage keys). This branch has not shipped.
 - Rename active components/modules on the current community path. Do not rename legacy Team/Project route pages retained only for compatibility.
 - Delete unused stale `Category*` files if they have zero imports and are not legacy compatibility pages.
 
-### Community switcher
-- Triggered by clicking the community icon at the top of the narrow rail.
-- Implemented as a combobox with custom trigger slot (searchable list, scrollable).
-- When only one active community exists, the rail-top icon becomes a static badge (no click handler, no chevron). The community-name dropdown in the community sidebar still works (it carries community-level actions, which exist regardless of community count).
+### Community switching
+- Desktop rail shows the Gameplan/Home button at the top, followed by visible community shortcuts.
+- If there are more communities than fit comfortably, show a "More communities" combobox that is
+  searchable and scrollable.
+- Clicking a visible community shortcut or choosing one from the combobox navigates to that
+  community's discussions and makes it current.
+- With one active community, the rail still shows that community as a direct shortcut; no separate
+  switcher affordance is needed.
 
 ### Auto-create `General` space
 - Every newly created `GP Team` (Community) gets a `General` space auto-created via `after_insert` on `GP Team`. This guarantees every community has at least one valid landing destination and removes a class of empty-state edge cases from the routing layer.
@@ -91,23 +115,33 @@ remain as-is until a separate schema/API rename is explicitly planned.
 - Idempotency rule: skip auto-create if **any** `GP Project` already exists in this team (broader than checking for "General" by name). This makes the migration path safe.
 - During onboarding the hook fires first (creating `General`), then onboarding additionally creates the user-named first space. New communities created via onboarding therefore land with two spaces: `General` + user-named.
 
+### Community creator membership
+- Every user-facing community creation path must immediately make the creator a member of the new
+  community.
+- If a community-scoped admin/owner model is added, the creator should become that community's
+  owner/admin. Current schema only has global `Gameplan Admin` / `Gameplan Member`, so do not imply
+  per-community admin rights unless that model is implemented.
+- System/migration-created communities may opt out of creator membership.
+
 ### All-archived fallback
-- Admin (`Gameplan Admin`) → redirect to `/spaces`. Non-admin → inline empty state rendered inside the shell on `/` ("No communities available. Ask an admin."). Not a dedicated route. No onboarding.
+- Admin (`Gameplan Admin`) → redirect to `/manage`. Non-admin → inline empty state rendered inside
+  the shell on `/` ("No communities available. Ask an admin."). Not a dedicated route. No onboarding.
 
 ---
 
 ### Shell information architecture
 
 #### Desktop layout (three columns)
-- **Narrow rail** (≈52px, gray bg). Top: community icon (28px) — opens the community-switcher combobox. Below, in three groups separated by dividers:
-  - Group 1: Home, Inbox, Search.
-  - Group 2: Drafts, Bookmarks, Tasks, Pages.
-  - Group 3: People, Spaces *(Spaces icon shown only to admins — `Gameplan Admin` role)*.
+- **Narrow rail** (≈50–52px, gray bg). Top: Gameplan/Home button. Below it:
+  - Visible community shortcuts, each using community image/icon/fallback.
+  - "More communities" overflow combobox when needed.
+  - Global shortcuts, grouped visually: Search, People, Manage *(admin only)*, then Inbox,
+    Drafts, Bookmarks, Tasks, Pages.
   - Bottom: user avatar (`UserDropdown`).
-- **Community sidebar** (`w-56`, white bg). Top row = community name (text), opens the app/community menu for community-level actions. Aligned horizontally with the rail's community icon to read as one composite header. Below in order:
+- **Community sidebar** (`w-56`, white bg). Top row may be an app/community menu. Below in order:
   - "All discussions" row → `/community/:communityId/discussions`
-  - "Unread" row → `/community/:communityId/discussions/unread`
   - "Participating" row → `/community/:communityId/discussions/participating`
+  - "Unread" row → `/community/:communityId/discussions/unread`
   - "Spaces" header with a hover/focus-revealed `+` (admin only) opening the new-space flow
   - Spaces list
   - No persistent footer.
@@ -115,11 +149,12 @@ remain as-is until a separate schema/API rename is explicitly planned.
 
 #### Sidebar visibility
 - Community sidebar visible only on `/community/:communityId/*` routes.
-- Hidden on global routes (`/search`, `/people`, `/pages`, `/tasks`, `/bookmarks`, `/notifications`, `/drafts`, `/spaces`); content area expands. Width transition animated (~150ms).
+- Hidden on global routes (`/search`, `/people`, `/pages`, `/tasks`, `/bookmarks`,
+  `/notifications`, `/drafts`, `/manage`); content area expands. Width transition animated (~150ms).
 
 #### Active-state semantics
 - Active = "this is the destination the user is currently on", not "this destination is in the user's context".
-- Rail community icon: active only on `/community/:communityId/*` routes.
+- Rail community shortcut: active only when the current route is inside that community.
 - Rail destination icons: active only when on the route they target.
 - Sidebar "All discussions" / space rows: active only on the exact destination.
 
@@ -129,16 +164,24 @@ remain as-is until a separate schema/API rename is explicitly planned.
 
 #### Visual identity
 - Community icon: existing `team.icon` emoji, fallback to first character of title. Container designed for future image swap (no new field in v1).
-- Space rows in sidebar: leading `lucide-globe` for public spaces, `lucide-lock` for private spaces. No emoji on space rows. Title + unread count follow the leading icon.
+- Space rows in sidebar use the current space icon treatment, with private state clearly visible.
 
 #### Empty state
 - If a community has zero spaces (rare due to auto-create `General`): empty message "No spaces in this community yet." Admins additionally see a "Create a space" CTA opening the new-space flow.
 
 #### Mobile (drill-down per tab; no two-column layout)
 - Bottom tabs: **Home, Inbox, Search, More**.
-- Home tab: top bar = community name + switcher. Body = "All discussions" row + spaces list. Tap a space → drill into space discussions (tab bar persistent).
+- Home tab: list of accessible communities, preferably ordered by recent use with unread counts.
+- Tap a community → community menu screen:
+  - "All discussions"
+  - "Unread"
+  - "Participating"
+  - Spaces list
+- Tap a feed or space → open the corresponding discussion list. The bottom tab bar remains
+  persistent while drilling in.
 - Other tabs: no community context at top. Just destination content.
-- More tab: full-page menu of Bookmarks, People, Pages, Tasks, Drafts, *Spaces (admin only)*, plus user avatar/settings at the bottom.
+- More tab: full-page menu of Bookmarks, People, Pages, Tasks, Drafts, *Manage (admin only)*,
+  plus user avatar/settings at the bottom.
 
 ---
 
@@ -152,7 +195,7 @@ Canonical names to keep: `Discussions`, `DiscussionsTab`, `Space`, `SpaceDiscuss
 New names: `Bookmarks`, `LegacyNewDiscussion`
 
 ### Do not repurpose global helpers for scoped use
-Keep global helper modules for global UIs (`/spaces`, search filters, task/page dialogs) unless they are on an active community code path. Use `communitySpaces` naming for community-scoped space filtering.
+Keep global helper modules for global UIs (`/manage`, search filters, task/page dialogs) unless they are on an active community code path. Use `communitySpaces` naming for community-scoped space filtering.
 
 ### Avoid deleting old files in the first pass
 Old Team/Project pages: stop routing to them, keep as redirect compatibility, delete later after routing is stable.
@@ -163,7 +206,7 @@ Old Team/Project pages: stop routing to them, keep as redirect compatibility, de
 
 ### Do not accidentally break
 - Legacy unscoped drafts
-- `/spaces` admin behaviors
+- management admin behaviors
 - Global search/tasks/pages/people/notifications behavior
 - Guest access filtering
 

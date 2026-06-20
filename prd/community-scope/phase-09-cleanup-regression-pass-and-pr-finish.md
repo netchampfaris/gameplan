@@ -93,7 +93,6 @@ The PR description should summarize:
 - testing performed
 
 **Explicitly call out follow-ups deferred from this branch:**
-- Command palette "Add discussion" entry point
 - Comprehensive automated tests beyond the focused coverage added in this branch
 - Rollback / reverse-migration patches
 - Deletion of legacy Team / Project page files
@@ -168,28 +167,31 @@ Gameplan's top-level entity is now a **Community** (UI name for the `GP Team` do
 
 ### Routing
 - Canonical scoped routes: `/community/:communityId/discussions`, `/community/:communityId/discussions/:feedType`, `/community/:communityId/space/:spaceId`, `/community/:communityId/new-discussion`.
-- `/`, `/home`, `/community`, `/discussions` resolve to the selected/first accessible community's discussions; brand-new sites go to onboarding; a logged-in user with data but no joined community lands on `/spaces` (admin) or the `NoCommunities` empty state (non-admin).
-- Deep links navigate to the target community but do not overwrite the persisted home community.
+- `/`, `/home`, `/community`, `/discussions` resolve to the last visited/first accessible community's discussions; brand-new sites go to onboarding; a logged-in user with data but no joined community lands on `/manage` (admin) or the `NoCommunities` empty state (non-admin).
+- Valid community-scoped deep links become the current community.
 - Invalid/inaccessible scoped URLs 404 instead of silently rerouting. Legacy `/space/...` and team/project URLs redirect into canonical scoped routes.
 - Feed types reduced to `recent` / `unread` / `participating`; `following` dropped from the frontend allow-list (backend handler retained).
 
 ### Shell / sidebar
-- Three-column desktop shell: narrow rail (community switcher + global destinations), community sidebar (`w-56`), content area.
-- Feed types are sidebar rows ("All Discussions", "Unread", "Participating") — no tab strip on the discussions page.
-- Community switcher is a combobox opened from the rail-top icon (static badge when only one community).
+- Three-column desktop shell: narrow rail (Gameplan/Home, community shortcuts, overflow switcher,
+  global destinations), community sidebar (`w-56`), content area.
+- Feed types are sidebar rows ("All Discussions", "Participating", "Unread") — no tab strip on the discussions page.
+- Community switching happens through direct community shortcuts and the "More communities" overflow combobox.
 - Community sidebar renders only on `/community/:communityId/*` routes; global routes expand the content area.
-- Mobile: Home / Inbox / Search / More bottom tabs; community context only on the Home tab.
+- Mobile: Home / Inbox / Search / More bottom tabs; Home is community-first and drills into community feeds/spaces.
 
 ### Global vs scoped split
-- Global (cross-community) in v1: `/spaces`, `/search`, `/bookmarks`, `/notifications`, `/drafts`, `/tasks`, `/pages`, `/people`, command palette. These were intentionally **not** community-filtered.
+- Global (cross-community) in v1: `/manage`, `/search`, `/bookmarks`, `/notifications`, `/drafts`, `/tasks`, `/pages`, `/people`, command palette. These were intentionally **not** community-filtered, though create actions use route/current community defaults.
 - Scoped: community discussions, sidebar spaces list, space routes, new discussion, new space, onboarding.
 
 ### Drafts
-- Canonical create route is community-scoped; the "+ New discussion" entry point lives only inside the community discussions list. `/drafts` is a pure list.
+- Canonical create route is community-scoped; `/drafts` is a pure list.
+- Command palette "Add Discussion" is supported and resolves community/space from the current route
+  or current community before opening the scoped composer.
 - Legacy unscoped drafts still open via `/new-discussion?draft=...`.
 
-### `/spaces`
-- Admin-only global housekeeping page: non-admins are redirected away by a route guard and the rail icon is hidden for them. Existing admin actions unchanged.
+### Management
+- Admin-only global management page for communities, spaces, members, guests, and community images. Canonical product URL is `/manage`; `/spaces` is only compatibility. Non-admins are redirected away by a route guard and the rail entry point is hidden for them. Existing admin actions unchanged.
 
 ### Migrations (Phase 08)
 - Every new `GP Team` auto-creates a public `General` space via `after_insert` (idempotent: skipped if the team already has any space).
@@ -204,7 +206,6 @@ Gameplan's top-level entity is now a **Community** (UI name for the `GP Team` do
 - Backend migration assertions validated against the disposable test site (see Phase 08 notes re: the bench-wide server-script test-runner preload blocker).
 
 ### Deferred to follow-ups (out of scope for this branch)
-- Command palette "Add discussion" entry point.
 - Comprehensive automated tests beyond the focused coverage added here.
 - Rollback / reverse-migration patches.
 - Deletion of legacy Team / Project page files (kept this release as redirect compatibility).

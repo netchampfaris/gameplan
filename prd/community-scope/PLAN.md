@@ -9,6 +9,10 @@ remain as-is until a separate schema/API rename is explicitly planned.
 Product decisions and strategy principles: `./DECISIONS.md`
 Implementation style guidelines: `./CODE_STYLE.md`
 
+2026 UX amendment: `DECISIONS.md` is the source of truth for the current desired UX. The phase
+files below are historical execution records and may mention superseded details such as saved home
+community semantics, `/spaces` as the management URL, or deferred command palette work.
+
 ---
 
 ## Phase order
@@ -75,14 +79,26 @@ This branch is structured to run phase-by-phase via subagents: an **implementer*
 The branch is ready for review when:
 - There is no global discussions feed.
 - `/` and `/home` resolve to community-scoped discussions or onboarding.
-- Community switcher is visible in the shell (hidden when only one community).
-- Sidebar shows current-community spaces and feed-type rows (All discussions / Unread / Participating). No tab strip on the discussions page.
+- Desktop rail shows Gameplan/Home, visible community shortcuts, a "More communities" overflow
+  switcher when needed, global shortcuts, and the user avatar.
+- Visiting a valid community-scoped route updates the current/last visited community.
+- Sidebar shows current-community spaces and feed-type rows (All discussions / Participating / Unread). No tab strip on the discussions page.
 - Global bookmarks route exists at `/bookmarks`.
-- Scoped composer works; "+ New discussion" is reachable only from inside the community discussions list.
+- Scoped composer works from discussion list, space context, and command palette.
+- Command palette "Add Discussion" opens the correct scoped composer from community/space/global
+  contexts and never creates a draft before a space is selected.
 - Legacy unscoped drafts still work.
-- `/spaces` is admin-only — non-admins are redirected away and the rail icon is hidden for them.
+- `/manage` is the canonical admin-only management route for communities, spaces, members, guests,
+  and community images. `/spaces` is only a compatibility redirect; `/configure` should not remain
+  the product URL.
+- Non-admins are redirected away from management and the rail/manage entry point is hidden for them.
+- User-facing community creation paths automatically add the creator as a member. If community owner/admin
+  semantics ship, they are explicitly modeled rather than implied by global roles.
+- Mobile Home is community-first: list communities, drill into a community menu, then drill into
+  feeds/spaces with the bottom tab bar persistent.
 - Existing sites with uncategorized spaces are migrated to a `Default` community. Fresh sites do not get `Default` — onboarding requires a user-named community.
 - Discussion pin scope is migrated from `Global` to `Category`.
 - Active frontend app code uses Community naming (`communityState`, `communities`, `communitySpaces`, `communityId`) while backend/schema names remain unchanged.
 - Focused automated tests cover the riskiest route/persistence/migration changes made in this branch.
-- Deferred to follow-ups: command palette "Add discussion", comprehensive automated tests, rollback patches.
+- Deferred to follow-ups: comprehensive automated tests beyond focused coverage, rollback patches,
+  and deletion of legacy Team / Project page files after route stability is proven.

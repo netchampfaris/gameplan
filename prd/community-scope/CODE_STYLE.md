@@ -125,7 +125,9 @@ communityState.doc
 communityState.change(communityId)
 ```
 
-`communityState` stores the deliberately selected/default community used by `/` and `/home` fallback behavior. It is not automatically updated by deep links. Scoped pages derive the displayed community from `route.params.communityId`.
+`communityState` stores the current/last visited community used by `/` and `/home` fallback behavior.
+It is updated after valid community-scoped navigation. Scoped pages still validate and derive their
+primary community from `route.params.communityId`; after validation, `communityState` should match it.
 
 ### Route rules
 Canonical scoped routes should look like:
