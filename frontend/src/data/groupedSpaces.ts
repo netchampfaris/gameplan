@@ -63,8 +63,3 @@ export function useGroupedSpaceOptions({ filterFn = (_p: Space) => true }: Optio
     }))
   })
 }
-
-export const noCategories = computed(() => {
-  let groups = useGroupedSpaces({ filterFn: (space) => !space.archived_at })
-  return groups.value.length === 1 && groups.value[0].title == 'Uncategorized'
-})

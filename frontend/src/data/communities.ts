@@ -43,11 +43,9 @@ export let availableCommunities = computed(() => {
   return (communities.data || []).filter((community) => !community.archived_at)
 })
 
-export let joinedCommunities = computed(() => {
+export let activeCommunities = computed(() => {
   return availableCommunities.value.filter(isCommunityJoined)
 })
-
-export let activeCommunities = joinedCommunities
 
 export let useCommunity = (communityId: MaybeRefOrGetter<string | undefined>) => {
   return computed(() => {

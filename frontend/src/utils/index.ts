@@ -13,12 +13,6 @@ export function getImgDimensions(
   })
 }
 
-export function htmlToText(html: string): string {
-  let tmp = document.createElement('div')
-  tmp.innerHTML = html
-  return tmp.textContent || tmp.innerText || ''
-}
-
 export async function copyToClipboard(text: string): Promise<void> {
   try {
     // Use modern Clipboard API if available
@@ -41,18 +35,6 @@ export async function copyToClipboard(text: string): Promise<void> {
     toast.error('Failed to copy to clipboard')
     console.error('Failed to copy text to clipboard:', error)
     throw error
-  }
-}
-
-export function getScrollParent(node: HTMLElement | null): HTMLElement | null {
-  if (node == null) {
-    return null
-  }
-
-  if (node.scrollHeight > node.clientHeight) {
-    return node
-  } else {
-    return getScrollParent(node.parentNode as HTMLElement)
   }
 }
 

@@ -397,11 +397,11 @@ const spacesFilterOptions = computed(() => {
   if (filterOptions.data?.projects) {
     Object.entries(filterOptions.data.projects).forEach(([projectName, count]) => {
       projectCounts.set(projectName, count)
-      // Also handle numeric conversion for project IDs
-      try {
-        projectCounts.set(Number(projectName), count)
-      } catch (e) {
-        // Ignore conversion errors
+      // Project IDs are looked up numerically elsewhere; add a numeric key only
+      // when the name actually parses (Number() returns NaN, it never throws).
+      const numericKey = Number(projectName)
+      if (!Number.isNaN(numericKey)) {
+        projectCounts.set(numericKey, count)
       }
     })
   }

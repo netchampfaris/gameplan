@@ -4,7 +4,9 @@ import random
 
 import frappe
 
-from gameplan.gemoji import get_random_gemoji
+# A handful of icons for demo spaces. Replaces a 9k-line emoji blob that existed
+# solely to pick a random icon here.
+DEMO_SPACE_ICONS = ("🚀", "📦", "🛠️", "📊", "🎯", "💡", "🔧", "📝", "🌱", "⚡️", "🧩", "🔭")
 
 
 def generate_teams_and_projects():
@@ -216,7 +218,7 @@ def generate_projects_data_for_team(team):
 		project = {
 			"title": template,
 			"team": team.name,
-			"icon": get_random_gemoji().emoji,
+			"icon": random.choice(DEMO_SPACE_ICONS),
 			"is_private": is_private,
 			"members": [],  # Members will be added later
 		}
