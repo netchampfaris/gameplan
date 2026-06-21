@@ -1,9 +1,17 @@
 <template>
   <div>
-    <PageHeader>
+    <MobileHeader class="sm:hidden" :title="pageTitle">
+      <template #left>
+        <MobileBackButton :to="backRoute" :label="isSpacePage ? 'Pages' : 'My Pages'" />
+      </template>
+      <template v-if="page.doc && canEditPage" #right>
+        <DropdownMoreOptions align="end" :options="pageActions" />
+      </template>
+    </MobileHeader>
+    <PageHeader class="hidden sm:flex">
       <SpaceBreadcrumbs
         v-if="space"
-        :spaceId="spaceId"
+        :spaceId="space.name"
         :items="[
           {
             label: 'Pages',
@@ -42,35 +50,7 @@
         ]"
       />
       <div class="ml-2 shrink-0" v-if="page.doc && canEditPage">
-        <DropdownMoreOptions
-          align="end"
-          :options="[
-            {
-              label: 'Saved ' + relativeTimestamp(page.doc.modified),
-              onClick: () => save(),
-              loading: isAutosaving,
-              icon: 'lucide-save',
-            },
-            {
-              label: 'Delete',
-              icon: 'lucide-trash-2',
-              onClick: () => {
-                dialog.danger({
-                  title: 'Delete Page',
-                  message: 'Are you sure you want to delete this page?',
-                  onConfirm: async () => {
-                    await page.delete.submit()
-                    if (history.state.back == null) {
-                      router.push({ name: 'MyPages' })
-                    } else {
-                      router.back()
-                    }
-                  },
-                })
-              },
-            },
-          ]"
-        />
+        <DropdownMoreOptions align="end" :options="pageActions" />
       </div>
     </PageHeader>
     <div class="body-container">
@@ -110,18 +90,20 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { Breadcrumbs, usePageMeta, debounce, dayjsLocal } from 'frappe-ui'
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
+import { Breadcrumbs, usePageMeta, debounce, dayjsLocal, useDoc, dialog } from 'frappe-ui'
 import PageEditor from '@/components/editor/PageEditor.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import { useDoc, dialog } from 'frappe-ui'
 import { useSpace } from '@/data/spaces'
 import { GPPage } from '@/types/doctypes'
 import SpaceBreadcrumbs from '@/components/SpaceBreadcrumbs.vue'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
+import MobileBackButton from '@/components/MobileBackButton.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import { readOnlyMode } from '@/data/readOnlyMode'
 import { relativeTimestamp } from '@/utils'
 const props = defineProps<{
+  communityId?: string
   pageId: string
   slug?: string
   spaceId?: string
@@ -136,7 +118,6 @@ const textEditor = useTemplateRef('textEditor')
 
 const title = ref('')
 const content = ref('')
-const confirmDelete = ref(false)
 
 const page = useDoc<GPPage>({
   doctype: 'GP Page',
@@ -161,25 +142,37 @@ const pageTitle = computed(() => {
   return page.doc?.title || props.pageId
 })
 
-const breadcrumbs = computed(() => {
-  if (!page.doc) return []
-  if (!page.doc.project) {
-    return [
-      { label: 'My Pages', route: { name: 'MyPages' } },
-      {
-        label: pageTitle.value,
-        route: {
-          name: 'Page',
-          params: { pageId: props.pageId, slug: props.slug },
-        },
-        isPageTitle: true,
-      },
-    ]
+const isSpacePage = computed(() => Boolean(space.value || props.spaceId))
+const backRoute = computed<RouteLocationRaw>(() => {
+  const spaceId = space.value?.name || props.spaceId
+  const communityId = space.value?.team || props.communityId
+
+  if (spaceId && communityId) {
+    return {
+      name: 'SpacePages',
+      params: { communityId, spaceId },
+    }
   }
+
+  return { name: 'MyPages' }
 })
 
 const isAutosaving = ref(false)
 const MIN_AUTOSAVING_DURATION = 2000 // 2 seconds
+
+const pageActions = computed(() => [
+  {
+    label: page.doc?.modified ? 'Saved ' + relativeTimestamp(page.doc.modified) : 'Saved',
+    onClick: () => save(),
+    loading: isAutosaving.value,
+    icon: 'lucide-save',
+  },
+  {
+    label: 'Delete',
+    icon: 'lucide-trash-2',
+    onClick: deletePage,
+  },
+])
 
 const save = () => {
   if (!canEditPage.value) return
@@ -203,6 +196,21 @@ const save = () => {
 }
 
 const autosave = debounce(save, 1000)
+
+function deletePage() {
+  dialog.danger({
+    title: 'Delete Page',
+    message: 'Are you sure you want to delete this page?',
+    onConfirm: async () => {
+      await page.delete.submit()
+      if (history.state.back == null) {
+        router.push({ name: 'MyPages' })
+      } else {
+        router.back()
+      }
+    },
+  })
+}
 
 const handleKeyboardShortcuts = (e: KeyboardEvent) => {
   if (canEditPage.value && e.key === 's' && (e.metaKey || e.ctrlKey)) {
