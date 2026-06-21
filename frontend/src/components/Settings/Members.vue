@@ -53,24 +53,16 @@ export default {
     changeUserRole() {
       return {
         url: 'gameplan.api.change_user_role',
-        onSuccess(user) {
-          users.setData((data) => {
-            return data.map((_user) => {
-              if (_user.name === user.name) {
-                return user
-              }
-              return _user
-            })
-          })
-        },
+        // `users` is a useCall resource (no setData); refetch so the list — and
+        // the rendered role label — reflect the server-side change.
+        onSuccess: () => users.reload(),
       }
     },
     removeUser() {
       return {
         url: 'gameplan.api.remove_user',
-        onSuccess(user) {
-          users.setData((data) => data.filter((_user) => _user.name !== user))
-        },
+        // The removed user is now disabled; refetch so activeUsers drops the row.
+        onSuccess: () => users.reload(),
       }
     },
   },
