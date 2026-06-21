@@ -169,7 +169,7 @@ const adminShortcuts = computed<RailItem[]>(() => {
   return [
     {
       label: 'Configure communities',
-      icon: 'lucide-folder-tree',
+      icon: 'lucide-building-2',
       isActive: isRoute('Spaces', 'CommunitySpaces', 'CommunityMembers'),
       route: { name: 'Spaces' },
     },

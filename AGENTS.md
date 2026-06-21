@@ -46,3 +46,9 @@ Local dev site is `gameplan.frappe.test` (CI uses `gameplan.test`).
 ## Code comments
 
 Explain *why*, not *what*. JSDoc/TSDoc for complex functions/composables. No comments for self-explanatory code.
+
+## Codebase health
+
+- When editing code, always find opportunities to refactor code and leave it better than it was before
+- Prefer generic components and utilities if code is repeated in multiple areas
+- Prefer simpler code over complex
