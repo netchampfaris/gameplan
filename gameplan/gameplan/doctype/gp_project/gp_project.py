@@ -103,11 +103,16 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 			return
 		self.team = team
 		self.save()
+		# Repoint child discussions/tasks in one statement each. Loading + saving every
+		# doc would needlessly re-run their full on_update (notify_mentions, etc.); only
+		# the denormalized `team` column changes here.
 		for doctype in ["GP Task", "GP Discussion"]:
-			for name in frappe.db.get_all(doctype, {"project": self.name}, pluck="name"):
-				doc = frappe.get_doc(doctype, name)
-				doc.team = self.team
-				doc.save()
+			DocType = frappe.qb.DocType(doctype)
+			(
+				frappe.qb.update(DocType)
+				.set(DocType.team, self.team)
+				.where(DocType.project == str(self.name))
+			).run()
 
 	@frappe.whitelist()
 	def merge_with_project(self, project=None):

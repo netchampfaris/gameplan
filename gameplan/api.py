@@ -272,14 +272,13 @@ def get_unread_items_by_project(projects):
 
 @frappe.whitelist()
 def mark_all_notifications_as_read():
-	for d in frappe.db.get_all(
-		"GP Notification",
-		filters={"to_user": frappe.session.user, "read": 0},
-		pluck="name",
-	):
-		doc = frappe.get_doc("GP Notification", d)
-		doc.read = 1
-		doc.save(ignore_permissions=True)
+	Notification = frappe.qb.DocType("GP Notification")
+	(
+		frappe.qb.update(Notification)
+		.set(Notification.read, 1)
+		.where((Notification.to_user == frappe.session.user) & (Notification.read == 0))
+	).run()
+	gameplan.refetch_resource("Unread Notifications Count", user=frappe.session.user)
 
 
 @frappe.whitelist()
