@@ -17,7 +17,6 @@ declare module '@vue/runtime-core' {
     FeatherIcon: (typeof import('frappe-ui'))['FeatherIcon']
     Alert: (typeof import('frappe-ui'))['Alert']
     Badge: (typeof import('frappe-ui'))['Badge']
-    UserInfo: (typeof import('frappe-ui'))['UserInfo']
     UserAvatar: typeof import('./components/UserAvatar.vue')
   }
 }

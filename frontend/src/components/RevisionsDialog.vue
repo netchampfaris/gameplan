@@ -26,27 +26,25 @@
         </div>
       </div>
       <div class="min-w-0">
-        <div class="mb-2 flex items-center text-base" v-if="currentRevision">
-          <UserInfo :email="currentRevision.owner" v-slot="{ user }">
-            <UserProfileLink class="mr-3" :user="user.name">
-              <UserAvatar :user="user.name" />
+        <div class="mb-2 flex items-center text-base" v-if="currentRevision && currentAuthor">
+          <UserProfileLink class="mr-3" :user="currentAuthor.name">
+            <UserAvatar :user="currentAuthor.name" />
+          </UserProfileLink>
+          <div class="space-y-0.5">
+            <UserProfileLink
+              class="font-medium text-ink-gray-8 hover:text-ink-blue-8"
+              :user="currentAuthor.name"
+            >
+              {{ currentAuthor.full_name }}
             </UserProfileLink>
-            <div class="space-y-0.5">
-              <UserProfileLink
-                class="font-medium text-ink-gray-8 hover:text-ink-blue-8"
-                :user="user.name"
-              >
-                {{ user.full_name }}
-              </UserProfileLink>
-              <time
-                class="block text-ink-gray-5"
-                :datetime="currentRevision.creation"
-                :title="dayjsLocal(currentRevision.creation)"
-              >
-                {{ dayjsLocal(currentRevision.creation).format('LLL') }}
-              </time>
-            </div>
-          </UserInfo>
+            <time
+              class="block text-ink-gray-5"
+              :datetime="currentRevision.creation"
+              :title="dayjsLocal(currentRevision.creation)"
+            >
+              {{ dayjsLocal(currentRevision.creation).format('LLL') }}
+            </time>
+          </div>
         </div>
         <div
           v-if="currentRevision"
@@ -85,24 +83,22 @@
       </div>
 
       <div ref="previewRef" class="flex-1 overflow-y-auto px-4 pb-6">
-        <div class="mb-3 flex items-center text-sm" v-if="currentRevision">
-          <UserInfo :email="currentRevision.owner" v-slot="{ user }">
-            <UserProfileLink class="mr-3" :user="user.name">
-              <UserAvatar :user="user.name" />
+        <div class="mb-3 flex items-center text-sm" v-if="currentRevision && currentAuthor">
+          <UserProfileLink class="mr-3" :user="currentAuthor.name">
+            <UserAvatar :user="currentAuthor.name" />
+          </UserProfileLink>
+          <div class="space-y-0.5">
+            <UserProfileLink class="font-medium text-ink-gray-8" :user="currentAuthor.name">
+              {{ currentAuthor.full_name }}
             </UserProfileLink>
-            <div class="space-y-0.5">
-              <UserProfileLink class="font-medium text-ink-gray-8" :user="user.name">
-                {{ user.full_name }}
-              </UserProfileLink>
-              <time
-                class="block text-ink-gray-5"
-                :datetime="currentRevision.creation"
-                :title="dayjsLocal(currentRevision.creation)"
-              >
-                {{ dayjsLocal(currentRevision.creation).format('LLL') }}
-              </time>
-            </div>
-          </UserInfo>
+            <time
+              class="block text-ink-gray-5"
+              :datetime="currentRevision.creation"
+              :title="dayjsLocal(currentRevision.creation)"
+            >
+              {{ dayjsLocal(currentRevision.creation).format('LLL') }}
+            </time>
+          </div>
         </div>
         <div
           v-if="sheetContentReady && currentRevision"
@@ -122,6 +118,8 @@ import HtmlDiff from 'htmldiff-js'
 import { Motion } from 'motion-v'
 import BottomSheet from './BottomSheet.vue'
 import UserProfileLink from './UserProfileLink.vue'
+import UserAvatar from './UserAvatar.vue'
+import { useUser } from '@/data/users'
 
 interface Revision {
   owner: string
@@ -203,6 +201,11 @@ const title = computed(() => {
 
 const currentRevision = computed(() => {
   return orderedRevisions.value[currentRevisionIndex.value] ?? null
+})
+
+const currentAuthor = computed(() => {
+  if (!currentRevision.value) return null
+  return useUser(currentRevision.value.owner)
 })
 
 const handleSheetCloseComplete = () => {

@@ -18,14 +18,9 @@
       <span class="lucide-edit-3 h-4 w-4" v-else-if="activity.action === 'Task Value Changed'" />
     </div>
     <p>
-      <UserInfo :email="activity.user" v-slot="{ user }">
-        <UserProfileLink
-          class="font-medium text-ink-gray-7 hover:text-ink-gray-5"
-          :user="user.name"
-        >
-          {{ user.full_name }}
-        </UserProfileLink>
-      </UserInfo>
+      <UserProfileLink class="font-medium text-ink-gray-7 hover:text-ink-gray-5" :user="user.name">
+        {{ user.full_name }}
+      </UserProfileLink>
       <span v-if="activity.action == 'Discussion Closed'"> closed this discussion</span>
       <span v-if="activity.action == 'Discussion Reopened'"> reopened this discussion</span>
       <span v-if="activity.action == 'Discussion Pinned'"> pinned this discussion</span>
@@ -68,9 +63,9 @@
           assigned this to
           <UserProfileLink
             class="font-medium text-ink-gray-7 hover:text-ink-gray-5"
-            :user="$user(activity.data.new_value).name"
+            :user="assignedUser.name"
           >
-            {{ $user(activity.data.new_value).full_name }}
+            {{ assignedUser.full_name }}
           </UserProfileLink>
         </template>
         <template v-else-if="activity.data.field === 'description'">
@@ -120,10 +115,12 @@
   </div>
 </template>
 <script setup lang="ts">
+import { computed } from 'vue'
 import { dayjsLocal, Tooltip } from 'frappe-ui'
 import UserProfileLink from './UserProfileLink.vue'
 import { getSpace } from '@/data/spaces'
 import { spaceTitle } from '@/utils/formatters'
+import { useUser } from '@/data/users'
 
 interface Activity {
   action: string
@@ -141,7 +138,10 @@ interface Activity {
   }
 }
 
-defineProps<{
+const props = defineProps<{
   activity: Activity
 }>()
+
+const user = computed(() => useUser(props.activity.user))
+const assignedUser = computed(() => useUser(props.activity.data.new_value))
 </script>
