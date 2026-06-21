@@ -27,6 +27,9 @@ class TestGPDiscussion(FrappeTestCase):
 		active_discussion = create_discussion("Visible discussion", active_project.name)
 		archived_discussion = create_discussion("Hidden discussion", archived_project.name)
 
+		# Creating a discussion bumps the parent Space's `modified` timestamp via
+		# discussion hooks, so reload before archiving to avoid a TimestampMismatchError.
+		archived_project.reload()
 		archived_project.archive()
 
 		discussions = get_discussions(filters={"team": team.name}, limit=50)
