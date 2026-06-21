@@ -14,7 +14,6 @@ import {
   FrappeUI,
   useCall,
 } from 'frappe-ui'
-import * as Sentry from '@sentry/vue'
 import router from './router'
 import App from './App.vue'
 import './index.css'
@@ -84,13 +83,18 @@ function setupApp() {
   app.mount('#app')
 }
 
-// sentry error logging
+// Sentry error logging. Loaded lazily (dynamic import) so the ~250 KB SDK stays
+// out of the entry chunk — it's the #1 resource on the initial critical path and
+// is only ever needed in production when a DSN is configured. The import fires
+// during setup so browser-tracing still attaches early enough to capture vitals.
 if (import.meta.env.PROD && window.gameplan_frontend_sentry_dsn) {
-  Sentry.init({
-    app,
-    dsn: window.gameplan_frontend_sentry_dsn,
-    integrations: [Sentry.browserTracingIntegration({ router })],
-    tracesSampleRate: 1.0,
+  import('@sentry/vue').then((Sentry) => {
+    Sentry.init({
+      app,
+      dsn: window.gameplan_frontend_sentry_dsn,
+      integrations: [Sentry.browserTracingIntegration({ router })],
+      tracesSampleRate: 1.0,
+    })
   })
 }
 
