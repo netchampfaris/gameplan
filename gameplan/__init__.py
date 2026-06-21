@@ -15,6 +15,22 @@ def is_guest(user=None):
 	return "Gameplan Guest" in roles
 
 
+def is_admin(user=None):
+	"""Return True if the user may manage members (roles, invites, removal).
+
+	Administrator and the System Manager are always admins; otherwise the user
+	must hold the Gameplan Admin role. Mirrors is_guest() so both gates resolve
+	roles through the same (Redis-cached) frappe.get_roles path.
+	"""
+	if not user:
+		user = frappe.session.user
+
+	if user == "Administrator":
+		return True
+	roles = frappe.get_roles(user)
+	return "Gameplan Admin" in roles or "System Manager" in roles
+
+
 def refetch_resource(cache_key: str | list, user=None):
 	frappe.publish_realtime(
 		"refetch_resource", {"cache_key": cache_key}, user=user or frappe.session.user, after_commit=True

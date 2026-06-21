@@ -10,7 +10,7 @@ from frappe.model.document import Document
 from pypika.terms import ExistsCriterion
 
 import gameplan
-from gameplan.api import invite_by_email
+from gameplan.api import _invite_by_email
 from gameplan.gameplan.doctype.gp_unread_record.gp_unread_record import GPUnreadRecord
 from gameplan.mixins.archivable import Archivable
 from gameplan.mixins.manage_members import ManageMembersMixin
@@ -121,7 +121,9 @@ class GPProject(ManageMembersMixin, Archivable, Document):
 
 	@frappe.whitelist()
 	def invite_guest(self, email):
-		invite_by_email(email, role="Gameplan Guest", projects=[self.name])
+		# Trusted path: a space member invites a guest to this space. The role is
+		# hardcoded (non-escalating), so it bypasses invite_by_email's admin gate.
+		_invite_by_email(email, role="Gameplan Guest", projects=[self.name])
 
 	@frappe.whitelist()
 	def remove_guest(self, email):

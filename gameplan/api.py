@@ -3,11 +3,18 @@
 
 
 import frappe
+from frappe import _
 from frappe.query_builder.functions import Count
 from frappe.utils import split_emails, validate_email_address
 
 import gameplan
 from gameplan.utils import validate_type
+
+
+def require_admin():
+	"""Gate an endpoint to admins only. Raises PermissionError (HTTP 403) otherwise."""
+	if not gameplan.is_admin():
+		frappe.throw(_("Only admins can perform this action"), frappe.PermissionError)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -76,14 +83,18 @@ def get_user_info(user=None):
 		user.discussions_count_3m = discussion_count_map.get(user.name, 0)
 		user.comments_count_3m = comment_count_map.get(user.name, 0)
 
+	# Guests get the directory for @-mentions/avatars but not other members' emails.
+	if gameplan.is_guest():
+		for user in users:
+			user.pop("email", None)
+
 	return users
 
 
 @frappe.whitelist()
 @validate_type
 def change_user_role(user: str, role: str):
-	if gameplan.is_guest():
-		frappe.throw("Only Admin can change user roles")
+	require_admin()
 
 	if role not in ["Gameplan Guest", "Gameplan Member", "Gameplan Admin"]:
 		return get_user_info(user)[0]
@@ -101,6 +112,7 @@ def change_user_role(user: str, role: str):
 @frappe.whitelist()
 @validate_type
 def remove_user(user: str):
+	require_admin()
 	user_doc = frappe.get_doc("User", user)
 	user_doc.enabled = 0
 	user_doc.save(ignore_permissions=True)
@@ -110,6 +122,18 @@ def remove_user(user: str):
 @frappe.whitelist()
 @validate_type
 def invite_by_email(emails: str, role: str, projects: list = None):
+	require_admin()
+	if role not in ["Gameplan Guest", "Gameplan Member", "Gameplan Admin"]:
+		frappe.throw(_("Invalid role: {0}").format(role), frappe.ValidationError)
+	return _invite_by_email(emails, role, projects)
+
+
+def _invite_by_email(emails: str, role: str, projects: list = None):
+	"""Core invite logic, callable from trusted server code (e.g. onboarding).
+
+	The public invite_by_email wrapper adds the admin gate + role allowlist; this
+	helper assumes the caller has already authorized the invite and validated role.
+	"""
 	if not emails:
 		return
 	email_string = validate_email_address(emails, throw=False)
@@ -350,7 +374,10 @@ def onboarding(community, space, icon, emails, is_private=0):
 		doctype="GP Project", title=space, icon=icon, team=team.name, is_private=is_private
 	).insert()
 
-	invite_by_email(", ".join(emails), role="Gameplan Member")
+	# Trusted internal path: the signup creator invites their first teammates as
+	# Members. Bypasses the admin gate (the creator isn't an admin yet) but the
+	# role is hardcoded, so no escalation is possible.
+	_invite_by_email(", ".join(emails), role="Gameplan Member")
 	return {"team": team.name, "space": project.name}
 
 
