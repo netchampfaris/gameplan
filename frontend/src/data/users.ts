@@ -78,3 +78,7 @@ export let activeUsers = computed(() => {
 export function useSessionUser() {
   return useUser('sessionUser')
 }
+
+export function isGameplanAdmin(user: UserInfo = useSessionUser()) {
+  return user.name === 'Administrator' || user.role === 'Gameplan Admin'
+}

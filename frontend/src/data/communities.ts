@@ -28,7 +28,7 @@ export let communities = useList<Community>({
   ],
   orderBy: 'title asc',
   initialData: [],
-  cacheKey: 'Communities',
+  cacheKey: ['Communities', 'with-image'],
   limit: 999,
   transform(data) {
     for (let community of data) {

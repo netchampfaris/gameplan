@@ -143,7 +143,7 @@ import { Button, Dropdown } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { communitySpaces } from '@/data/communitySpaces'
 import { getSpaceUnreadCount, markAllAsRead, type Space } from '@/data/spaces'
-import { useSessionUser } from '@/data/users'
+import { isGameplanAdmin, useSessionUser } from '@/data/users'
 import AppLink from './AppLink.vue'
 import AppDropdown from './AppDropdown.vue'
 import AppSidebarLink from './AppSidebarLink.vue'
@@ -158,7 +158,7 @@ import LucideMessageSquareText from '~icons/lucide/message-square-text'
 const route = useRoute()
 const sessionUser = useSessionUser()
 
-const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
+const isAdmin = computed(() => isGameplanAdmin(sessionUser))
 
 const spacesList = computed(() => communitySpaces.list)
 

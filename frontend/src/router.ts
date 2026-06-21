@@ -7,7 +7,7 @@ import {
 } from 'vue-router'
 import { until } from '@vueuse/core'
 import { session } from './data/session'
-import { users, useSessionUser } from './data/users'
+import { isGameplanAdmin, users, useSessionUser } from './data/users'
 import { communities, getActiveCommunity } from './data/communities'
 import { spaces, getSpace } from './data/spaces'
 import type { Space } from './data/spaces'
@@ -41,7 +41,7 @@ function optionalRouteParam(value: RouteParamValue | undefined): string | undefi
 async function ensureConfigureAccess() {
   await ensureCommunityDataLoaded()
 
-  if (useSessionUser().role !== 'Gameplan Admin') {
+  if (!isGameplanAdmin()) {
     return getHomeRoute()
   }
 }
@@ -821,7 +821,7 @@ function getDesktopHomeRoute(): RouteLocationRaw {
 
   // The site has communities/spaces but the user has joined none. Admins configure
   // them on the global manager page; everyone else sees the no-communities state.
-  if (useSessionUser().role === 'Gameplan Admin') {
+  if (isGameplanAdmin()) {
     return { name: 'Spaces' }
   }
 

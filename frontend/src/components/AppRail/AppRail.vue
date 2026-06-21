@@ -125,7 +125,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import { communityState } from '@/data/communityState'
 import { activeCommunities } from '@/data/communities'
 import type { Community } from '@/data/communities'
-import { useSessionUser } from '@/data/users'
+import { isGameplanAdmin, useSessionUser } from '@/data/users'
 import CommunityImage from '../CommunityImage.vue'
 import CommunitySwitcherCombobox from './CommunitySwitcherCombobox.vue'
 import GameplanLogo from '../GameplanLogo.vue'
@@ -150,7 +150,7 @@ const props = defineProps<{
   showCommunityActiveState: boolean
 }>()
 
-const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
+const isAdmin = computed(() => isGameplanAdmin(sessionUser))
 
 // Reads `communityListEl` / `mainShortcutsEl` / `bottomGroupEl` template refs to
 // fit as many community buttons as the rail's height allows.

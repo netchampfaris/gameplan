@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
-import { useSessionUser } from '@/data/users'
+import { isGameplanAdmin, useSessionUser } from '@/data/users'
 import { session } from '@/data/session'
 import { useTheme, type Theme } from '@/utils/useTheme'
 
@@ -87,7 +87,7 @@ const THEME_META: Record<Theme, { label: string; icon: string }> = {
   system: { label: 'System Default', icon: 'lucide-monitor-smartphone' },
 }
 
-const isAdmin = computed(() => sessionUser.role === 'Gameplan Admin')
+const isAdmin = computed(() => isGameplanAdmin(sessionUser))
 const userInitials = computed(() => {
   return (sessionUser.full_name || sessionUser.name)
     .split(/\s+/)

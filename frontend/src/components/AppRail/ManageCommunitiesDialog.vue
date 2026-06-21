@@ -63,7 +63,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Button, Dialog, Switch, toast, useCall } from 'frappe-ui'
 import { communityState } from '@/data/communityState'
 import { activeCommunities, availableCommunities, communities } from '@/data/communities'
-import { useSessionUser } from '@/data/users'
+import { isGameplanAdmin } from '@/data/users'
 import CommunityImage from '../CommunityImage.vue'
 
 const props = defineProps<{
@@ -138,10 +138,7 @@ async function save() {
       communityState.change(nextCommunity?.name ?? null)
 
       if (route.matched.some((record) => record.meta?.communityScope)) {
-        let fallback =
-          useSessionUser().role === 'Gameplan Admin'
-            ? { name: 'Spaces' }
-            : { name: 'NoCommunities' }
+        let fallback = isGameplanAdmin() ? { name: 'Spaces' } : { name: 'NoCommunities' }
         router.push(
           nextCommunity
             ? { name: 'Discussions', params: { communityId: nextCommunity.name } }
