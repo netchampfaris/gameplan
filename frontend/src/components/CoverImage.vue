@@ -1,34 +1,28 @@
 <template>
   <div class="min-h-[3rem] overflow-hidden bg-surface-gray-2">
-    <div class="group relative h-[130px] w-full" v-if="validatedImageUrl">
+    <div ref="cover" class="group relative h-[178px] w-full" v-if="validatedImageUrl">
       <img
-        class="h-[130px] w-full object-cover"
+        class="h-[178px] w-full object-cover"
         :class="{ 'animate-pulse': loading }"
         :style="{ objectPosition }"
         :src="validatedImageUrl"
         @load="loading = false"
       />
       <div
-        class="absolute inset-0 flex cursor-grab select-none items-center justify-center"
+        class="absolute inset-0 flex touch-none select-none items-center justify-center bg-black/20"
+        :class="dragging ? 'cursor-grabbing' : 'cursor-grab'"
         v-if="reposition"
-        @mousedown="initialY = $event.clientY"
+        @pointerdown="startDrag"
+        @pointermove="drag"
+        @pointerup="endDrag"
+        @pointercancel="endDrag"
       >
-        <div class="text-center">
-          <div class="rounded-md py-1 text-xl text-ink-base">Drag up/down to reposition image</div>
-          <Button
-            class="mt-2"
-            @click="
-              () => {
-                $emit('update:imagePosition', tempImagePosition)
-                $emit('change', { imageUrl, imagePosition: tempImagePosition })
-                reposition = false
-                tempImagePosition = null
-              }
-            "
-          >
-            Save position
-          </Button>
-          <Button class="ml-2 mt-2" @click="reposition = false">Cancel</Button>
+        <div class="pointer-events-none text-center">
+          <div class="rounded-md py-1 text-xl text-ink-base">Drag image up or down</div>
+          <div class="pointer-events-auto" data-cover-control @pointerdown.stop>
+            <Button class="mt-2" @click="savePosition">Save position</Button>
+            <Button class="ml-2 mt-2" @click="cancelReposition">Cancel</Button>
+          </div>
         </div>
       </div>
       <div
@@ -50,23 +44,12 @@
             <Button variant="outline" @click="togglePopover()"> Change Image </Button>
           </template>
         </UnsplashImageBrowser>
-        <Button
-          v-if="editable"
-          variant="outline"
-          @click="
-            () => {
-              reposition = true
-              tempImagePosition = imagePosition
-            }
-          "
-        >
-          Reposition
-        </Button>
+        <Button v-if="editable" variant="outline" @click="beginReposition"> Reposition </Button>
       </div>
     </div>
     <div
       v-else
-      class="flex h-[130px] w-full items-center justify-center bg-surface-sidebar text-sm text-ink-gray-4"
+      class="flex h-[178px] w-full items-center justify-center bg-surface-sidebar text-sm text-ink-gray-4"
     >
       <UnsplashImageBrowser
         v-if="editable"
@@ -113,42 +96,11 @@ export default {
       reposition: false,
       tempImagePosition: null,
       loading: true,
-      initialY: null,
-      changeY: null,
+      dragging: false,
+      dragStartY: null,
+      dragStartPosition: null,
       imageDimensions: null,
     }
-  },
-  mounted() {
-    this.onMouseMove = (e) => {
-      if (!this.reposition) return
-      if (this.initialY && this.imageDimensions) {
-        let ratio = this.imageDimensions.ratio
-        let clientWidth = e.target.clientWidth
-        let clientHeight = clientWidth / ratio
-        let diff = this.initialY - e.clientY
-        this.changeY = (diff * 100) / clientHeight
-
-        let finalPosition = this.tempImagePosition + this.changeY
-        if (finalPosition > 100) {
-          this.changeY = 100 - this.tempImagePosition
-        }
-        if (finalPosition < 0) {
-          this.changeY = -this.tempImagePosition
-        }
-      }
-    }
-    this.onMouseUp = () => {
-      if (!this.reposition) return
-      this.initialY = null
-      this.tempImagePosition += this.changeY
-      this.changeY = 0
-    }
-    window.addEventListener('mousemove', this.onMouseMove)
-    window.addEventListener('mouseup', this.onMouseUp)
-  },
-  destroyed() {
-    window.removeEventListener('mousemove', this.onMouseMove)
-    window.removeEventListener('mouseup', this.onMouseUp)
   },
   watch: {
     validatedImageUrl: {
@@ -171,7 +123,71 @@ export default {
     },
     objectPosition() {
       let position = this.reposition ? this.tempImagePosition : this.imagePosition
-      return `center ${position + this.changeY}%`
+      return `center ${this.clampPosition(position)}%`
+    },
+  },
+  methods: {
+    beginReposition() {
+      this.reposition = true
+      this.tempImagePosition = this.clampPosition(this.imagePosition)
+    },
+    savePosition() {
+      let imagePosition = this.clampPosition(this.tempImagePosition)
+      this.$emit('update:imagePosition', imagePosition)
+      this.$emit('change', { imageUrl: this.imageUrl, imagePosition })
+      this.closeReposition()
+    },
+    cancelReposition() {
+      this.closeReposition()
+    },
+    startDrag(event) {
+      event.preventDefault()
+      if (event.target?.closest?.('[data-cover-control]')) return
+
+      let verticalOverflow = this.getVerticalOverflow()
+      if (!verticalOverflow) return
+
+      this.dragging = true
+      this.dragStartY = event.clientY
+      this.dragStartPosition = this.clampPosition(this.tempImagePosition)
+      event.currentTarget.setPointerCapture(event.pointerId)
+    },
+    drag(event) {
+      if (!this.dragging) return
+
+      let verticalOverflow = this.getVerticalOverflow()
+      if (!verticalOverflow) return
+
+      let deltaY = this.dragStartY - event.clientY
+      let deltaPosition = (deltaY * 100) / verticalOverflow
+      this.tempImagePosition = this.clampPosition(this.dragStartPosition + deltaPosition)
+    },
+    endDrag(event) {
+      if (!this.dragging) return
+
+      this.dragging = false
+      this.dragStartY = null
+      this.dragStartPosition = null
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId)
+      }
+    },
+    closeReposition() {
+      this.dragging = false
+      this.dragStartY = null
+      this.dragStartPosition = null
+      this.reposition = false
+      this.tempImagePosition = null
+    },
+    getVerticalOverflow() {
+      if (!this.$refs.cover || !this.imageDimensions) return 0
+
+      let { width, height } = this.$refs.cover.getBoundingClientRect()
+      let imageHeight = width / this.imageDimensions.ratio
+      return Math.max(0, imageHeight - height)
+    },
+    clampPosition(position) {
+      return Math.min(100, Math.max(0, Number(position) || 0))
     },
   },
 }

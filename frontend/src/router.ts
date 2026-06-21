@@ -377,6 +377,11 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/profile/customize',
+    name: 'ProfileCustomizeMock',
+    component: () => import('@/pages/ProfileCustomizeMock.vue'),
+  },
+  {
     path: '/notifications',
     name: 'Notifications',
     component: () => import('@/pages/Notifications.vue'),
