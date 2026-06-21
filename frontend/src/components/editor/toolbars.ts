@@ -63,12 +63,27 @@ export const gameplanToolbar: MenuItem[] = [
   Redo,
 ]
 
-export const compactCommentToolbar: MenuItem[] = [
+export const compactCommentToolbar: MenuItem[] = [Bold, Italic, BulletList, OrderedList, InsertLink]
+
+export const mobileDiscussionToolbar: MenuItem[] = [
+  Paragraph,
+  H2,
+  H3,
+  Separator,
   Bold,
   Italic,
+  Strike,
+  Separator,
   BulletList,
   OrderedList,
+  Blockquote,
+  InlineCode,
+  Separator,
   InsertLink,
+  InsertImage,
+  Separator,
+  Undo,
+  Redo,
 ]
 
 /** Block-insert menu shown on empty lines (Notion-style "+"): block affordances only. */

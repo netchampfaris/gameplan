@@ -171,14 +171,19 @@ const isUnreadFeed = computed(() => feedType.value === 'unread')
 const isParticipatingFeed = computed(() => feedType.value === 'participating')
 
 const showNewSpaceDialog = ref(false)
+const activeSpaceId = computed(() => {
+  const routeName = route.name?.toString() || ''
+  if (routeName.startsWith('Space')) return route.params.spaceId?.toString() || null
+  if (routeName === 'NewDiscussion') return routeQueryString(route.query.spaceId)
+  return null
+})
 
 function isRoute(name: string) {
   return route.name === name
 }
 
 function isActiveSpace(spaceId: string) {
-  const routeName = route.name?.toString() || ''
-  return route.params.spaceId?.toString() === spaceId && routeName.startsWith('Space')
+  return activeSpaceId.value === spaceId
 }
 
 function openNewSpaceDialog() {
@@ -193,5 +198,10 @@ function spaceOptions(space: Space) {
       onClick: () => markAllAsRead([space.name], space.title),
     },
   ]
+}
+
+function routeQueryString(value: unknown): string | null {
+  const resolved = Array.isArray(value) ? value[0] : value
+  return typeof resolved === 'string' && resolved.length > 0 ? resolved : null
 }
 </script>

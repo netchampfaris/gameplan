@@ -6,7 +6,6 @@ import { useGroupedSpaceOptions } from '@/data/groupedSpaces'
 import { getSpace } from '@/data/spaces'
 import { useSessionUser, useUser } from '@/data/users'
 import { tags } from '@/data/tags'
-import type { TextEditorRef } from './types'
 import type { GPDiscussion } from '@/types/doctypes'
 
 const PUBLISH_DRAFT = 'gameplan.gameplan.doctype.gp_draft.gp_draft.publish_draft'
@@ -18,7 +17,7 @@ function hasMeaningfulContent(payload: Partial<DraftPayload>): boolean {
   return title.length > 0 || (body.length > 0 && body !== '<p></p>')
 }
 
-export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
+export function useNewDiscussion() {
   const route = useRoute()
   const router = useRouter()
   const sessionUser = useSessionUser()
@@ -54,32 +53,15 @@ export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
 
   const draftData = draft.data
   const isPersisted = computed(() => Boolean(draft.serverName.value))
-  const isDraftChanged = computed(() => draft.dirty.value)
-
-  const saveStatus = computed(() => ({
-    isSaving: draft.saving.value,
-    lastSaved: draft.savedAt.value,
-    hasUnsavedChanges: draft.dirty.value,
-    error: null,
-  }))
 
   // Drafts are owner-scoped on the server, so the author is always the current user.
   const author = computed(() => useUser(sessionUser.name))
 
-  // Space options and formatting. In scoped mode the picker only offers spaces from the
-  // route's community; the legacy route keeps the full grouped list.
+  // In scoped mode the picker only offers spaces from the route's community; the
+  // legacy route keeps the full grouped list.
   const spaceOptions = useGroupedSpaceOptions({
     filterFn: (space) =>
       !space.archived_at && (!isScoped.value || space.team === communityId.value),
-  })
-
-  const formattedSpaceOptions = computed(() => {
-    return spaceOptions.value.map((d) => {
-      if ('group' in d && 'items' in d) {
-        return { group: d.group, options: d.items }
-      }
-      return d
-    })
   })
 
   const immediateSave = () => draft.flush()
@@ -89,26 +71,42 @@ export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
       router.replace({
         name: 'NewDiscussion',
         params: { communityId: communityId.value },
-        query: { draft: name },
+        query: draftRouteQuery(name, draftData.value.project),
       })
     } else {
-      router.replace({ name: 'LegacyNewDiscussion', query: { draft: name } })
+      router.replace({
+        name: 'LegacyNewDiscussion',
+        query: draftRouteQuery(name, draftData.value.project),
+      })
     }
   }
 
   // A draft opened on the legacy route that already belongs to a space is moved onto the
   // canonical scoped route. Drafts with no resolvable community stay on the legacy route.
   function normalizeDraftRoute() {
-    if (isScoped.value) return
+    if (isScoped.value) return false
     const project = draftData.value.project
-    if (!project) return
+    if (!project) return false
     const targetCommunityId = getSpace(project)?.team
-    if (!targetCommunityId) return
+    if (!targetCommunityId) return false
     router.replace({
       name: 'NewDiscussion',
       params: { communityId: targetCommunityId },
-      query: { draft: draft.serverName.value || draftName.value || undefined },
+      query: draftRouteQuery(draft.serverName.value || draftName.value, project),
     })
+    return true
+  }
+
+  function syncSelectedSpaceToRoute(spaceId: string | null | undefined) {
+    if (routeQueryString(route.query.spaceId) === (spaceId || null)) return
+
+    const query = { ...route.query }
+    if (spaceId) {
+      query.spaceId = spaceId
+    } else {
+      delete query.spaceId
+    }
+    router.replace({ query })
   }
 
   // Validation
@@ -131,7 +129,8 @@ export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
   const handleTitleInput = (e: Event) => {
     const target = e.target as HTMLTextAreaElement
     draftData.value.title = target.value
-    target.style.height = target.scrollHeight + 'px'
+    target.style.height = 'auto'
+    target.style.height = `${target.scrollHeight}px`
     hasInteracted.value = true
   }
 
@@ -190,43 +189,52 @@ export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
     }
   }
 
-  function deleteDraft() {
+  async function deleteDraft() {
+    if (!hasMeaningfulContent(draftData.value)) {
+      isDeletingDraft.value = true
+      await draft.clear()
+      leaveDraft()
+      return
+    }
+
     dialog.danger({
-      title: 'Delete draft',
-      message: 'Are you sure you want to delete this draft?',
+      title: 'Delete this draft?',
+      message: 'This will permanently delete the draft and cannot be undone.',
       confirmLabel: 'Delete draft',
       onConfirm: async () => {
         isDeletingDraft.value = true
         await draft.clear()
-        router.back()
+        leaveDraft()
       },
     })
   }
 
-  function discard() {
-    if (!hasMeaningfulContent(draftData.value)) {
-      router.back()
-      return
-    }
-    dialog.danger({
-      title: 'Discard post',
-      message: 'Are you sure you want to discard your post?',
-      confirmLabel: 'Discard post',
-      onConfirm: async () => {
-        await draft.clear()
-        router.back()
-      },
-    })
+  function leaveDraft() {
+    router.replace({ name: 'Drafts' })
   }
 
   function initialize() {
     onMounted(() => {
       // Move legacy-route drafts onto the canonical scoped route once their space is known.
-      watch(() => draft.ready.value, (ready) => ready && normalizeDraftRoute(), { immediate: true })
+      watch(
+        () => draft.ready.value,
+        (ready) => {
+          if (!ready) return
+          if (!normalizeDraftRoute()) syncSelectedSpaceToRoute(draftData.value.project)
+        },
+        { immediate: true },
+      )
+      watch(
+        () => draftData.value.project,
+        (spaceId) => {
+          if (!draft.ready.value) return
+          if (!normalizeDraftRoute()) syncSelectedSpaceToRoute(spaceId)
+        },
+      )
     })
 
     // Frictionless leave: drafts auto-save, so navigating away just flushes any pending
-    // change instead of prompting. Explicit Delete/Discard still remove the draft.
+    // change instead of prompting. Explicit Delete still removes the draft.
     onBeforeRouteLeave(async () => {
       if (isDeletingDraft.value || isPublishingSuccessfully.value) return true
       if (draft.dirty.value) {
@@ -248,23 +256,19 @@ export function useNewDiscussion(_textEditorRef?: TextEditorRef) {
     errorMessage,
     sessionUser,
     author,
-    formattedSpaceOptions,
+    spaceOptions,
 
     // State
-    isDraftChanged,
     publishing,
     isPublishingSuccessfully,
     isDeletingDraft,
-    saveStatus,
 
     // Actions
     publish,
     deleteDraft,
-    discard,
     handleTitleInput,
     handleTitleBlur,
     handleSpaceChange,
-    immediateSave,
 
     // Lifecycle
     initialize,
@@ -276,11 +280,23 @@ function optionalParam(value: string | string[] | undefined): string | undefined
   return resolved || undefined
 }
 
+function routeQueryString(value: unknown): string | null {
+  const resolved = Array.isArray(value) ? value[0] : value
+  return typeof resolved === 'string' && resolved.length > 0 ? resolved : null
+}
+
+function draftRouteQuery(draftName: string | null | undefined, spaceId: string | null | undefined) {
+  return {
+    draft: draftName || undefined,
+    spaceId: spaceId || undefined,
+  }
+}
+
 export type NewDiscussionContext = ReturnType<typeof useNewDiscussion>
 export const NewDiscussionKey: InjectionKey<NewDiscussionContext> = Symbol('NewDiscussion')
 
-export function provideNewDiscussion(textEditorRef?: TextEditorRef) {
-  const context = useNewDiscussion(textEditorRef)
+export function provideNewDiscussion() {
+  const context = useNewDiscussion()
   provide(NewDiscussionKey, context)
   return context
 }

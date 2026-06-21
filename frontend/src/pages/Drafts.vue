@@ -1,13 +1,7 @@
 <template>
   <MobileHeader class="sm:hidden" title="Drafts">
     <template #left>
-      <Button
-        v-if="isBulkDeleteMode"
-        variant="ghost"
-        size="md"
-        label="Cancel"
-        @click="cancelBulkDelete"
-      >
+      <Button v-if="isBulkDeleteMode" variant="ghost" size="md" @click="cancelBulkDelete">
         Cancel
       </Button>
       <MobileBackButton v-else :to="{ name: 'More' }" />
@@ -38,16 +32,14 @@
     <Breadcrumbs class="h-7" :items="[{ label: 'Drafts', route: { name: 'Drafts' } }]" />
     <div class="flex items-center gap-2">
       <template v-if="!isBulkDeleteMode">
-        <DropdownMoreOptions
-          align="end"
-          :options="[
-            {
-              label: 'Delete drafts',
-              icon: 'lucide-trash-2',
-              onClick: () => (isBulkDeleteMode = true),
-            },
-          ]"
-        />
+        <Button
+          v-show="drafts.data?.length"
+          variant="ghost"
+          icon-left="lucide-square-check"
+          @click="isBulkDeleteMode = true"
+        >
+          Select
+        </Button>
       </template>
       <template v-else>
         <Button variant="ghost" @click="cancelBulkDelete">Cancel</Button>
@@ -180,7 +172,6 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
-import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
 interface Draft extends GPDraft {
   project_title: string
