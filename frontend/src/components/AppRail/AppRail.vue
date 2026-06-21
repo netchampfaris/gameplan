@@ -189,6 +189,7 @@ const mainShortcuts = computed<RailItem[]>(() => [
     isActive: isRoute(
       'People',
       'PersonProfile',
+      'PersonProfileProfile',
       'PersonProfileAboutMe',
       'PersonProfilePosts',
       'PersonProfileReplies',

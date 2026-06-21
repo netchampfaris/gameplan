@@ -48,7 +48,7 @@ const user = computed(() => useUser(props.member.user))
 const roleLabel = computed(() => user.value.role.replace('Gameplan ', ''))
 const profileRoute = computed(() => {
   return user.value.user_profile
-    ? { name: 'PersonProfile', params: { personId: user.value.user_profile } }
+    ? { name: 'PersonProfileProfile', params: { personId: user.value.user_profile } }
     : { name: 'People' }
 })
 </script>

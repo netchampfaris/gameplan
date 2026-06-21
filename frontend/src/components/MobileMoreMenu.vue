@@ -152,6 +152,6 @@ function onItemClick(item: MoreItem) {
 
 function openProfile() {
   if (!sessionUser.user_profile) return
-  router.push({ name: 'PersonProfile', params: { personId: sessionUser.user_profile } })
+  router.push({ name: 'PersonProfileProfile', params: { personId: sessionUser.user_profile } })
 }
 </script>

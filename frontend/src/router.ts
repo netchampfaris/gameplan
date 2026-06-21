@@ -352,11 +352,20 @@ const routes: RouteRecordRaw[] = [
     name: 'PersonProfile',
     component: () => import('@/pages/PersonProfile.vue'),
     props: true,
-    redirect: { name: 'PersonProfileAboutMe' },
+    beforeEnter(to) {
+      if (to.name === 'PersonProfile') {
+        return { name: 'PersonProfileProfile', params: to.params }
+      }
+    },
     children: [
       {
-        name: 'PersonProfileAboutMe',
+        name: 'PersonProfileProfile',
         path: '',
+        component: () => import('@/pages/PersonProfileProfile.vue'),
+      },
+      {
+        name: 'PersonProfileAboutMe',
+        path: 'about',
         component: () => import('@/pages/PersonProfileAboutMe.vue'),
       },
       {
@@ -378,8 +387,8 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/profile/customize',
-    name: 'ProfileCustomizeMock',
-    component: () => import('@/pages/ProfileCustomizeMock.vue'),
+    name: 'ProfileCustomize',
+    component: () => import('@/pages/ProfileCustomize.vue'),
   },
   {
     path: '/notifications',

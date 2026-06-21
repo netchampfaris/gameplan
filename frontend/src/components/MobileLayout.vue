@@ -109,6 +109,7 @@ function isMoreRoute() {
     'Bookmarks',
     'People',
     'PersonProfile',
+    'PersonProfileProfile',
     'PersonProfileAboutMe',
     'PersonProfilePosts',
     'PersonProfileReplies',

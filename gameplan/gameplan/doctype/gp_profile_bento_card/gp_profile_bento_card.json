@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2026-06-22 03:15:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "card_id",
+  "type",
+  "size",
+  "title",
+  "text",
+  "url",
+  "image",
+  "image_rendering",
+  "image_position"
+ ],
+ "fields": [
+  {
+   "fieldname": "card_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Card ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Text\nImage\nBlank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "size",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Size",
+   "options": "1x1\n2x1\n2x2\n4x1\n4x2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Small Text",
+   "label": "Text"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL",
+   "length": 500
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "default": "Cover",
+   "fieldname": "image_rendering",
+   "fieldtype": "Select",
+   "label": "Image Rendering",
+   "options": "Cover\nNatural\nFit"
+  },
+  {
+   "default": "50",
+   "fieldname": "image_position",
+   "fieldtype": "Int",
+   "label": "Image Position"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-22 03:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gameplan",
+ "name": "GP Profile Bento Card",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

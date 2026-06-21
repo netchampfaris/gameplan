@@ -2,7 +2,7 @@
   <router-link
     class="inline-flex"
     v-if="canVisitProfile"
-    :to="{ name: 'PersonProfile', params: { personId: userProfileName } }"
+    :to="{ name: 'PersonProfileProfile', params: { personId: userProfileName } }"
   >
     <slot />
   </router-link>

@@ -2,7 +2,6 @@
   <div
     class="relative"
     :class="{
-      'rounded-lg border px-3 py-3': border || editReadme,
       'max-h-[150px] overflow-hidden': !expand && collapsible,
     }"
   >

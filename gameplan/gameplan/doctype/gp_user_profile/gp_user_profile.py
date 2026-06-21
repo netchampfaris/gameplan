@@ -1,7 +1,9 @@
 # Copyright (c) 2022, Frappe Technologies Pvt Ltd and contributors
 # For license information, please see license.txt
 
+import re
 from time import sleep
+from urllib.parse import urlparse
 
 import frappe
 from frappe.model.document import Document
@@ -13,6 +15,14 @@ from rq.job import JobStatus
 import gameplan
 from gameplan.extends.client import check_permissions
 from gameplan.mixins.attachments import HasAttachments
+
+PROFILE_BENTO_CARD_TYPES = {"Text", "Image", "Blank"}
+PROFILE_BENTO_CARD_SIZES = {"1x1", "2x1", "2x2", "4x1", "4x2"}
+PROFILE_BENTO_IMAGE_RENDERING = {"Cover", "Natural", "Fit"}
+PROFILE_BENTO_CARD_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
+PROFILE_BENTO_URL_CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x20\x7f]")
+PROFILE_BENTO_ALLOWED_URL_SCHEMES = {"http", "https"}
+PROFILE_BENTO_MAX_CARDS = 40
 
 
 class GPUserProfile(HasAttachments, Document):
@@ -192,6 +202,272 @@ def remove_imgbg_in_background(profile_name, default_color=None):
 	profile.image_background_color = default_color
 	profile.save()
 	gameplan.refetch_resource("Users", user=profile.user)
+
+
+@frappe.whitelist(methods=["GET", "POST"])
+def get_my_bento_cards():
+	profile = get_session_user_profile()
+	profile.check_permission("read")
+	return get_profile_bento_response(profile)
+
+
+@frappe.whitelist(methods=["POST"])
+def save_my_bento_cards(cards: list | str):
+	profile = get_session_user_profile()
+	check_profile_bento_save_permission(profile)
+	profile.set("bento_cards", normalize_bento_cards(cards))
+	profile.save(ignore_permissions=True)
+	return get_profile_bento_response(profile)
+
+
+@frappe.whitelist(methods=["GET", "POST"])
+def get_bento_cards(profile: str):
+	profile_doc = frappe.get_doc("GP User Profile", profile)
+	profile_doc.check_permission("read")
+	return get_profile_bento_response(profile_doc)
+
+
+def get_session_user_profile():
+	if frappe.session.user == "Guest":
+		frappe.throw("Login required", frappe.PermissionError)
+
+	if not frappe.db.exists("GP User Profile", {"user": frappe.session.user}):
+		create_user_profile(frappe.get_doc("User", frappe.session.user))
+
+	return frappe.get_doc("GP User Profile", {"user": frappe.session.user})
+
+
+def get_profile_bento_cards(profile):
+	cards = [profile_bento_row_to_card(row) for row in profile.get("bento_cards")]
+	return cards or get_default_profile_bento_cards(profile)
+
+
+def get_profile_bento_response(profile):
+	return {
+		"profile": profile.name,
+		"cards": get_profile_bento_cards(profile),
+		"is_default": not has_saved_bento_cards(profile),
+	}
+
+
+def has_saved_bento_cards(profile):
+	return bool(profile.get("bento_cards"))
+
+
+def check_profile_bento_save_permission(profile):
+	user = frappe.session.user
+	if user == "Guest":
+		frappe.throw("Login required", frappe.PermissionError)
+	if user == profile.user:
+		return
+	if has_permission(profile, ptype="write", user=user):
+		return
+	frappe.throw("Not permitted to save this profile layout", frappe.PermissionError)
+
+
+def normalize_bento_cards(cards):
+	cards = frappe.parse_json(cards) if isinstance(cards, str) else cards
+	if not isinstance(cards, list):
+		frappe.throw("Bento cards must be a list")
+	if len(cards) > PROFILE_BENTO_MAX_CARDS:
+		frappe.throw(f"Profiles can have at most {PROFILE_BENTO_MAX_CARDS} bento cards")
+
+	seen_card_ids = set()
+	return [normalize_bento_card(card, seen_card_ids) for card in cards]
+
+
+def normalize_bento_card(card, seen_card_ids):
+	if not isinstance(card, dict):
+		frappe.throw("Each bento card must be an object")
+
+	card_id = require_card_value(card.get("id") or card.get("card_id"), "Card ID")
+	if not PROFILE_BENTO_CARD_ID_PATTERN.match(card_id):
+		frappe.throw("Card ID may only contain letters, numbers, underscores, and hyphens")
+	if card_id in seen_card_ids:
+		frappe.throw(f"Duplicate bento card ID: {card_id}")
+	seen_card_ids.add(card_id)
+
+	card_type = require_allowed_value(card.get("type"), PROFILE_BENTO_CARD_TYPES, "Card type")
+	size = require_allowed_value(card.get("size"), PROFILE_BENTO_CARD_SIZES, "Card size")
+	image_rendering = optional_allowed_value(
+		card.get("imageRendering") or card.get("image_rendering") or "Cover",
+		PROFILE_BENTO_IMAGE_RENDERING,
+		"Image rendering",
+	)
+	return {
+		"card_id": card_id,
+		"type": card_type,
+		"size": size,
+		"title": truncate(card.get("title"), 140),
+		"text": normalize_bento_card_text(card.get("text"), card_type),
+		"url": normalize_bento_card_url(card.get("url")),
+		"image": normalize_bento_card_image(card.get("image"), card_type),
+		"image_rendering": image_rendering,
+		"image_position": optional_int_range(
+			pick_card_value(card, "imagePosition", "image_position"),
+			0,
+			100,
+			"Image position",
+		),
+	}
+
+
+def profile_bento_row_to_card(row):
+	card = {
+		"id": row.card_id,
+		"type": row.type,
+		"size": row.size,
+		"title": row.title,
+		"imageRendering": row.image_rendering or "Cover",
+	}
+	if row.text:
+		card["text"] = row.text
+	if row.url:
+		card["url"] = row.url
+	if row.image:
+		card["image"] = row.image
+	if row.image_position is not None:
+		card["imagePosition"] = row.image_position
+
+	return card
+
+
+def get_default_profile_bento_cards(profile):
+	display_name = profile.full_name or frappe.db.get_value("User", profile.user, "full_name") or profile.user
+	cards = get_default_profile_image_cards(profile)
+	cards.extend(
+		[
+			{
+				"id": "full-name",
+				"type": "Text",
+				"size": "1x1",
+				"title": "Full name",
+				"text": display_name,
+			},
+			{
+				"id": "bio",
+				"type": "Text",
+				"size": "2x1",
+				"title": "Bio",
+				"text": profile.bio or "No bio yet.",
+			},
+		]
+	)
+	return cards
+
+
+def get_default_profile_image_cards(profile):
+	cards = []
+	if profile.cover_image:
+		cards.append(
+			{
+				"id": "cover",
+				"type": "Image",
+				"size": "4x1",
+				"title": "Cover image",
+				"image": profile.cover_image,
+				"imageRendering": "Cover",
+				"imagePosition": profile.cover_image_position
+				if profile.cover_image_position is not None
+				else 50,
+			}
+		)
+	if profile.image:
+		cards.append(
+			{
+				"id": "avatar",
+				"type": "Image",
+				"size": "1x1",
+				"title": "Avatar",
+				"image": profile.image,
+				"imageRendering": "Cover",
+				"imagePosition": 50,
+			}
+		)
+	return cards
+
+
+def require_card_value(value, label):
+	value = (value or "").strip()
+	if not value:
+		frappe.throw(f"{label} is required")
+	return value
+
+
+def require_allowed_value(value, allowed_values, label):
+	value = require_card_value(value, label)
+	if value not in allowed_values:
+		frappe.throw(f"Invalid {label.lower()}: {value}")
+	return value
+
+
+def optional_allowed_value(value, allowed_values, label):
+	value = (value or "").strip()
+	if not value:
+		return None
+	if value not in allowed_values:
+		frappe.throw(f"Invalid {label.lower()}: {value}")
+	return value
+
+
+def normalize_bento_card_text(value, card_type):
+	if card_type != "Text":
+		return truncate(value, 140)
+
+	text = str(value or "").strip()
+	if not text:
+		frappe.throw("Text cards must have text")
+	return text[:140]
+
+
+def normalize_bento_card_image(value, card_type):
+	if card_type != "Image":
+		return truncate(value, 500)
+
+	image = str(value or "").strip()
+	if not image:
+		frappe.throw("Image cards must have an image")
+	return image[:500]
+
+
+def normalize_bento_card_url(value):
+	if value is None:
+		return None
+
+	url = str(value).strip()
+	if not url:
+		return None
+	if len(url) > 500:
+		frappe.throw("URL must be 500 characters or fewer")
+	if PROFILE_BENTO_URL_CONTROL_CHAR_PATTERN.search(url):
+		frappe.throw("URL cannot contain spaces or control characters")
+
+	parsed_url = urlparse(url)
+	if parsed_url.scheme.lower() not in PROFILE_BENTO_ALLOWED_URL_SCHEMES or not parsed_url.netloc:
+		frappe.throw("URL must start with http:// or https://")
+	return url
+
+
+def pick_card_value(card, camel_key, snake_key):
+	if camel_key in card:
+		return card.get(camel_key)
+	return card.get(snake_key)
+
+
+def optional_int_range(value, min_value, max_value, label):
+	if value is None or value == "":
+		return None
+	try:
+		value = int(value)
+	except (TypeError, ValueError):
+		frappe.throw(f"{label} must be a number")
+	return min(max_value, max(min_value, value))
+
+
+def truncate(value, length):
+	if value is None:
+		return None
+	return str(value)[:length]
 
 
 @frappe.whitelist()

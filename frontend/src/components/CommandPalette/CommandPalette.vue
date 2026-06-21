@@ -465,7 +465,7 @@ const searchList = computed(() => {
       search: `${user.full_name} ${user.email}`,
       icon: () => h(UserAvatar, { user: user.email, size: 'sm' }),
       route: {
-        name: 'PersonProfile',
+        name: 'PersonProfileProfile',
         params: { personId: user.user_profile },
       },
     })

@@ -20,7 +20,7 @@ const dropdownItems = computed(() => [
     icon: 'lucide-user',
     label: 'My Profile',
     route: {
-      name: 'PersonProfile',
+      name: 'PersonProfileProfile',
       params: { personId: user.user_profile },
     },
   },

@@ -76,7 +76,7 @@
             <template v-for="user in people" :key="user.name">
               <router-link
                 :to="{
-                  name: 'PersonProfile',
+                  name: 'PersonProfileProfile',
                   params: {
                     personId: user.name,
                   },

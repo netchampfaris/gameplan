@@ -11,6 +11,8 @@
   "full_name",
   "bio",
   "readme",
+  "bento_section",
+  "bento_cards",
   "cover_image_section",
   "cover_image",
   "cover_image_position",
@@ -34,6 +36,17 @@
    "fieldname": "readme",
    "fieldtype": "Text Editor",
    "label": "Readme"
+  },
+  {
+   "fieldname": "bento_section",
+   "fieldtype": "Section Break",
+   "label": "Bento"
+  },
+  {
+   "fieldname": "bento_cards",
+   "fieldtype": "Table",
+   "label": "Bento Cards",
+   "options": "GP Profile Bento Card"
   },
   {
    "fetch_from": "user.full_name",

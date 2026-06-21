@@ -35,7 +35,7 @@ const handleClick = (event: MouseEvent) => {
   let user = useUser(props.node.attrs.id)
 
   if (user.name != '_everyone_') {
-    router.push({ name: 'PersonProfile', params: { personId: user.user_profile } })
+    router.push({ name: 'PersonProfileProfile', params: { personId: user.user_profile } })
   }
 }
 </script>

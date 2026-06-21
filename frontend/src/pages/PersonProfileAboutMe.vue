@@ -1,24 +1,35 @@
 <template>
-  <div class="mt-7 pb-16">
-    <h2 class="mb-3 text-xl-semibold text-ink-gray-8">About</h2>
-    <ReadmeEditor
-      :resource="profile"
-      :editable="$isSessionUser(profile.doc.user)"
-      fieldname="readme"
-      :placeholder="
-        $isSessionUser(profile.doc.user)
-          ? 'Write a brief introduction of yourself...'
-          : 'No introduction'
-      "
-      :border="false"
-    />
+  <div v-if="profile.doc" class="mt-3 pb-16">
+    <article class="rounded-xl border border-outline-gray-2 bg-surface-base p-4">
+      <div class="mb-3 text-sm font-medium text-ink-gray-5">About</div>
+      <ReadmeEditor
+        :resource="profile"
+        :editable="isOwnProfile"
+        fieldname="readme"
+        :placeholder="
+          isOwnProfile ? 'Write a brief introduction of yourself...' : 'No introduction'
+        "
+        :border="false"
+      />
+    </article>
   </div>
 </template>
-<script>
+<script setup lang="ts">
 import ReadmeEditor from '@/components/editor/ReadmeEditor.vue'
-export default {
+import { computed } from 'vue'
+import { useSessionUser } from '@/data/users'
+import type { GPUserProfile } from '@/types/doctypes'
+
+defineOptions({
   name: 'PersonProfileAboutMe',
-  props: ['profile'],
-  components: { ReadmeEditor },
-}
+})
+
+const props = defineProps<{
+  profile: {
+    doc?: GPUserProfile | null
+  }
+}>()
+
+const sessionUser = useSessionUser()
+const isOwnProfile = computed(() => props.profile.doc?.user === sessionUser.name)
 </script>
