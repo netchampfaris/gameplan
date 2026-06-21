@@ -16,6 +16,13 @@
     />
     <div class="flex items-center gap-2">
       <Select class="shrink-0 !w-fit" :options="orderOptions" v-model="orderBy" />
+      <Button
+        variant="solid"
+        icon-left="lucide-plus"
+        :route="{ name: 'NewDiscussion', params: { communityId } }"
+      >
+        Add new
+      </Button>
     </div>
   </PageHeader>
   <div class="body-container pt-5 pb-40">
@@ -36,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { Breadcrumbs, Select, usePageMeta } from 'frappe-ui'
+import { Breadcrumbs, Button, Select, usePageMeta } from 'frappe-ui'
 import type { OrderBy } from 'frappe-ui'
 import DiscussionList from '@/components/DiscussionList.vue'
 import PageHeader from '@/components/PageHeader.vue'
