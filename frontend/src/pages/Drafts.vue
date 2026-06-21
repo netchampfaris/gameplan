@@ -76,30 +76,30 @@
               class="flex items-center py-2 px-3 group relative h-15 rounded-[10px] transition hover:bg-surface-gray-2 active:bg-surface-gray-2 cursor-pointer"
               @click="handleDraftRowClick($event, navigate, draft.name)"
             >
-              <motion.div
-                class="flex shrink-0 items-center overflow-hidden"
-                :animate="{ width: isBulkDeleteMode ? 32 : 0 }"
-                :transition="{ type: 'spring', stiffness: 700, damping: 48, mass: 0.5 }"
+              <div
+                class="flex shrink-0 items-center overflow-hidden transition-[width] duration-200 ease-out"
+                :style="{ width: isBulkDeleteMode ? '32px' : '0px' }"
               >
-                <AnimatePresence>
-                  <motion.div
+                <Transition
+                  enter-active-class="transition-transform duration-75 ease-out"
+                  leave-active-class="transition-transform duration-75 ease-out"
+                  enter-from-class="scale-0"
+                  leave-to-class="scale-0"
+                >
+                  <div
                     v-if="isBulkDeleteMode"
                     class="flex items-center"
                     role="checkbox"
                     :aria-checked="selectedDrafts.includes(draft.name)"
                     tabindex="0"
-                    :initial="{ scale: 0 }"
-                    :animate="{ scale: 1 }"
-                    :exit="{ scale: 0 }"
-                    :transition="{ duration: 0.08, ease: 'easeOut' }"
                     @click.stop="toggleSelection(draft.name)"
                     @keydown.enter.prevent="toggleSelection(draft.name)"
                     @keydown.space.prevent="toggleSelection(draft.name)"
                   >
                     <Checkbox :modelValue="selectedDrafts.includes(draft.name)" />
-                  </motion.div>
-                </AnimatePresence>
-              </motion.div>
+                  </div>
+                </Transition>
+              </div>
               <UserAvatarWithHover :user="draft.owner" size="2xl" />
               <div class="ml-4 flex-1 min-w-0">
                 <div class="flex items-center min-w-0">
@@ -180,7 +180,6 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
-import { motion, AnimatePresence } from 'motion-v'
 import DropdownMoreOptions from '@/components/DropdownMoreOptions.vue'
 
 interface Draft extends GPDraft {

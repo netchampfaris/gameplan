@@ -6,30 +6,30 @@
       @click="handleRowClick($event, navigate)"
     >
       <div class="flex h-[68px] items-center overflow-hidden px-4 py-2 sm:h-full sm:px-3">
-        <motion.div
-          class="flex shrink-0 items-center overflow-hidden"
-          :animate="{ width: selectable ? 32 : 0 }"
-          :transition="{ type: 'spring', stiffness: 700, damping: 48, mass: 0.5 }"
+        <div
+          class="flex shrink-0 items-center overflow-hidden transition-[width] duration-200 ease-out"
+          :style="{ width: selectable ? '32px' : '0px' }"
         >
-          <AnimatePresence>
-            <motion.div
+          <Transition
+            enter-active-class="transition-transform duration-75 ease-out"
+            leave-active-class="transition-transform duration-75 ease-out"
+            enter-from-class="scale-0"
+            leave-to-class="scale-0"
+          >
+            <div
               v-if="selectable"
               class="flex items-center"
               role="checkbox"
               :aria-checked="selected"
               tabindex="0"
-              :initial="{ scale: 0 }"
-              :animate="{ scale: 1 }"
-              :exit="{ scale: 0 }"
-              :transition="{ duration: 0.08, ease: 'easeOut' }"
               @click.stop="handleSelection"
               @keydown.enter.prevent="handleSelection"
               @keydown.space.prevent="handleSelection"
             >
               <Checkbox :modelValue="selected" />
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+            </div>
+          </Transition>
+        </div>
         <div class="flex items-center space-x-3">
           <div class="relative flex">
             <UserAvatarWithHover :user="discussion.owner" size="2xl" />
@@ -131,7 +131,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Tooltip, Badge, dayjsLocal, Checkbox } from 'frappe-ui'
-import { motion, AnimatePresence } from 'motion-v'
 import UserAvatarWithHover from './UserAvatarWithHover.vue'
 import { getSpace, useSpace } from '@/data/spaces'
 import { Discussion } from '@/data/discussions'
