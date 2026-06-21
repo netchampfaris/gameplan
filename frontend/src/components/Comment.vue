@@ -99,14 +99,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import { Dropdown, Tooltip, dayjsLocal } from 'frappe-ui'
 import { useList } from 'frappe-ui'
 import { copyToClipboard } from '@/utils'
 import UserProfileLink from './UserProfileLink.vue'
 import CommentEditor from './editor/CommentEditor.vue'
 import Reactions from './Reactions.vue'
-import RevisionsDialog from './RevisionsDialog.vue'
+// Lazy: htmldiff-js + motion-v only load when a viewer opens edit history.
+const RevisionsDialog = defineAsyncComponent(() => import('./RevisionsDialog.vue'))
 import UserAvatarWithHover from './UserAvatarWithHover.vue'
 import { GPComment } from '@/types/doctypes'
 import { isSessionUser } from '@/data/session'

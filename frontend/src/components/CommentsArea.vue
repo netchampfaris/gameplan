@@ -259,7 +259,7 @@ import Poll from './Poll.vue'
 import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { dialog } from 'frappe-ui'
-import { useSocket } from '@/socket'
+import { useSocket, type NewActivityEvent } from '@/socket'
 import { GPActivity, GPComment, GPPoll } from '@/types/doctypes'
 import type { Editor } from '@tiptap/vue-3'
 import { tags } from '@/data/tags'
@@ -798,7 +798,7 @@ onMounted(() => {
     scrollToComment: scrollToCommentById,
     highlightComment,
   })
-  socket.on('new_activity', (data) => {
+  socket.on('new_activity', (data: NewActivityEvent) => {
     if (data.reference_doctype === props.doctype && data.reference_name === props.name) {
       activities.reload()
     }

@@ -3,6 +3,8 @@
     <TooltipTrigger as-child>
       <button
         type="button"
+        :aria-label="label"
+        :aria-current="isActive ? 'page' : undefined"
         class="flex size-7 items-center justify-center rounded transition"
         :class="
           isActive

@@ -272,6 +272,7 @@
 import {
   ref,
   computed,
+  defineAsyncComponent,
   nextTick,
   onMounted,
   onBeforeUnmount,
@@ -298,7 +299,8 @@ import UserAvatarWithHover from './UserAvatarWithHover.vue'
 import CommentsArea from '@/components/CommentsArea.vue'
 import DiscussionViewEditor from './editor/DiscussionViewEditor.vue'
 import UserProfileLink from './UserProfileLink.vue'
-import RevisionsDialog from './RevisionsDialog.vue'
+// Lazy: htmldiff-js + motion-v only load when a viewer opens edit history.
+const RevisionsDialog = defineAsyncComponent(() => import('./RevisionsDialog.vue'))
 import MobileBackButton from './MobileBackButton.vue'
 import MobileHeader from './MobileHeader.vue'
 import PageHeader from './PageHeader.vue'

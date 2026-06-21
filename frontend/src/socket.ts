@@ -6,6 +6,14 @@ type RefetchResourceEvent = {
   cache_key?: string
 }
 
+/** Payload published by GP Activity on every new discussion/comment activity.
+ * Mirrors gameplan/mixins/activity.py — keep field names in sync; a rename there
+ * would otherwise silently break live comment updates with no type error. */
+export type NewActivityEvent = {
+  reference_doctype: string
+  reference_name: string
+}
+
 type ReloadableResource = {
   reload: () => void
 }

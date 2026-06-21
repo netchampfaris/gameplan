@@ -109,7 +109,7 @@ import UserAvatar from './UserAvatar.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
 import { needsMobileCommentGap } from '@/utils/commentTimeline'
 import { dialog } from 'frappe-ui'
-import { useSocket } from '@/socket'
+import { useSocket, type NewActivityEvent } from '@/socket'
 import { GPActivity, GPComment } from '@/types/doctypes'
 import { useDraftSync } from '@/data/useDraftSync'
 
@@ -413,7 +413,7 @@ watch(
   { immediate: true },
 )
 
-socket.on('new_activity', (data) => {
+socket.on('new_activity', (data: NewActivityEvent) => {
   if (data.reference_doctype === props.doctype && data.reference_name === props.name) {
     activities.reload()
   }

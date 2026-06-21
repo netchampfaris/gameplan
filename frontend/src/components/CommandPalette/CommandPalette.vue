@@ -92,7 +92,6 @@ import {
   h,
   ref,
   computed,
-  onMounted,
   onBeforeUnmount,
   watch,
   nextTick,
@@ -100,6 +99,7 @@ import {
   useTemplateRef,
   type Component,
 } from 'vue'
+import { useEventListener } from '@vueuse/core'
 import { RouteLocationRaw, useRouter } from 'vue-router'
 import { dayjs, debounce } from 'frappe-ui'
 import { useCall, useNewDoc } from 'frappe-ui'
@@ -580,21 +580,17 @@ watch(show, (value) => {
   }
 })
 
-function addKeyboardShortcut() {
-  window.addEventListener('keydown', (e) => {
-    if (
-      e.key === 'k' &&
-      (e.ctrlKey || e.metaKey) &&
-      !(e.target as HTMLElement).classList.contains('ProseMirror')
-    ) {
-      toggleCommandPalette()
-      e.preventDefault()
-    }
-  })
-}
-
-onMounted(() => {
-  addKeyboardShortcut()
+// useEventListener auto-removes on unmount, so remounting across the 640px
+// layout breakpoint can't stack duplicate keydown handlers (the V2 leak).
+useEventListener(window, 'keydown', (e: KeyboardEvent) => {
+  if (
+    e.key === 'k' &&
+    (e.ctrlKey || e.metaKey) &&
+    !(e.target as HTMLElement).classList.contains('ProseMirror')
+  ) {
+    toggleCommandPalette()
+    e.preventDefault()
+  }
 })
 
 onBeforeUnmount(() => {

@@ -20,6 +20,8 @@
               :key="color"
               @click="$emit('update:modelValue', color)"
               :title="color"
+              :aria-label="color"
+              :aria-pressed="color === modelValue"
             >
               &nbsp;
             </button>

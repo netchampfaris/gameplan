@@ -11,6 +11,7 @@
           class="group relative rounded-full border-2 disabled:cursor-not-allowed"
           :disabled="uploading"
           :aria-busy="uploading"
+          :aria-label="profile.doc.image ? 'Change profile photo' : 'Upload profile photo'"
           @click="openFileSelector"
         >
           <div
