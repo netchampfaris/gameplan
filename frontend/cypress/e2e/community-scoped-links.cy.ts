@@ -51,9 +51,10 @@ describe('Community scoped links', () => {
   })
 
   it('opens a space from the community sidebar on the canonical scoped route', () => {
-    // The old global /spaces page is now an admin housekeeping view with no
-    // space navigation; the community sidebar is the surface that links a space
-    // to its canonical scoped route.
+    // The old global /spaces page is gone (now the admin /configure housekeeping
+    // view, which only renames/archives spaces and has no space-navigation link);
+    // the community sidebar is the surface that links a space to its canonical
+    // scoped route.
     cy.visit(`/g/community/${community}/discussions`)
     cy.contains('a', 'Gameplan').click()
     cy.url().should('include', `/community/${community}/space/${spaceId}`)
