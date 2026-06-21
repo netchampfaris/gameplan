@@ -17,10 +17,13 @@
       <div class="mt-5 max-w-full truncate text-5xl-semibold text-ink-gray-9">
         {{ sessionUser.full_name }}
       </div>
-      <Button variant="ghost" size="lg" @click="openProfile"> View profile </Button>
+      <p v-if="userBio" class="max-w-sm text-p-lg text-ink-gray-6">
+        {{ userBio }}
+      </p>
+      <Button variant="ghost" size="lg" class="mt-2" @click="openProfile"> View profile </Button>
     </div>
 
-    <div class="mt-10 space-y-6">
+    <div class="mt-8 space-y-6">
       <section v-for="group in itemGroups" :key="group.label">
         <div class="mb-2 pl-[18px] text-lg-medium text-ink-gray-5">
           {{ group.label }}
@@ -100,6 +103,7 @@ const userInitials = computed(() => {
 const avatarStyle = computed(() => ({
   backgroundColor: sessionUser.image_background_color || undefined,
 }))
+const userBio = computed(() => sessionUser.bio?.trim())
 
 const itemGroups = computed<MoreItemGroup[]>(() => {
   const workspaceItems: MoreItem[] = [
