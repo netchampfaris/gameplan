@@ -1,5 +1,7 @@
 # Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and Contributors
 # MIT License. See license.txt
+import re
+
 import frappe
 from frappe.search.sqlite_search import SQLiteSearch, SQLiteSearchIndexMissingError
 from frappe.utils import cstr
@@ -205,6 +207,32 @@ class GameplanSearch(SQLiteSearch):
 		if doctype == "GP Discussion":
 			return 1.2
 		return 1.0
+
+	def _get_base_score(self, row, query):
+		bm25_score = row["bm25_score"]
+		if bm25_score is None:
+			return 0.5
+		if bm25_score < 0:
+			return abs(bm25_score)
+		if bm25_score == 0:
+			return 1.0
+		return 1.0 / (1.0 + bm25_score)
+
+	def _get_title_boost(self, row, query, query_words):
+		original_title = (row["original_title"] or "").lower()
+		query_lower = query.lower()
+		if query_lower in original_title:
+			return 3.0
+
+		if not query_words:
+			return 1.0
+
+		title_tokens = set(re.findall(r"\w+", original_title))
+		matched_words = sum(1 for word in query_words if word.lower() in title_tokens)
+		if not matched_words:
+			return 1.0
+
+		return 1.0 + (0.5 * matched_words / len(query_words))
 
 	def search(self, query, title_only=False, filters=None):
 		"""
