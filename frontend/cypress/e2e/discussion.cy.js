@@ -33,10 +33,12 @@ describe('Discussion', () => {
         cy.visit(`/g/space/${data[1]}`)
       })
 
-    // publish draft discussion
+    // publish draft discussion. Publishing now flushes the draft and calls the
+    // whitelisted `publish_draft` method (frappe-ui `call` → /api/method/...),
+    // which returns the new discussion name as the response `message`.
     cy.intercept({
       method: 'POST',
-      url: '/api/v2/document/GP%20Draft/*/method/publish',
+      url: '/api/method/gameplan.gameplan.doctype.gp_draft.gp_draft.publish_draft',
       times: 1,
     }).as('discussionId')
 
@@ -51,7 +53,7 @@ describe('Discussion', () => {
       .type('This is content for new discussion{enter}')
     cy.get('button').contains('Publish').click()
     cy.wait('@discussionId')
-      .its('response.body.data')
+      .its('response.body.message')
       .then((discussionId) => {
         cy.url().should('include', `/discussion/${discussionId}/starting-a-new-discussion`)
       })
@@ -97,7 +99,7 @@ describe('Discussion', () => {
     cy.get('@data').then((data) => {
       let erpnextProject = data[2]
       cy.get('@discussionId')
-        .its('response.body.data')
+        .its('response.body.message')
         .then((discussionId) => {
           cy.url().should(
             'include',

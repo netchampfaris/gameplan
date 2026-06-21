@@ -45,16 +45,16 @@ describe('Community scoped links', () => {
           .then((name) => {
             discussionId = String(name)
             // Bookmark it so it shows on the global /bookmarks page.
-            cy.request(
-              'POST',
-              `/api/v2/document/GP Discussion/${discussionId}/method/add_bookmark`,
-            )
+            cy.request('POST', `/api/v2/document/GP Discussion/${discussionId}/method/add_bookmark`)
           })
       })
   })
 
-  it('opens a space from /spaces on the canonical scoped route', () => {
-    cy.visit('/g/spaces')
+  it('opens a space from the community sidebar on the canonical scoped route', () => {
+    // The old global /spaces page is now an admin housekeeping view with no
+    // space navigation; the community sidebar is the surface that links a space
+    // to its canonical scoped route.
+    cy.visit(`/g/community/${community}/discussions`)
     cy.contains('a', 'Gameplan').click()
     cy.url().should('include', `/community/${community}/space/${spaceId}`)
   })
@@ -66,15 +66,16 @@ describe('Community scoped links', () => {
     cy.url().should('include', `/discussion/${discussionId}`)
   })
 
-  it('points the space breadcrumb root at community discussions, not /spaces', () => {
+  it('points the space breadcrumb root at the canonical scoped space route, not /spaces', () => {
     cy.visit(`/g/community/${community}/space/${spaceId}`)
 
-    // The first breadcrumb crumb is the community name and links to community
-    // discussions; it must not route back to the global /spaces page.
+    // The community title was intentionally removed from the space breadcrumbs;
+    // the root crumb is now the space itself and links to its canonical scoped
+    // route. It must not route back to the global /spaces page.
     cy.get('.space-breadcrumbs')
-      .contains('a', 'Engineering')
+      .contains('a', 'Gameplan')
       .should('have.attr', 'href')
-      .and('include', `/community/${community}/discussions`)
+      .and('include', `/community/${community}/space/${spaceId}`)
       .and('not.include', '/spaces')
   })
 })
