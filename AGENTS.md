@@ -53,7 +53,7 @@ Local dev site is `gameplan-demo.test` (CI uses `gameplan.test`).
 
 ## Feature Verification
 
-When building a feature with UI, always verify it in browser. Use in-app browser if available, otherwise use Chrome Devtools MCP. Create a test user (or users) for yourself on the local site you are testing.
+When building a feature with UI, always verify it in browser. Use in-app browser if available, otherwise use Chrome Devtools MCP. Create a test user (or users) for yourself on the local site you are testing. Always close the Chrome window after you are done.
 
 ## Code comments
 

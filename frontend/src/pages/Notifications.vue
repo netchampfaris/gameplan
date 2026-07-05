@@ -294,6 +294,7 @@ function useNotificationList(read: 0 | 1, cacheKey: string) {
     fields: notificationFields,
     orderBy: 'creation desc',
     cacheKey,
+    staleOnError: true,
   })
 }
 

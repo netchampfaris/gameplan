@@ -129,8 +129,7 @@ export function useNewDiscussion() {
   const handleTitleInput = (e: Event) => {
     const target = e.target as HTMLTextAreaElement
     draftData.value.title = target.value
-    target.style.height = 'auto'
-    target.style.height = `${target.scrollHeight}px`
+    // Height autosizing is handled by useTextareaAutosize in DiscussionBody.vue.
     hasInteracted.value = true
   }
 

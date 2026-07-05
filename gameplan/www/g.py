@@ -107,7 +107,7 @@ def login_as_demo_user_if_enabled():
 
 	from random import choice
 
-	from gameplan.demo.discussions_comments import get_random_users
+	from gameplan.demo.demo import get_random_users
 
 	# login as a random demo user
 	users = get_random_users(10)

@@ -132,6 +132,7 @@ const content = ref('')
 const page = useDoc<GPPage>({
   doctype: 'GP Page',
   name: () => props.pageId,
+  staleOnError: true,
 })
 
 page.onSuccess((doc) => {

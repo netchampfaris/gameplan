@@ -76,6 +76,7 @@ const personId = computed(() => {
 const profileResource = useDoc<GPUserProfile>({
   doctype: 'GP User Profile',
   name: personId,
+  staleOnError: true,
 })
 
 const profile = computed(() => profileResource.doc)

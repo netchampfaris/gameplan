@@ -20,7 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, useTemplateRef, watch } from 'vue'
+import { nextTick, onMounted, watch } from 'vue'
+import { useTextareaAutosize } from '@vueuse/core'
 import { ErrorMessage } from 'frappe-ui'
 import { EditorContent } from 'frappe-ui/editor'
 import { useNewDiscussionContext } from './useNewDiscussion'
@@ -35,7 +36,11 @@ interface Props {
 
 defineProps<Props>()
 
-const titleTextarea = useTemplateRef<HTMLTextAreaElement>('titleTextarea')
+// Autosize the single-visual-line title. useTextareaAutosize owns the height
+// measurement; we only nudge it when the draft title changes from outside (e.g.
+// a restored draft), since the content is bound via :value, not the composable's
+// own input ref.
+const { textarea: titleTextarea, triggerResize } = useTextareaAutosize()
 
 const {
   errorMessage,
@@ -47,21 +52,13 @@ const {
   handleTitleBlur,
 } = useNewDiscussionContext()
 
-function resizeTitleTextarea(element = titleTextarea.value) {
-  if (!element) return
-  element.style.height = 'auto'
-  element.style.height = `${element.scrollHeight}px`
-}
-
 watch(
   () => draftData.value.title,
-  () => nextTick(() => resizeTitleTextarea()),
+  () => nextTick(triggerResize),
   { flush: 'post' },
 )
 
 onMounted(() => {
-  void nextTick(() => resizeTitleTextarea())
-
   let focusInterval: number = setInterval(() => {
     if (document.activeElement === titleTextarea.value) {
       clearInterval(focusInterval)

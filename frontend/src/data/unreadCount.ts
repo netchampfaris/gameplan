@@ -24,7 +24,11 @@ const markReadApi = useDoctype('GP Unread Record')
 function loadProjectUnreadCounts(projects?: string[]) {
   return unreadCountApi.runMethod
     .submit({ method: 'get_unread_count', params: { projects } })
-    .then((data: ProjectUnreadCount) => {
+    .then((data: ProjectUnreadCount | null) => {
+      if (!data) {
+        return unreadCounts
+      }
+
       // A full reload (no project filter) is authoritative: the backend omits spaces whose
       // count is now zero, so clear stale positives before applying the response — otherwise
       // a space that just dropped to zero keeps showing a phantom unread count.
@@ -40,6 +44,7 @@ function loadProjectUnreadCounts(projects?: string[]) {
       }
       return data
     })
+    .catch(() => unreadCounts)
 }
 
 // load unread count for all projects once
@@ -61,12 +66,14 @@ export function fetchParticipatingUnreadCount(team: string) {
   participatingRequestSeq[team] = seq
   return participatingCountApi.runMethod
     .submit({ method: 'get_participating_unread_count', params: { team } })
-    .then((count: number) => {
+    .then((count: number | null) => {
       // A newer fetch for this team superseded us — drop this stale response.
       if (participatingRequestSeq[team] !== seq) return participatingUnreadCounts[team] ?? 0
+      if (count == null) return participatingUnreadCounts[team] ?? 0
       participatingUnreadCounts[team] = Number(count) || 0
       return participatingUnreadCounts[team]
     })
+    .catch(() => participatingUnreadCounts[team] ?? 0)
 }
 
 export function getParticipatingUnreadCount(team: string) {
