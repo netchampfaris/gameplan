@@ -62,22 +62,28 @@ function loadProjectUnreadCounts(projects?: string[]) {
         params: { projects: projects?.map(String) },
       })
       .then((data: ProjectUnreadCount | null) => {
-        const counts = data ?? {}
+        // An empty response (offline, or a request the service worker could not serve) is
+        // not the same as "everything is read" — keep what we already have.
+        if (!data) return unreadCounts
+
         // A full reload (no project filter) is authoritative: the backend omits spaces whose
         // count is now zero, so clear stale positives before applying the response — otherwise
         // a space that just dropped to zero keeps showing a phantom unread count.
         if (!projects) {
           for (const spaceId of Object.keys(unreadCounts)) {
-            if (!(spaceId in counts)) unreadCounts[spaceId] = 0
+            if (!(spaceId in data)) unreadCounts[spaceId] = 0
           }
         }
-        for (const [spaceId, count] of Object.entries(counts)) {
+        for (const [spaceId, count] of Object.entries(data)) {
           // Counts cross the runMethod/JSON boundary as strings (MariaDB COUNT). Coerce to
           // Number here so summing them (e.g. per community) adds instead of concatenating.
           unreadCounts[spaceId] = Number(count) || 0
         }
-        return counts
-      }),
+        return data
+      })
+      // A failed refresh leaves the last known counts in place rather than blanking the
+      // rail; the next socket signal or page load refetches.
+      .catch(() => unreadCounts),
   )
 }
 
@@ -100,10 +106,13 @@ export function fetchParticipatingUnreadCount(team: string) {
   return queued(participatingCountApi, () =>
     participatingCountApi.runMethod
       .submit({ method: 'get_participating_unread_count', params: { team } })
-      .then((count: number) => {
+      .then((count: number | null) => {
+        // Offline, or a request the service worker could not serve: keep the last count.
+        if (count == null) return participatingUnreadCounts[team] ?? 0
         participatingUnreadCounts[team] = Number(count) || 0
         return participatingUnreadCounts[team]
-      }),
+      })
+      .catch(() => participatingUnreadCounts[team] ?? 0),
   )
 }
 
