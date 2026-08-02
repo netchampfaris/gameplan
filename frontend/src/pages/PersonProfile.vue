@@ -17,17 +17,12 @@
       </Breadcrumbs>
     </PageHeader>
 
-    <div class="mx-auto w-full max-w-[860px] px-3 py-4 sm:px-5 sm:py-6">
+    <div
+      class="mx-auto w-full px-3 py-4 sm:px-5 sm:py-6"
+      :class="isPrototypeNarrow ? 'max-w-[380px]' : 'max-w-[860px]'"
+    >
       <div class="mb-4 flex items-center justify-between gap-3">
-        <TabButtons
-          :buttons="[
-            { label: 'Profile' },
-            { label: 'About' },
-            { label: 'Posts' },
-            { label: 'Replies' },
-          ]"
-          v-model="activeTab"
-        />
+        <TabButtons :buttons="tabs" v-model="activeTab" />
         <Button
           v-if="isOwnProfile && activeTab === 'Profile' && hasProfilePage"
           class="shrink-0"
@@ -100,6 +95,17 @@ const profileBreadcrumbs = computed(() => [
   },
 ])
 
+// PROTOTYPE (temporary): `?variant=` merges About into Profile, so the About tab
+// disappears while a variant is active. Remove with pages/ProfilePrototype/.
+const isPrototypeActive = computed(() => import.meta.env.DEV && Boolean(route.query.variant))
+const isPrototypeNarrow = computed(() => isPrototypeActive.value && route.query.w === 'mobile')
+const tabs = computed(() => {
+  let labels = isPrototypeActive.value
+    ? ['Profile', 'Posts', 'Replies']
+    : ['Profile', 'About', 'Posts', 'Replies']
+  return labels.map((label) => ({ label }))
+})
+
 const activeTab = computed({
   get() {
     return (
@@ -119,7 +125,8 @@ const activeTab = computed({
       Replies: { name: 'PersonProfileReplies' },
     }[value]
     if (profileRoute) {
-      router.push(profileRoute)
+      // Keep `?variant=` (and its toggles) across tab switches while prototyping.
+      router.push({ ...profileRoute, query: route.query })
     }
   },
 })

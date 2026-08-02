@@ -1,5 +1,17 @@
 <template>
-  <div class="pb-16">
+  <!-- PROTOTYPE (temporary): `?variant=A|B|C` swaps in the merged Profile + About
+       layouts from pages/ProfilePrototype/. Remove once a variant is chosen. -->
+  <template v-if="prototypeVariant">
+    <component
+      :is="prototypeVariant"
+      :profile="profile"
+      :is-own-profile="isOwnProfile"
+      :show-custom-cards="$route.query.cards === 'custom'"
+    />
+    <PrototypeSwitcher />
+  </template>
+
+  <div v-else class="pb-16">
     <div v-if="!bentoCardsLoaded" class="grid grid-cols-4 gap-3">
       <Skeleton class="col-span-4 aspect-[4/1] rounded-xl" />
       <Skeleton class="col-span-1 aspect-square rounded-xl" />
@@ -35,19 +47,37 @@
 </template>
 
 <script setup lang="ts">
+import { computed, defineAsyncComponent } from 'vue'
+import { useRoute } from 'vue-router'
 import { Button, Skeleton } from 'frappe-ui'
 import EmptyStateBox from '@/components/EmptyStateBox.vue'
 import ProfileBentoGrid from '@/components/ProfileBento/ProfileBentoGrid.vue'
+import PrototypeSwitcher from './ProfilePrototype/PrototypeSwitcher.vue'
 import type { ProfileBentoCard } from '@/components/ProfileBento/types'
+import type { GPUserProfile } from '@/types/doctypes'
 
 defineOptions({
   name: 'PersonProfileProfile',
 })
 
 defineProps<{
+  profile: { doc?: GPUserProfile | null }
   bentoCards: ProfileBentoCard[]
   bentoCardsLoaded: boolean
   hasProfilePage: boolean
   isOwnProfile: boolean
 }>()
+
+const route = useRoute()
+
+const prototypeVariants = {
+  A: defineAsyncComponent(() => import('./ProfilePrototype/VariantAllCards.vue')),
+  B: defineAsyncComponent(() => import('./ProfilePrototype/VariantFixedHeader.vue')),
+  C: defineAsyncComponent(() => import('./ProfilePrototype/VariantCardsAbout.vue')),
+}
+
+const prototypeVariant = computed(() => {
+  if (!import.meta.env.DEV) return null
+  return prototypeVariants[route.query.variant as keyof typeof prototypeVariants] || null
+})
 </script>
