@@ -2,7 +2,7 @@
 
 Plan for growing the single common room into a full hangout world, grounded in the
 LimeZu Modern Interiors spritesheets we actually have in
-`gameplan/public/limezu-modern-interiors/`.
+`arcade/pack/`.
 
 ## Goals
 

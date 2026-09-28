@@ -220,7 +220,7 @@ Scheduled gatherings and special occasions that bring the community together for
 - Real-time: WebSocket (existing Gameplan infrastructure)
 - Backend: Minimal API endpoints for user state and chat persistence
 - Assets: LimeZu Modern Interiors pack (48x48 pixel sprites)
-- Asset Path: ./gameplan/public/limezu-modern-interiors
+- Asset Path: `arcade/pack/` locally, a CDN in production (see `arcade/README.md`)
 
 **Development Prerequisites:**
 - HTML5 Canvas API and 2D rendering
