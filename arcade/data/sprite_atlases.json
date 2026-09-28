@@ -2,7 +2,7 @@
   "atlases": [
     {
       "name": "character_01",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_01.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_01.png",
       "frames": {
         "avatar_01_idle_right": {
           "frame": {
@@ -1292,7 +1292,7 @@
     },
     {
       "name": "character_02",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_02.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_02.png",
       "frames": {
         "avatar_02_idle_right": {
           "frame": {
@@ -2582,7 +2582,7 @@
     },
     {
       "name": "character_03",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_03.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_03.png",
       "frames": {
         "avatar_03_idle_right": {
           "frame": {
@@ -3872,7 +3872,7 @@
     },
     {
       "name": "character_04",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_04.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_04.png",
       "frames": {
         "avatar_04_idle_right": {
           "frame": {
@@ -5162,7 +5162,7 @@
     },
     {
       "name": "character_05",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_05.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_05.png",
       "frames": {
         "avatar_05_idle_right": {
           "frame": {
@@ -6452,7 +6452,7 @@
     },
     {
       "name": "character_06",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_06.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_06.png",
       "frames": {
         "avatar_06_idle_right": {
           "frame": {
@@ -7742,7 +7742,7 @@
     },
     {
       "name": "character_07",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_07.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_07.png",
       "frames": {
         "avatar_07_idle_right": {
           "frame": {
@@ -9032,7 +9032,7 @@
     },
     {
       "name": "character_08",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_08.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_08.png",
       "frames": {
         "avatar_08_idle_right": {
           "frame": {
@@ -10322,7 +10322,7 @@
     },
     {
       "name": "character_09",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_09.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_09.png",
       "frames": {
         "avatar_09_idle_right": {
           "frame": {
@@ -11612,7 +11612,7 @@
     },
     {
       "name": "character_10",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_10.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_10.png",
       "frames": {
         "avatar_10_idle_right": {
           "frame": {
@@ -12902,7 +12902,7 @@
     },
     {
       "name": "character_11",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_11.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_11.png",
       "frames": {
         "avatar_11_idle_right": {
           "frame": {
@@ -14192,7 +14192,7 @@
     },
     {
       "name": "character_12",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_12.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_12.png",
       "frames": {
         "avatar_12_idle_right": {
           "frame": {
@@ -15482,7 +15482,7 @@
     },
     {
       "name": "character_13",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_13.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_13.png",
       "frames": {
         "avatar_13_idle_right": {
           "frame": {
@@ -16772,7 +16772,7 @@
     },
     {
       "name": "character_14",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_14.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_14.png",
       "frames": {
         "avatar_14_idle_right": {
           "frame": {
@@ -18062,7 +18062,7 @@
     },
     {
       "name": "character_15",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_15.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_15.png",
       "frames": {
         "avatar_15_idle_right": {
           "frame": {
@@ -19352,7 +19352,7 @@
     },
     {
       "name": "character_16",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_16.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_16.png",
       "frames": {
         "avatar_16_idle_right": {
           "frame": {
@@ -20642,7 +20642,7 @@
     },
     {
       "name": "character_17",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_17.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_17.png",
       "frames": {
         "avatar_17_idle_right": {
           "frame": {
@@ -21932,7 +21932,7 @@
     },
     {
       "name": "character_18",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_18.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_18.png",
       "frames": {
         "avatar_18_idle_right": {
           "frame": {
@@ -23222,7 +23222,7 @@
     },
     {
       "name": "character_19",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_19.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_19.png",
       "frames": {
         "avatar_19_idle_right": {
           "frame": {
@@ -24512,7 +24512,7 @@
     },
     {
       "name": "character_20",
-      "image": "/assets/gameplan/limezu-modern-interiors/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_20.png",
+      "image": "2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_20.png",
       "frames": {
         "avatar_20_idle_right": {
           "frame": {

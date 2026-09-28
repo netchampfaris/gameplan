@@ -16,6 +16,11 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
     pixelArt: true,
     roundPixels: true,
     scene: [CommonRoomScene],
+    // Sheets come from the CDN in production; WebGL only uploads cross-origin
+    // images that were fetched with CORS.
+    loader: {
+      crossOrigin: 'anonymous',
+    },
     scale: {
       mode: Phaser.Scale.RESIZE,
     },

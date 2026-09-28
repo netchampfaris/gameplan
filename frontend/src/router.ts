@@ -393,11 +393,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@arcade/Arcade.vue'),
   },
   {
-    name: 'AssetEditor',
-    path: '/arcade/assets',
-    component: () => import('@arcade/asset-editor/AssetEditor.vue'),
-  },
-  {
     path: '/notifications',
     name: 'Notifications',
     component: () => import('@/pages/Notifications.vue'),
@@ -726,6 +721,15 @@ const routes: RouteRecordRaw[] = [
     redirect: { name: 'NotFound' },
   },
 ]
+
+// The Arcade asset editor is an authoring tool backed by the Vite dev server.
+if (import.meta.env.DEV) {
+  routes.push({
+    name: 'AssetEditor',
+    path: '/arcade/assets',
+    component: () => import('@arcade/asset-editor/AssetEditor.vue'),
+  })
+}
 
 const router = createRouter({
   history: createWebHistory(__FRONTEND_ROUTE__ + '/'),

@@ -1,9 +1,17 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
-import { createResource } from 'frappe-ui'
 import { AssetManager } from '@arcade'
+import { PACK_BASE_URL } from '../config/assets'
 import { ANIMATION_FRAME_MS, TILE_SIZE } from './constants'
 import { availableAssets, getAssetSpritePath } from './assets'
 import type { AnimationGroup, AtlasFramePreview, SelectedArea, SourceRect, TileSelection } from './types'
+
+// Served by the Arcade Vite plugin (arcade/vite/arcadePlugin.ts); dev only.
+const SPRITE_ATLASES_ENDPOINT = '/arcade-api/sprite-atlases'
+
+/** Atlases record their sheet by pack path, so the data file does not depend on where the pack is served. */
+function packRelativePath(url: string): string {
+  return url.slice(PACK_BASE_URL.length + 1)
+}
 
 export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
   const selectedAsset = ref<string>('')
@@ -28,16 +36,6 @@ export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
   const explorerStartCol = ref(0)
   const explorerEndCol = ref(24)
   let animationTimer: ReturnType<typeof setInterval> | null = null
-
-  const loadAtlasesResource = createResource({
-    url: 'gameplan.api.load_sprite_atlases',
-    auto: false,
-  })
-
-  const saveAtlasesResource = createResource({
-    url: 'gameplan.api.save_sprite_atlases',
-    auto: false,
-  })
 
   const currentImage = computed(() => loadedImage.value)
   const selectedAssetPath = computed(() => getAssetSpritePath(selectedAsset.value))
@@ -640,7 +638,7 @@ export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
     if (!atlas) {
       atlas = {
         name: selectedAsset.value,
-        image: selectedAssetPath.value,
+        image: packRelativePath(selectedAssetPath.value),
         frames: {},
         meta: {
           image: getAssetFileName(selectedAssetPath.value),
@@ -650,7 +648,7 @@ export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
       atlasData.value.set(selectedAsset.value, atlas)
     }
 
-    atlas.image = selectedAssetPath.value
+    atlas.image = packRelativePath(selectedAssetPath.value)
     atlas.meta = {
       image: getAssetFileName(selectedAssetPath.value),
       scale: '1',
@@ -686,7 +684,12 @@ export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
   async function syncAtlasesToFile() {
     const atlases = Array.from(atlasData.value.values())
     try {
-      await saveAtlasesResource.submit({ atlases })
+      const response = await fetch(SPRITE_ATLASES_ENDPOINT, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ atlases }),
+      })
+      if (!response.ok) throw new Error(await response.text())
     } catch (error) {
       console.error('Failed to sync atlases to file:', error)
     }
@@ -694,7 +697,9 @@ export function useAssetEditor(canvasRef: Ref<HTMLCanvasElement | null>) {
 
   async function loadAtlasesFromFile() {
     try {
-      const result = await loadAtlasesResource.submit()
+      const response = await fetch(SPRITE_ATLASES_ENDPOINT)
+      if (!response.ok) throw new Error(await response.text())
+      const result = await response.json()
       if (result && result.atlases) {
         atlasData.value.clear()
         result.atlases.forEach((atlas: any) => {

@@ -6,7 +6,7 @@ import { buildWorldMap } from '../maps/world.layout.ts'
 const currentDirectory = dirname(fileURLToPath(import.meta.url))
 const outputPath = resolve(
   currentDirectory,
-  '../../gameplan/public/limezu-modern-interiors/maps/world.json',
+  '../data/maps/world.json',
 )
 
 const map = buildWorldMap()

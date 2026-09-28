@@ -1,6 +1,19 @@
+import commonRoomMapUrl from '../data/maps/common_room.json?url'
+import worldMapUrl from '../data/maps/world.json?url'
+import spriteAtlasesUrl from '../data/sprite_atlases.json?url'
+import { PackFiles } from './packFiles'
+
 export const TILE_SIZE = 48
 
-export const GAME_ASSET_BASE_PATH = '/assets/gameplan/limezu-modern-interiors'
+/**
+ * Where LimeZu sheets are served from: the local pack through the Arcade dev
+ * middleware, or the CDN set by `VITE_ARCADE_ASSET_URL` in production builds.
+ */
+export const PACK_BASE_URL = import.meta.env.DEV ? '/arcade-assets' : import.meta.env.VITE_ARCADE_ASSET_URL
+
+export function packAssetUrl(file: string): string {
+  return `${PACK_BASE_URL}/${file}`
+}
 
 export const GameAssetKeys = {
   spriteAtlases: 'sprite-atlases',
@@ -22,23 +35,24 @@ export const GameAssetKeys = {
   },
 } as const
 
+// Our own data files ship with the app bundle; only LimeZu sheets come from the pack.
 export const GameAssetPaths = {
-  spriteAtlases: `${GAME_ASSET_BASE_PATH}/sprite_atlases.json`,
+  spriteAtlases: spriteAtlasesUrl,
   maps: {
-    commonRoom: `${GAME_ASSET_BASE_PATH}/maps/common_room.json`,
-    world: `${GAME_ASSET_BASE_PATH}/maps/world.json`,
+    commonRoom: commonRoomMapUrl,
+    world: worldMapUrl,
   },
   tilesets: {
-    roomBuilder: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Room_Builder_48x48.png`,
-    livingRoom: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png`,
-    generic: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png`,
-    kitchen: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/12_Kitchen_48x48.png`,
-    conferenceHall: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/13_Conference_Hall_48x48.png`,
-    classroomLibrary: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png`,
-    basement: `${GAME_ASSET_BASE_PATH}/1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png`,
+    roomBuilder: packAssetUrl(PackFiles.tilesets.roomBuilder),
+    livingRoom: packAssetUrl(PackFiles.tilesets.livingRoom),
+    generic: packAssetUrl(PackFiles.tilesets.generic),
+    kitchen: packAssetUrl(PackFiles.tilesets.kitchen),
+    conferenceHall: packAssetUrl(PackFiles.tilesets.conferenceHall),
+    classroomLibrary: packAssetUrl(PackFiles.tilesets.classroomLibrary),
+    basement: packAssetUrl(PackFiles.tilesets.basement),
   },
   characters: {
-    player: `${GAME_ASSET_BASE_PATH}/2_Characters/Character_Generator/0_Premade_Characters/48x48/Premade_Character_48x48_01.png`,
+    player: packAssetUrl(PackFiles.characters.player),
   },
 } as const
 

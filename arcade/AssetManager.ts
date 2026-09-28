@@ -1,19 +1,19 @@
+import { packAssetUrl } from './config/assets'
+
 interface SpriteSheet {
   image: HTMLImageElement
   loaded: boolean
 }
 
 export class AssetManager {
-  private static readonly BASE_ASSET_PATH = '/assets/gameplan/limezu-modern-interiors'
-  private static readonly CHARACTER_PATH =
-    '/2_Characters/Character_Generator/0_Premade_Characters/48x48'
-  private static readonly INTERIORS_PATH = '/1_Interiors/48x48'
+  private static readonly CHARACTER_PATH = '2_Characters/Character_Generator/0_Premade_Characters/48x48'
+  private static readonly INTERIORS_PATH = '1_Interiors/48x48'
 
   private static spriteSheets: Map<string, SpriteSheet> = new Map()
 
   static getCharacterSpritePath(characterNumber: number): string {
     const paddedNumber = characterNumber.toString().padStart(2, '0')
-    return `${this.BASE_ASSET_PATH}${this.CHARACTER_PATH}/Premade_Character_48x48_${paddedNumber}.png`
+    return packAssetUrl(`${this.CHARACTER_PATH}/Premade_Character_48x48_${paddedNumber}.png`)
   }
 
   static getRandomCharacterSpritePath(): string {
@@ -27,15 +27,15 @@ export class AssetManager {
   }
 
   static getRoomBuilderSpritePath(): string {
-    return `${this.BASE_ASSET_PATH}${this.INTERIORS_PATH}/Room_Builder_48x48.png`
+    return packAssetUrl(`${this.INTERIORS_PATH}/Room_Builder_48x48.png`)
   }
 
   static getLivingRoomSpritePath(): string {
-    return `${this.BASE_ASSET_PATH}${this.INTERIORS_PATH}/Theme_Sorter_48x48/2_LivingRoom_48x48.png`
+    return packAssetUrl(`${this.INTERIORS_PATH}/Theme_Sorter_48x48/2_LivingRoom_48x48.png`)
   }
 
   static getGenericSpritePath(): string {
-    return `${this.BASE_ASSET_PATH}${this.INTERIORS_PATH}/Theme_Sorter_48x48/1_Generic_48x48.png`
+    return packAssetUrl(`${this.INTERIORS_PATH}/Theme_Sorter_48x48/1_Generic_48x48.png`)
   }
 
   static async loadSpriteSheet(key: string, path: string): Promise<HTMLImageElement> {

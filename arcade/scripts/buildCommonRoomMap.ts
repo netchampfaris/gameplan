@@ -6,7 +6,7 @@ import { buildCommonRoomMap } from '../maps/commonRoom.layout.ts'
 const currentDirectory = dirname(fileURLToPath(import.meta.url))
 const outputPath = resolve(
   currentDirectory,
-  '../../gameplan/public/limezu-modern-interiors/maps/common_room.json',
+  '../data/maps/common_room.json',
 )
 
 const map = buildCommonRoomMap()

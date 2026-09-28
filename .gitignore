@@ -13,3 +13,6 @@ build
 frontend/components.d.ts
 sites/
 .mutation/
+# Licensed LimeZu pack (local copy or symlink) and the CDN upload staging dir
+arcade/pack
+arcade/.publish

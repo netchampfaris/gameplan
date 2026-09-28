@@ -7,6 +7,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import istanbul from 'vite-plugin-istanbul'
 // @ts-expect-error frappe-ui/vite ships untyped JS; drop this once it gains types.
 import frappeui from 'frappe-ui/vite'
+import { arcadePlugin } from '../arcade/vite/arcadePlugin'
 
 // Instrumented only when GAMEPLAN_COVERAGE=1, which `ui-test.yml` sets for its build
 // alone. Instrumentation roughly doubles bundle size and slows every expression, so
@@ -60,6 +61,7 @@ export default defineConfig({
     }),
     vue(),
     vueJsx(),
+    arcadePlugin(),
     visualizer({ emitFile: true }) as PluginOption,
     // `extension` must list .vue explicitly: the plugin's default covers .js/.ts
     // only, which would silently report on the ~600 lines of utils and composables
