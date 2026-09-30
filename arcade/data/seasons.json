@@ -1,0 +1,19 @@
+{
+  "halloween": {
+    "name": "Halloween",
+    "dates": { "from": "10-20", "to": "11-01" },
+    "items": ["glowing-pumpkin", "witch-cauldron"]
+  },
+  "diwali": {
+    "name": "Diwali",
+    "years": {
+      "2026": { "from": "11-05", "to": "11-12" }
+    },
+    "items": ["glowing-candles"]
+  },
+  "christmas": {
+    "name": "Christmas",
+    "dates": { "from": "12-15", "to": "01-01" },
+    "items": ["christmas-tree", "snow-globe"]
+  }
+}
