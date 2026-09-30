@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "creation": "2026-09-30 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "day",
+  "question",
+  "answer"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "description": "The player's local date: the question of that day.",
+   "fieldname": "day",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Day",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "description": "The question as it was asked, from arcade/data/questions.json.",
+   "fieldname": "question",
+   "fieldtype": "Small Text",
+   "label": "Question",
+   "reqd": 1
+  },
+  {
+   "fieldname": "answer",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Answer",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-30 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gameplan",
+ "name": "GP Arcade Answer",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

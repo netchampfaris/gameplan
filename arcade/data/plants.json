@@ -1,0 +1,5 @@
+[
+  { "id": "lavender", "name": "Lavender", "item": "lavender-cutting" },
+  { "id": "blue-daisy", "name": "Blue daisy", "item": "blue-daisy-cutting" },
+  { "id": "cosmos", "name": "Cosmos", "item": "cosmos-cutting" }
+]

@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "autoname": "field:cycle",
+ "creation": "2026-09-30 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cycle",
+  "species",
+  "started_on",
+  "bloomed_on",
+  "waterings"
+ ],
+ "fields": [
+  {
+   "description": "Which growth of the shared plant this is, from 1. A new cycle starts after the plant blooms.",
+   "fieldname": "cycle",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Cycle",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "The species id from arcade/data/plants.json.",
+   "fieldname": "species",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Species",
+   "reqd": 1
+  },
+  {
+   "description": "The local date of the first watering of this cycle.",
+   "fieldname": "started_on",
+   "fieldtype": "Date",
+   "label": "Started On",
+   "reqd": 1
+  },
+  {
+   "description": "The local date it reached full growth and bloomed. Empty while it grows.",
+   "fieldname": "bloomed_on",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Bloomed On"
+  },
+  {
+   "fieldname": "waterings",
+   "fieldtype": "Table",
+   "label": "Waterings",
+   "options": "GP Arcade Plant Watering"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-30 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gameplan",
+ "name": "GP Arcade Plant",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
