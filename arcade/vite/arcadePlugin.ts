@@ -1,5 +1,4 @@
 import { createReadStream, existsSync, statSync } from 'node:fs'
-import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Connect, Plugin } from 'vite'
@@ -8,22 +7,16 @@ const arcadeRoot = fileURLToPath(new URL('..', import.meta.url))
 
 /** Local copy (or symlink) of the licensed LimeZu pack. Gitignored. */
 export const PACK_DIR = path.join(arcadeRoot, 'pack')
-const SPRITE_ATLASES_FILE = path.join(arcadeRoot, 'data/sprite_atlases.json')
 
 const CONTENT_TYPES: Record<string, string> = {
   '.png': 'image/png',
   '.gif': 'image/gif',
-  '.json': 'application/json',
 }
 
 /**
- * Arcade's Vite integration. In builds it warns when no CDN URL is set; in dev
- * it adds two endpoints to the Vite server:
- *
- * - `/arcade-assets/*` serves the LimeZu pack from `arcade/pack/`, standing in
- *   for the production CDN.
- * - `/arcade-api/sprite-atlases` reads and writes `arcade/data/sprite_atlases.json`
- *   for the asset editor, which is an authoring tool and never ships.
+ * Arcade's Vite integration. In builds it warns when no CDN URL is set; in dev it
+ * serves the LimeZu pack from `arcade/pack/` at `/arcade-assets/*`, standing in for
+ * the production CDN.
  */
 export function arcadePlugin(): Plugin {
   return {
@@ -43,7 +36,6 @@ export function arcadePlugin(): Plugin {
         )
       }
       server.middlewares.use('/arcade-assets', servePackFile)
-      server.middlewares.use('/arcade-api/sprite-atlases', spriteAtlasesEndpoint)
     },
   }
 }
@@ -57,37 +49,4 @@ const servePackFile: Connect.NextHandleFunction = (req, res, next) => {
 
   res.setHeader('Content-Type', CONTENT_TYPES[path.extname(filePath)] ?? 'application/octet-stream')
   createReadStream(filePath).pipe(res)
-}
-
-const spriteAtlasesEndpoint: Connect.NextHandleFunction = async (req, res, next) => {
-  try {
-    if (req.method === 'GET') {
-      res.setHeader('Content-Type', 'application/json')
-      res.end(await readFile(SPRITE_ATLASES_FILE, 'utf8'))
-      return
-    }
-
-    if (req.method === 'PUT') {
-      const { atlases } = JSON.parse(await readBody(req))
-      if (!Array.isArray(atlases)) {
-        res.statusCode = 400
-        res.end('atlases must be a list')
-        return
-      }
-      await writeFile(SPRITE_ATLASES_FILE, `${JSON.stringify({ atlases }, null, 2)}\n`)
-      res.statusCode = 204
-      res.end()
-      return
-    }
-
-    next()
-  } catch (error) {
-    next(error)
-  }
-}
-
-async function readBody(req: Connect.IncomingMessage): Promise<string> {
-  const chunks: Buffer[] = []
-  for await (const chunk of req) chunks.push(chunk as Buffer)
-  return Buffer.concat(chunks).toString('utf8')
 }

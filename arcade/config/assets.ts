@@ -1,7 +1,9 @@
-import commonRoomMapUrl from '../data/maps/common_room.json?url'
+import christmasMapUrl from '../data/maps/world.christmas.json?url'
+import diwaliMapUrl from '../data/maps/world.diwali.json?url'
+import halloweenMapUrl from '../data/maps/world.halloween.json?url'
 import worldMapUrl from '../data/maps/world.json?url'
-import spriteAtlasesUrl from '../data/sprite_atlases.json?url'
 import { PackFiles } from './packFiles'
+import type { SeasonId } from './seasons'
 
 export const TILE_SIZE = 48
 
@@ -15,53 +17,25 @@ export function packAssetUrl(file: string): string {
   return `${PACK_BASE_URL}/${file}`
 }
 
+/** Texture key for a Tiled tileset. The scene loads one per tileset a map declares. */
+export function tilesetTextureKey(tilesetName: string): string {
+  return `tileset:${tilesetName}`
+}
+
 export const GameAssetKeys = {
-  spriteAtlases: 'sprite-atlases',
-  maps: {
-    commonRoom: 'map:common-room',
-    world: 'map:world',
-  },
-  tilesets: {
-    roomBuilder: 'tileset:room-builder',
-    livingRoom: 'tileset:living-room',
-    generic: 'tileset:generic',
-    kitchen: 'tileset:kitchen',
-    conferenceHall: 'tileset:conference-hall',
-    classroomLibrary: 'tileset:classroom-library',
-    basement: 'tileset:basement',
-  },
-  characters: {
-    player: 'character:player',
-  },
+  emotes: 'ui:emotes',
 } as const
 
 // Our own data files ship with the app bundle; only LimeZu sheets come from the pack.
 export const GameAssetPaths = {
-  spriteAtlases: spriteAtlasesUrl,
   maps: {
-    commonRoom: commonRoomMapUrl,
     world: worldMapUrl,
+    /** The world with the Common Room decorated for each season (`maps/world/decorations.ts`). */
+    seasons: {
+      halloween: halloweenMapUrl,
+      diwali: diwaliMapUrl,
+      christmas: christmasMapUrl,
+    } satisfies Record<SeasonId, string>,
   },
-  tilesets: {
-    roomBuilder: packAssetUrl(PackFiles.tilesets.roomBuilder),
-    livingRoom: packAssetUrl(PackFiles.tilesets.livingRoom),
-    generic: packAssetUrl(PackFiles.tilesets.generic),
-    kitchen: packAssetUrl(PackFiles.tilesets.kitchen),
-    conferenceHall: packAssetUrl(PackFiles.tilesets.conferenceHall),
-    classroomLibrary: packAssetUrl(PackFiles.tilesets.classroomLibrary),
-    basement: packAssetUrl(PackFiles.tilesets.basement),
-  },
-  characters: {
-    player: packAssetUrl(PackFiles.characters.player),
-  },
-} as const
-
-export const TiledTilesetNames = {
-  roomBuilder: 'room_builder',
-  livingRoom: 'living_room',
-  generic: 'generic',
-  kitchen: 'kitchen',
-  conferenceHall: 'conference_hall',
-  classroomLibrary: 'classroom_library',
-  basement: 'basement',
+  emotes: packAssetUrl(PackFiles.ui.emotes),
 } as const

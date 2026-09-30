@@ -5,11 +5,15 @@
   },
   "include": [
     "./*.ts",
+    "./avatar/**/*.ts",
     "./config/**/*.ts",
     "./input/**/*.ts",
+    "./interactions/**/*.ts",
+    "./net/**/*.ts",
     "./objects/**/*.ts",
     "./scenes/**/*.ts",
+    "./util/**/*.ts",
+    "./world/**/*.ts",
     "./vite-env.d.ts"
-  ],
-  "exclude": ["./asset-editor/**/*"]
+  ]
 }

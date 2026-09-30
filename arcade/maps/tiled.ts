@@ -1,110 +1,49 @@
+import { PackFiles, type TilesetName } from '../config/packFiles.ts'
+
+/**
+ * The Tiled JSON format the scene loads, and the sheet registry every map shares.
+ * Nothing here knows about rooms or furniture; see compose.ts for that.
+ */
+
 export const TILE_SIZE = 48
-
-// Default map size kept for backwards-compatible helpers; the builder passes
-// explicit width/height so future maps are not bound to these constants.
-export const MAP_WIDTH = 20
-export const MAP_HEIGHT = 15
-
-export type TileMatrix = number[][]
-
-export interface Prefab {
-  name: string
-  tiles: TileMatrix
-  solid?: boolean
-  collision?: boolean[][]
-}
-
-export interface Placement {
-  prefab: Prefab
-  x: number
-  y: number
-}
-
-export interface SpawnPoint {
-  name: string
-  x: number
-  y: number
-}
 
 export interface MapDimensions {
   width: number
   height: number
 }
 
-interface TileLayerOptions {
-  id: number
-  name: string
-  data: number[]
-  dimensions: MapDimensions
-  visible?: boolean
-  opacity?: number
-  collision?: boolean
-}
+/** Rows of global tile ids; 0 is an empty cell. */
+export type TileMatrix = number[][]
 
-// Sheet metadata for every tileset the world may use. firstgid/tilecount are
-// computed by accumulation so adding or reordering a sheet shifts gids in one
-// place. Dimensions must match the real spritesheets: Phaser computes tile
-// positions from the actual texture size, so a mismatch silently shifts gids.
+// Dimensions must match the real sheets: Phaser computes tile positions from the
+// actual texture size, so a mismatch silently shifts every gid. Image paths come
+// from PackFiles, so a sheet must be listed there to ship.
 interface SheetDefinition {
-  name: string
-  image: string
+  name: TilesetName
   columns: number
   imagewidth: number
   imageheight: number
 }
 
-// Order is load-bearing: it determines firstgid accumulation. Keep
-// room_builder / living_room / generic first so existing gids stay stable.
+// firstgids accumulate in this order. Maps are regenerated from source, so the
+// order can change freely; nothing stores raw gids.
 const sheetDefinitions: SheetDefinition[] = [
-  {
-    name: 'room_builder',
-    image: '../1_Interiors/48x48/Room_Builder_48x48.png',
-    columns: 76,
-    imagewidth: 3648,
-    imageheight: 5424,
-  },
-  {
-    name: 'living_room',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/2_LivingRoom_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 2160,
-  },
-  {
-    name: 'generic',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/1_Generic_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 3744,
-  },
-  {
-    name: 'kitchen',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/12_Kitchen_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 2352,
-  },
-  {
-    name: 'conference_hall',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/13_Conference_Hall_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 576,
-  },
-  {
-    name: 'classroom_library',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/5_Classroom_and_library_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 1632,
-  },
-  {
-    name: 'basement',
-    image: '../1_Interiors/48x48/Theme_Sorter_48x48/14_Basement_48x48.png',
-    columns: 16,
-    imagewidth: 768,
-    imageheight: 2400,
-  },
+  { name: 'room_builder', columns: 76, imagewidth: 3648, imageheight: 5424 },
+  { name: 'living_room', columns: 16, imagewidth: 768, imageheight: 2160 },
+  { name: 'generic', columns: 16, imagewidth: 768, imageheight: 3744 },
+  { name: 'kitchen', columns: 16, imagewidth: 768, imageheight: 2352 },
+  { name: 'classroom_library', columns: 16, imagewidth: 768, imageheight: 1632 },
+  { name: 'basement', columns: 16, imagewidth: 768, imageheight: 2400 },
+  { name: 'ice_cream', columns: 16, imagewidth: 768, imageheight: 816 },
+  { name: 'bedroom', columns: 16, imagewidth: 768, imageheight: 5136 },
+  { name: 'halloween', columns: 16, imagewidth: 768, imageheight: 2928 },
+  { name: 'christmas', columns: 16, imagewidth: 768, imageheight: 816 },
+  { name: 'grocery', columns: 16, imagewidth: 768, imageheight: 3744 },
+  { name: 'music_sport', columns: 16, imagewidth: 768, imageheight: 2304 },
+  { name: 'gym', columns: 16, imagewidth: 768, imageheight: 1584 },
+  { name: 'art', columns: 16, imagewidth: 768, imageheight: 336 },
+  { name: 'birthday', columns: 12, imagewidth: 576, imageheight: 336 },
+  { name: 'fishing', columns: 16, imagewidth: 768, imageheight: 1296 },
 ]
 
 export interface Tileset {
@@ -114,7 +53,7 @@ export interface Tileset {
   imageheight: number
   imagewidth: number
   margin: number
-  name: string
+  name: TilesetName
   spacing: number
   tilecount: number
   tileheight: number
@@ -124,12 +63,12 @@ export interface Tileset {
 function buildTilesets(definitions: SheetDefinition[]): Tileset[] {
   let firstgid = 1
   return definitions.map((sheet) => {
-    const rows = sheet.imageheight / TILE_SIZE
-    const tilecount = sheet.columns * rows
+    const tilecount = sheet.columns * (sheet.imageheight / TILE_SIZE)
     const tileset: Tileset = {
       columns: sheet.columns,
       firstgid,
-      image: sheet.image,
+      // Pack-relative; the scene resolves it against PACK_BASE_URL.
+      image: PackFiles.tilesets[sheet.name],
       imageheight: sheet.imageheight,
       imagewidth: sheet.imagewidth,
       margin: 0,
@@ -144,196 +83,164 @@ function buildTilesets(definitions: SheetDefinition[]): Tileset[] {
   })
 }
 
-export const tilesets = buildTilesets(sheetDefinitions)
-
+const tilesets = buildTilesets(sheetDefinitions)
 const tilesetsByName = new Map(tilesets.map((tileset) => [tileset.name, tileset]))
 
-export type SheetName = (typeof sheetDefinitions)[number]['name']
-
-export function getTileset(name: SheetName): Tileset {
+function getTileset(name: TilesetName): Tileset {
   const tileset = tilesetsByName.get(name)
-  if (!tileset) {
-    throw new Error(`Unknown tileset: ${name}`)
-  }
+  if (!tileset) throw new Error(`Unknown tileset: ${name}`)
   return tileset
 }
 
-// Resolve a sheet-local tile id to a global gid. Referencing sheets by name
-// means firstgids can shift without touching prefab definitions.
-export function gid(sheetName: SheetName, localTileId: number) {
-  return getTileset(sheetName).firstgid + localTileId
+/** Global tile id of a sheet-local tile id (row-major, counted from 0). */
+export function gid(sheet: TilesetName, localId: number): number {
+  return getTileset(sheet).firstgid + localId
 }
 
-export function createFilledLayer(tileGid: number, { width, height }: MapDimensions) {
-  return Array.from({ length: width * height }, () => tileGid)
+/** Where a global tile id is drawn from: its sheet and the tile's top-left pixel there. */
+export function tileSource(tile: number): { sheet: TilesetName; x: number; y: number } | null {
+  const tileset = tilesets.find((candidate) => tile >= candidate.firstgid && tile < candidate.firstgid + candidate.tilecount)
+  if (!tileset) return null
+  const local = tile - tileset.firstgid
+  return { sheet: tileset.name, x: (local % tileset.columns) * TILE_SIZE, y: Math.floor(local / tileset.columns) * TILE_SIZE }
 }
 
-export function createEmptyLayer({ width, height }: MapDimensions) {
-  return Array.from({ length: width * height }, () => 0)
+/** The tiles of a rectangle on a sheet, given its top-left local id. */
+export function sheetBlock(sheet: TilesetName, topLeft: number, width: number, height: number): TileMatrix {
+  const { columns } = getTileset(sheet)
+  return Array.from({ length: height }, (_, row) =>
+    Array.from({ length: width }, (_, column) => gid(sheet, topLeft + row * columns + column)),
+  )
 }
 
-export function applyPlacements(
-  layer: number[],
-  placements: Placement[],
-  dimensions: MapDimensions,
-) {
-  for (const placement of placements) {
-    placePrefab(layer, placement, dimensions)
-  }
+// ---- Layers ----------------------------------------------------------------
+
+export interface TiledProperty {
+  name: string
+  type: 'string' | 'int' | 'bool'
+  value: string | number | boolean
 }
 
-export function createCollisionLayer(placements: Placement[], dimensions: MapDimensions) {
-  const layer = createEmptyLayer(dimensions)
-
-  for (const placement of placements) {
-    const { prefab } = placement
-    if (!prefab.solid && !prefab.collision) continue
-
-    prefab.tiles.forEach((row, rowIndex) => {
-      row.forEach((tileGid, columnIndex) => {
-        const hasTile = tileGid !== 0
-        const hasCollision = prefab.collision
-          ? Boolean(prefab.collision[rowIndex]?.[columnIndex])
-          : prefab.solid && hasTile
-
-        if (!hasCollision) return
-        setTile(layer, placement.x + columnIndex, placement.y + rowIndex, 1, dimensions)
-      })
-    })
-  }
-
-  return layer
+export interface TiledTileLayer {
+  type: 'tilelayer'
+  id: number
+  name: string
+  data: number[]
+  width: number
+  height: number
+  opacity: number
+  visible: boolean
+  x: 0
+  y: 0
+  properties?: TiledProperty[]
 }
 
-// Mark a single tile as solid in a collision layer (used by the wall painter).
-export function setCollisionTile(layer: number[], x: number, y: number, dimensions: MapDimensions) {
-  setTile(layer, x, y, 1, dimensions)
+export interface TiledObject {
+  id: number
+  name: string
+  type: string
+  x: number
+  y: number
+  width: number
+  height: number
+  visible: true
+  point?: true
+  properties?: TiledProperty[]
 }
 
-export function createTileLayer({
-  id,
-  name,
-  data,
-  dimensions,
-  visible = true,
-  opacity = 1,
-  collision = false,
-}: TileLayerOptions) {
+export interface TiledObjectLayer {
+  type: 'objectgroup'
+  id: number
+  name: string
+  draworder: 'topdown'
+  objects: TiledObject[]
+  opacity: number
+  visible: boolean
+  x: 0
+  y: 0
+}
+
+export type TiledLayer = TiledTileLayer | TiledObjectLayer
+
+export interface TiledMap {
+  type: 'map'
+  version: '1.10'
+  tiledversion: '1.11.2'
+  orientation: 'orthogonal'
+  renderorder: 'right-down'
+  infinite: false
+  compressionlevel: -1
+  width: number
+  height: number
+  tilewidth: number
+  tileheight: number
+  nextlayerid: number
+  nextobjectid: number
+  layers: TiledLayer[]
+  tilesets: Tileset[]
+}
+
+export function createEmptyLayer({ width, height }: MapDimensions): number[] {
+  return new Array<number>(width * height).fill(0)
+}
+
+export function createTileLayer(options: {
+  id: number
+  name: string
+  data: number[]
+  dimensions: MapDimensions
+  visible?: boolean
+  collision?: boolean
+}): TiledTileLayer {
+  const { id, name, data, dimensions, visible = true, collision = false } = options
   return {
-    data,
-    height: dimensions.height,
+    type: 'tilelayer',
     id,
     name,
-    opacity,
-    ...(collision
-      ? {
-          properties: [
-            {
-              name: 'collision',
-              type: 'bool',
-              value: true,
-            },
-          ],
-        }
-      : {}),
-    type: 'tilelayer',
-    visible,
+    data,
     width: dimensions.width,
-    x: 0,
-    y: 0,
-  }
-}
-
-export function createSpawnLayer(id: number, spawnPoints: SpawnPoint[], visible = false) {
-  return {
-    draworder: 'topdown',
-    id,
-    name: 'Spawn Points',
-    objects: spawnPoints.map((spawnPoint, index) => ({
-      height: 16,
-      id: index + 1,
-      name: spawnPoint.name,
-      point: true,
-      type: 'spawn',
-      visible: true,
-      width: 16,
-      x: spawnPoint.x * TILE_SIZE,
-      y: spawnPoint.y * TILE_SIZE,
-    })),
+    height: dimensions.height,
     opacity: 1,
-    type: 'objectgroup',
     visible,
     x: 0,
     y: 0,
+    ...(collision ? { properties: [{ name: 'collision', type: 'bool', value: true }] } : {}),
   }
 }
 
-export function createObjectPaletteLayer(id: number, prefabs: Prefab[]) {
-  return {
-    draworder: 'topdown',
-    id,
-    name: 'Object Palette',
-    objects: prefabs.map((prefab, index) => ({
-      height: prefab.tiles.length * TILE_SIZE,
-      id: index + 1,
-      name: prefab.name,
-      properties: [
-        { name: 'size', value: `${prefab.tiles[0]?.length ?? 0}x${prefab.tiles.length}` },
-        { name: 'solid', type: 'bool', value: Boolean(prefab.solid) },
-      ],
-      type: 'palette',
-      visible: true,
-      width: (prefab.tiles[0]?.length ?? 0) * TILE_SIZE,
-      x: (index % 5) * TILE_SIZE * 3,
-      y: Math.floor(index / 5) * TILE_SIZE * 4,
-    })),
-    opacity: 1,
-    type: 'objectgroup',
-    visible: false,
-    x: 0,
-    y: 0,
-  }
+export function createObjectLayer(id: number, name: string, objects: TiledObject[]): TiledObjectLayer {
+  return { type: 'objectgroup', id, name, draworder: 'topdown', objects, opacity: 1, visible: false, x: 0, y: 0 }
 }
 
-export function createTiledMap(layers: object[], nextObjectId: number, dimensions: MapDimensions) {
+export function createTiledMap(
+  layers: TiledLayer[],
+  nextObjectId: number,
+  { width, height }: MapDimensions,
+): TiledMap {
+  // Declare only the sheets the map uses: the scene downloads every declared sheet.
+  // Unused sheets drop out without renumbering, since gid ranges may have gaps.
+  const used = new Set<number>()
+  for (const layer of layers) {
+    if (layer.type === 'tilelayer') for (const tile of layer.data) if (tile) used.add(tile)
+  }
+  const usedTilesets = tilesets.filter((tileset) =>
+    [...used].some((tile) => tile >= tileset.firstgid && tile < tileset.firstgid + tileset.tilecount),
+  )
   return {
-    compressionlevel: -1,
-    height: dimensions.height,
-    infinite: false,
-    layers,
-    nextlayerid: layers.length + 1,
-    nextobjectid: nextObjectId,
-    orientation: 'orthogonal',
-    renderorder: 'right-down',
-    tiledversion: '1.11.2',
-    tileheight: TILE_SIZE,
-    tilesets,
-    tilewidth: TILE_SIZE,
     type: 'map',
     version: '1.10',
-    width: dimensions.width,
+    tiledversion: '1.11.2',
+    orientation: 'orthogonal',
+    renderorder: 'right-down',
+    infinite: false,
+    compressionlevel: -1,
+    width,
+    height,
+    tilewidth: TILE_SIZE,
+    tileheight: TILE_SIZE,
+    nextlayerid: layers.length + 1,
+    nextobjectid: nextObjectId,
+    layers,
+    tilesets: usedTilesets,
   }
-}
-
-function placePrefab(layer: number[], placement: Placement, dimensions: MapDimensions) {
-  placement.prefab.tiles.forEach((row, rowIndex) => {
-    row.forEach((tileGid, columnIndex) => {
-      if (tileGid === 0) return
-      setTile(layer, placement.x + columnIndex, placement.y + rowIndex, tileGid, dimensions)
-    })
-  })
-}
-
-function setTile(
-  layer: number[],
-  x: number,
-  y: number,
-  tileGid: number,
-  { width, height }: MapDimensions,
-) {
-  if (x < 0 || x >= width || y < 0 || y >= height) {
-    throw new Error(`Tile placement is outside the map: ${x},${y}`)
-  }
-
-  layer[y * width + x] = tileGid
 }

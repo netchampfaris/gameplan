@@ -1,0 +1,11 @@
+# Ice_Cream_Shop_Design_layer_1_48x48.png (unmatched: 3)
+  0 | room_builder:6969 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:7047 room_builder:6974
+  1 | room_builder:7045 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:1775 room_builder:7050
+  2 | room_builder:7121 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847 room_builder:1847                 ?
+  3 | room_builder:7046 room_builder:3002 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:3003 room_builder:7049
+  4 | room_builder:7046 room_builder:3078 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:7049
+  5 | room_builder:7046 room_builder:3078 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:7049
+  6 | room_builder:7046 room_builder:3078 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:7049
+  7 | room_builder:7046 room_builder:3078 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:7049
+  8 | room_builder:7046 room_builder:3078 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:3079 room_builder:7049
+  9 | room_builder:4530 room_builder:4531 room_builder:4531 room_builder:4531                 ? room_builder:3079 room_builder:3079                 ? room_builder:4531 room_builder:4531 room_builder:4531 room_builder:4533

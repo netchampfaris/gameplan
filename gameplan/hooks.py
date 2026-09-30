@@ -149,6 +149,8 @@ has_permission = {
 	"GP Project Visit": "gameplan.per_user_state.project_visit_has_permission",
 	"GP Discussion Visit": "gameplan.per_user_state.discussion_visit_has_permission",
 	"GP Pinned Project": "gameplan.per_user_state.pinned_project_has_permission",
+	"GP Arcade Profile": "gameplan.gameplan.doctype.gp_arcade_profile.gp_arcade_profile.has_permission",
+	"GP Arcade Note": "gameplan.gameplan.doctype.gp_arcade_note.gp_arcade_note.has_permission",
 }
 
 # DocType Class

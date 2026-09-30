@@ -6,8 +6,9 @@
         "dev": "cd frontend && yarn dev",
         "dev:frappe-ui": "cd frontend && yarn dev:frappe-ui",
         "build": "cd frontend && yarn build",
-        "build:arcade-map": "node arcade/scripts/buildCommonRoomMap.ts && node arcade/scripts/buildWorldMap.ts",
+        "build:arcade-map": "node arcade/scripts/buildWorldMap.ts",
         "arcade:publish-assets": "node arcade/scripts/publishAssets.ts",
+        "arcade:bot": "node arcade/scripts/bot.ts",
         "upgrade-frappeui": "cd frontend && yarn add frappe-ui@beta"
     }
 }

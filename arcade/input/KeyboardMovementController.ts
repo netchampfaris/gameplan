@@ -1,59 +1,46 @@
 import Phaser from 'phaser'
+import type { Facing } from '../world/interactables'
 
-export type MovementDirection = 'down' | 'left' | 'right' | 'up'
-
-export interface MovementInputState {
-  velocity: Phaser.Math.Vector2
-  direction: MovementDirection
+export interface MovementInput {
+  /** Unit vector, or zero when no direction key is down. Diagonals are normalised. */
+  direction: Phaser.Math.Vector2
+  /** The way to face: the direction of travel, or the last one while standing still. */
+  facing: Facing
   isMoving: boolean
-  isSitting: boolean
+  /** Shift is held. */
+  isRunning: boolean
 }
 
+/** WASD or the arrow keys to walk, Shift to run. */
 export class KeyboardMovementController {
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys
-  private keys: Record<'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>
-  private sitKey: Phaser.Input.Keyboard.Key
-  private lastDirection: MovementDirection = 'down'
+  private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys
+  private readonly keys: Record<'w' | 'a' | 's' | 'd', Phaser.Input.Keyboard.Key>
+  private facing: Facing = 'down'
 
   constructor(keyboard: Phaser.Input.Keyboard.KeyboardPlugin) {
     this.cursors = keyboard.createCursorKeys()
-    this.keys = {
-      w: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      a: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-    }
-    this.sitKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    const { W, A, S, D } = Phaser.Input.Keyboard.KeyCodes
+    this.keys = { w: keyboard.addKey(W), a: keyboard.addKey(A), s: keyboard.addKey(S), d: keyboard.addKey(D) }
   }
 
-  read(): MovementInputState {
-    const velocity = new Phaser.Math.Vector2(0, 0)
+  read(): MovementInput {
+    const direction = new Phaser.Math.Vector2(0, 0)
+    if (this.cursors.left.isDown || this.keys.a.isDown) direction.x -= 1
+    if (this.cursors.right.isDown || this.keys.d.isDown) direction.x += 1
+    if (this.cursors.up.isDown || this.keys.w.isDown) direction.y -= 1
+    if (this.cursors.down.isDown || this.keys.s.isDown) direction.y += 1
 
-    if (this.cursors.left.isDown || this.keys.a.isDown) velocity.x -= 1
-    if (this.cursors.right.isDown || this.keys.d.isDown) velocity.x += 1
-    if (this.cursors.up.isDown || this.keys.w.isDown) velocity.y -= 1
-    if (this.cursors.down.isDown || this.keys.s.isDown) velocity.y += 1
-
-    const isMoving = velocity.lengthSq() > 0
-
+    const isMoving = direction.lengthSq() > 0
     if (isMoving) {
-      velocity.normalize()
-      this.lastDirection = this.resolveDirection(velocity)
+      direction.normalize()
+      // On a diagonal, keep the current facing if it is one of the two keys held, so
+      // the Avatar does not flip while walking diagonally.
+      const horizontal: Facing = direction.x > 0 ? 'right' : 'left'
+      const vertical: Facing = direction.y > 0 ? 'down' : 'up'
+      if (direction.x === 0) this.facing = vertical
+      else if (direction.y === 0) this.facing = horizontal
+      else if (this.facing !== horizontal && this.facing !== vertical) this.facing = horizontal
     }
-
-    return {
-      velocity,
-      direction: this.lastDirection,
-      isMoving,
-      isSitting: this.sitKey.isDown,
-    }
-  }
-
-  private resolveDirection(velocity: Phaser.Math.Vector2): MovementDirection {
-    if (Math.abs(velocity.x) > Math.abs(velocity.y)) {
-      return velocity.x > 0 ? 'right' : 'left'
-    }
-
-    return velocity.y > 0 ? 'down' : 'up'
+    return { direction, facing: this.facing, isMoving, isRunning: this.cursors.shift.isDown }
   }
 }

@@ -172,16 +172,6 @@ const shortcuts = computed<RailShortcut[]>(() => [
     isActive: isRoute('Arcade'),
     route: { name: 'Arcade' },
   },
-  ...(import.meta.env.DEV
-    ? [
-        {
-          label: 'Asset Editor',
-          icon: 'lucide-image',
-          isActive: isRoute('AssetEditor'),
-          route: { name: 'AssetEditor' },
-        },
-      ]
-    : []),
 ])
 
 /** "3 drafts", "1 draft", or nothing at all when there is no count worth showing. */

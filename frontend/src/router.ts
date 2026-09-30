@@ -8,6 +8,7 @@ import {
 import { until } from '@vueuse/core'
 import { call } from 'frappe-ui'
 import { session } from './data/session'
+import { useSocket } from './socket'
 import { users, usersReady } from './data/users'
 import { communities, getCommunity } from './data/communities'
 import { spaces, getSpace } from './data/spaces'
@@ -389,8 +390,18 @@ const routes: RouteRecordRaw[] = [
   },
   {
     name: 'Arcade',
-    path: '/arcade',
+    // One record for the Common Room and every Home, so moving between them (which
+    // rewrites the address) never remounts the game.
+    path: '/arcade/:place(home)?/:user?',
     component: () => import('@arcade/Arcade.vue'),
+    // The game fills the screen and brings its own controls.
+    meta: { hideMobileNav: true },
+    // The Arcade lives outside src/, so it is handed what it needs from the app.
+    props: (route) => ({
+      socket: useSocket(),
+      user: session.user,
+      home: route.params.place === 'home' && typeof route.params.user === 'string' ? route.params.user : undefined,
+    }),
   },
   {
     path: '/notifications',
@@ -721,15 +732,6 @@ const routes: RouteRecordRaw[] = [
     redirect: { name: 'NotFound' },
   },
 ]
-
-// The Arcade asset editor is an authoring tool backed by the Vite dev server.
-if (import.meta.env.DEV) {
-  routes.push({
-    name: 'AssetEditor',
-    path: '/arcade/assets',
-    component: () => import('@arcade/asset-editor/AssetEditor.vue'),
-  })
-}
 
 const router = createRouter({
   history: createWebHistory(__FRONTEND_ROUTE__ + '/'),

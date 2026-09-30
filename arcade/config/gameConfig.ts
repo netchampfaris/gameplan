@@ -1,12 +1,11 @@
 import Phaser from 'phaser'
-import { CommonRoomScene } from '../scenes/CommonRoomScene'
 
 export const GAME_VIEWPORT = {
   width: 960,
   height: 720,
 } as const
 
-export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameConfig {
+export function createGameConfig(parent: HTMLElement, scenes: Phaser.Scene[]): Phaser.Types.Core.GameConfig {
   return {
     type: Phaser.AUTO,
     parent,
@@ -15,7 +14,7 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
     backgroundColor: '#111111',
     pixelArt: true,
     roundPixels: true,
-    scene: [CommonRoomScene],
+    scene: scenes,
     // Sheets come from the CDN in production; WebGL only uploads cross-origin
     // images that were fetched with CORS.
     loader: {

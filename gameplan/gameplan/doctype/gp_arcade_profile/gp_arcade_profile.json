@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "autoname": "field:user",
+ "creation": "2026-09-29 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "appearance",
+  "home",
+  "guestbook_read_at",
+  "birthday",
+  "work_anniversary",
+  "work_start_year",
+  "unlocks"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "set_only_once": 1,
+   "unique": 1
+  },
+  {
+   "description": "The Avatar's parts and colours, as the Arcade catalog numbers them.",
+   "fieldname": "appearance",
+   "fieldtype": "JSON",
+   "label": "Appearance"
+  },
+  {
+   "description": "The Home's floor, wallpaper and furniture, as the Arcade catalog names them.",
+   "fieldname": "home",
+   "fieldtype": "JSON",
+   "label": "Home"
+  },
+  {
+   "description": "When the owner last read their Guestbook: notes after this count as new.",
+   "fieldname": "guestbook_read_at",
+   "fieldtype": "Datetime",
+   "label": "Guestbook Read At"
+  },
+  {
+   "description": "Opt-in. Day and month only, as MM-DD. Only the player and System Managers can read it; everyone else sees only the party on the day.",
+   "fieldname": "birthday",
+   "fieldtype": "Data",
+   "label": "Birthday",
+   "length": 5,
+   "permlevel": 1
+  },
+  {
+   "description": "Opt-in. Day and month, as MM-DD. Hidden like the birthday.",
+   "fieldname": "work_anniversary",
+   "fieldtype": "Data",
+   "label": "Work Anniversary",
+   "length": 5,
+   "permlevel": 1
+  },
+  {
+   "description": "Optional: the year the player joined, so the party can count the years. Needs a work anniversary.",
+   "fieldname": "work_start_year",
+   "fieldtype": "Int",
+   "label": "Work Start Year",
+   "permlevel": 1
+  },
+  {
+   "description": "The player's Collection: lockable items they have unlocked. Only grant_item adds rows.",
+   "fieldname": "unlocks",
+   "fieldtype": "Table",
+   "label": "Unlocks",
+   "options": "GP Arcade Unlock",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-30 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gameplan",
+ "name": "GP Arcade Profile",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gameplan Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gameplan Member",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Gameplan Guest"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

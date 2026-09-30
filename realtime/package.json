@@ -1,0 +1,4 @@
+{
+	"//": "Frappe's socket.io server require()s handlers.js, and the app root is an ES module package.",
+	"type": "commonjs"
+}
