@@ -33,6 +33,8 @@ export default defineConfig({
   plugins: [
     frappeui({
       frontendRoute: '/g',
+      // Gameplan uses both ~icons/lucide imports and auto-imported Lucide components.
+      lucideIcons: true,
       frappeTypes: {
         input: {
           gameplan: [
