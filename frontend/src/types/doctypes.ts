@@ -1,18 +1,18 @@
 interface DocType {
-  name: string
-  creation: string
-  modified: string
-  owner: string
-  modified_by: string
-}
+    name: string;
+    creation: string;
+    modified: string;
+    owner: string;
+    modified_by: string;
+  }
 
-interface ChildDocType extends DocType {
-  parent?: string
-  parentfield?: string
-  parenttype?: string
-  idx?: number
-}
-
+  interface ChildDocType extends DocType {
+    parent?: string;
+    parentfield?: string;
+    parenttype?: string;
+    idx?: number;
+  }
+  
 // Last updated: 2023-06-15 21:01:42.058336
 export interface GPTask extends DocType {
   /** Title: Data */
@@ -146,46 +146,46 @@ export interface GPNotification extends DocType {
   team?: string
 }
 
-// Last updated: 2025-10-20 20:19:55.468697
+// Last updated: 2026-09-19 12:00:00.000000
 export interface GPDiscussion extends DocType {
   /** Project: Link (GP Project) */
-  project: string
+  project: string;
   /** Content: Text Editor */
-  content?: string
+  content?: string;
   /** Status: Data */
-  status?: string
+  status?: string;
   /** Title: Data */
-  title: string
+  title: string;
   /** Reactions: Table (GP Reaction) */
-  reactions: GPReaction[]
+  reactions: GPReaction[];
   /** Team: Link (GP Team) */
-  team?: string
+  team?: string;
   /** Last Post At: Datetime */
-  last_post_at?: string
+  last_post_at?: string;
   /** Comments Count: Int */
-  comments_count: number
+  comments_count?: number;
   /** Last Post By: Link (User) */
-  last_post_by?: string
+  last_post_by?: string;
   /** Closed At: Datetime */
-  closed_at?: string
+  closed_at?: string;
   /** Closed By: Link (User) */
-  closed_by?: string
+  closed_by?: string;
   /** Slug: Data */
-  slug?: string
+  slug?: string;
   /** Participants Count: Int */
-  participants_count: number
+  participants_count?: number;
   /** Pinned At: Datetime */
-  pinned_at?: string
+  pinned_at?: string;
   /** Pinned By: Link (User) */
-  pinned_by?: string
+  pinned_by?: string;
   /** Last Post Type: Select */
-  last_post_type: 'GP Comment' | 'GP Poll'
+  last_post_type?: '' | 'GP Comment' | 'GP Poll';
   /** Last Post: Dynamic Link (last_post_type) */
-  last_post?: string
+  last_post?: string;
   /** Tags: Table (GP Tag Link) */
-  tags: GPTagLink[]
+  tags: GPTagLink[];
   /** Pin Scope: Select */
-  pin_scope?: 'Category' | 'Space'
+  pin_scope?: 'Category' | 'Space';
 }
 
 // Last updated: 2026-05-01 22:51:01.454329
